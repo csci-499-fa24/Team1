@@ -1,0 +1,26 @@
+{
+    "development": {
+      "username": "fall24user",
+      "password": "fall24pass",
+      "database": "bar_and_restaurant_tracker",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "test": {
+      "username": "fall24user",
+      "password": "fall24pass",
+      "database": "bar_and_restaurant_tracker_test",
+      "host": "127.0.0.1",
+      "dialect": "postgres"
+    },
+    "production": {
+      "use_env_variable": "DATABASE_URL",
+      "dialect": "postgres",
+      "dialectOptions": {
+        "ssl": {
+          "rejectUnauthorized": false
+        }
+      }
+    }
+  }
+  
