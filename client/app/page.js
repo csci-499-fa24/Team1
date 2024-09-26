@@ -77,7 +77,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <div>Return message from server</div>
+        <div>Return message from servers</div>
         <div>{message}</div>
 
         {/* Adding New Example */}
