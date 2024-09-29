@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             },
         },
         inspection_date: {
-            type: DataTypes.DATEi,
+            type: DataTypes.DATE,
             allowNull: false,
         },
         action: {

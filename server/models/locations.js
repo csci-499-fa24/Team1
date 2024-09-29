@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
-        census_track: {
+        census_tract: {
             type: DataTypes.BIGINT,
             allowNull: true,
         },
