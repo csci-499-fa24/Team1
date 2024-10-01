@@ -1,121 +1,45 @@
-'use client'
+'use client';
 
-import styles from "./page.module.css";
-import React, {useEffect, useState} from 'react'
+import React from 'react';
+import Link from 'next/link'; 
+import styles from './page.module.css';
 
-export default function Home() {
-  
-   const [message, setMessage] = useState("Loading")
-   const [title, setTitle] = useState("");
-   const [description, setDescription] = useState("");
-   const [feedback, setFeedback] = useState("");
-   const [examples, setExamples] = useState([]);
-
-  console.log(process.env.NEXT_PUBLIC_SERVER_URL + "/api/home")
-  useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_SERVER_URL + "/api/home").then(
-      response => response.json()
-    ).then(
-      data => {
-        console.log(data)
-        setMessage(data.message)
-      }
-    )
-  }, [])
-  
-  // Fetch all examples from the server
-  const fetchExamples = async () => {
-    try {
-      const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + "/api/example");
-      if (response.ok) {
-        const data = await response.json();
-        setExamples(data);
-      } else {
-        console.error("Failed to fetch examples");
-      }
-    } catch (error) {
-      console.error("Error fetching examples", error);
-    }
-  };
-
-
-  // Handler to submit the form
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    const data = {
-      title,
-      description
-    };
-
-    try {
-      const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + "/api/example", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setFeedback("Example added successfully!");
-        console.log(title);
-        console.log(description);
-        setTitle("");
-        setDescription("");
-        fetchExamples();
-      } else {
-        setFeedback("Failed to add the example.");
-      }
-    } catch (error) {
-      console.error("Error submitting form", error);
-      setFeedback("An error occurred while submitting the form.");
-    }
-  };
-
+export default function HomePage() {
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <div>Return message from server</div>
-        <div>{message}</div>
+      {/* Navigation Bar */}
+      <nav className={styles.navbar}>
+        <div className={styles.logo}>
+          <img src="/logo.png" alt="Logo" /> 
+        </div>
+        <div className={styles.navButtons}>
+          <Link href="/login">
+            <button className={styles.loginButton}>Log In / Sign Up</button>
+          </Link>
+        </div>
+      </nav>
 
-        {/* Adding New Example */}
-         <h2>Add New Example</h2>
-         <form onSubmit={handleSubmit} className={styles.form}>
-           <div>
-             <label htmlFor="title">Example:</label>
-             <input 
-              id="example"
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="description">Description:</label>
-            <textarea 
-              id="description"
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
-            />
-          </div>
-          <button type="submit">Submit</button>
-        </form>
+      {/* Hero Section */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          
+          <h1>Restaurant and Bar Tracker</h1>
+          <p>Your guide to the best restaurants and bars in NYC.</p>
+          
+          <input type="text" placeholder="Search for restaurants..." className={styles.searchInput} />
+  <button type="submit" className={styles.searchButton}>Search</button>
+        </div>
+      </section>
 
-        <div>{feedback}</div>
-
-        {/* Displaying list of examples */}
-        <h2>Examples List</h2>
+      {/* Other sections like features */}
+      <section className={styles.main}>
+        <h2>Our Features</h2>
         <ul>
-          {examples.map((example) => (
-            <li key={example.id}>
-              <strong>{example.title}</strong>: {example.description}
-            </li>
-          ))}
+          <li><strong>Discover Restaurants:</strong> Use our app to find top-rated restaurants.</li>
+          <li><strong>Health Inspections:</strong> Stay informed with the latest inspection results.</li>
+          <li><strong>Bookmark Favorites:</strong> Save your favorite spots for future visits.</li>
         </ul>
-      </main>
+      </section>
     </div>
   );
 }
