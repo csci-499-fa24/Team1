@@ -3,6 +3,8 @@
 import styles from "./page.module.css";
 import React, {useEffect, useState} from 'react'
 
+import GoogleMap from './components/displayMap';
+
 export default function Home() {
   
    const [message, setMessage] = useState("Loading")
