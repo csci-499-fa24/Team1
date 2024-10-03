@@ -1,8 +1,8 @@
 {
     "development": {
-      "username": "fall24user",
-      "password": "fall24pass",
-      "database": "bar_and_restaurant_tracker",
+      "username": "postgres",
+      "password": "root",
+      "database": "postgres",
       "host": "127.0.0.1",
       "dialect": "postgres"
     },
