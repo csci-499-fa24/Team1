@@ -7,7 +7,7 @@ const app = express();
 
 //
 const authRouter = require('./route/authRoute');
-const globalErrorHandler = require("./controller/errorController");
+const globalErrorHandler = require("./controllers/errorController");
 const catchAsync = require("./utils/asyncError");
 
 
@@ -35,7 +35,7 @@ app.use('*', catchAsync (async(req, res, next) => {
 //global error handler
 app.use(globalErrorHandler);
 
-//db.sequelize.sync({ force: false });
+db.sequelize.sync({ force: false });
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {

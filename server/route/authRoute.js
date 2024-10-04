@@ -1,6 +1,6 @@
 //auth routes
 
-const { signup, login } = require('../controller/authController');
+const { signup, login } = require('../controllers/authController');
 
 
 const router = require('express').Router();

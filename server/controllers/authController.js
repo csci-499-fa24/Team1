@@ -1,5 +1,5 @@
 // authenication
-const user = require("../db/models/user");
+const user = require("../models");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const catchAsync = require("../utils/asyncError");
@@ -27,7 +27,7 @@ const signup = catchAsync(async (req, res, next) =>{
     //}
 
     //create new user
-    const newUser = await user.create({
+    const newUser = await user.user.create({
         userType : 1,
         userName: body.userName,
         email: body.email,
@@ -66,7 +66,7 @@ const login = catchAsync(async (req, res, next) => {
        return next(new AppError('Please provide email and password', 400));
     }
 
-    const result = await user.findOne({where: {email}});
+    const result = await user.user.findOne({where: {email}});
     if(!result || !(await bcrypt.compare(password, result.password)) ) {
         return next(new AppError('Incorrect email or password', 401));
     }
