@@ -9,10 +9,19 @@ const app = express();
 const authRouter = require('./route/authRoute');
 const globalErrorHandler = require("./controllers/errorController");
 const catchAsync = require("./utils/asyncError");
+const cookieParser = require('cookie-parser');
 
 
+//CORS configuration ensures that your server allows requests from 
+//http://localhost:3000 and supports credentials (cookies).
+const corsOptions = {
+    origin: 'http://localhost:3000', // Your frontend's origin
+    credentials: true, // Allow credentials (cookies)
+};
 
-app.use(cors());
+
+app.use(cookieParser()); 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/api/home", (req, res) => {

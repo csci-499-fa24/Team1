@@ -1,6 +1,6 @@
 'use strict';
 const { Model, Sequelize, DataTypes } = require('sequelize');
-// const sequelize = require('../config/database');
+// const sequelize = require('../configuration/database');
 const bcrypt = require('bcrypt');
 
 const AppError = require('../utils/appError');
@@ -43,6 +43,9 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: {
+          msg: 'Email address already exists'  // Custom error message for duplicate email
+        },
         validate: {
           notNull: {
             msg: 'email cannot be null'
@@ -78,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
               this.setDataValue('password', hashPassword);   //password is updated to hashpassword before store into db
           } else {
             throw new AppError (
-              "Password and confirm password must be the same", 400
+              "Password and Confirm password must be the same", 400
             );
           }
         }
@@ -100,6 +103,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'user',
 
   });
-  return user;
+   return user;
 }
-//module.exports = user;
+
+

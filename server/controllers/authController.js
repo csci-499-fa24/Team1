@@ -82,6 +82,9 @@ const login = catchAsync(async (req, res, next) => {
     
 });
 
+
+
+ // authenticate user with token
 const authenication =  catchAsync(async(req, res, next) => {
     //1. get the token from headers
     let idToken ='';
@@ -93,20 +96,60 @@ const authenication =  catchAsync(async(req, res, next) => {
     if(!idToken){
         return next(new AppError('Please login to get access', 401));
     }
-
+ 
     //2. token verification
     const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY)
+  
 
+    
     //3. get the user detail from db and add to req object
-    const freshUser = await user.findByPk(tokenDetail.id)
-
+    //const freshUser = await user.findByPk(tokenDetail.id)
+    const freshUser = await user.user.findByPk(tokenDetail.id);
+   
     if(!freshUser) {
         return next(new AppError('User no longer exists', 400));
     }
     
-    req.user = freshUser;
-    return next();
+    //req.user = freshUser;
+    //return next();
+   
+    return res.json({
+         status: 'success',
+         freshUser
+     })
 })
 
 
-module.exports = { signup, login, authenication};
+// Middleware to check for token and return user info if valid
+const checkToken = async (req, res, next) => {
+    // Get token from cookies
+    const token = req.cookies.token;
+    if (!token) {
+        return next(new AppError('No token found', 401));
+    }
+
+    try {
+        // Verify token
+        const tokenDetail = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const freshUser = await user.user.findByPk(tokenDetail.id);
+
+        if (!freshUser) {
+            return next(new AppError('User no longer exists', 401));
+        }
+
+        // Remove sensitive fields
+        const userInfo = freshUser.toJSON();
+        delete userInfo.password;
+        delete userInfo.deletedAt;
+
+        return res.status(200).json({
+            status: 'success',
+            data: userInfo,
+        });
+    } catch (err) {
+        return next(new AppError('Invalid token', 401));
+    }
+};
+
+
+module.exports = { signup, login, authenication, checkToken};
