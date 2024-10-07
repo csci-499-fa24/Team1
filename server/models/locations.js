@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         location_point1: {
-            type: DataTypes.STRING(30),
+            type: DataTypes.STRING(50),
             allowNull: true,
         },
     });

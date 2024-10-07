@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         violation_code: {
-            type: DataTypes.STRING(3),
+            type: DataTypes.STRING(10),
             allowNull: true,
         },
         violation_description: {
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
         },
         critical_flag: {
-            type: DataTypes.STRING(30),
+            type: DataTypes.STRING(50),
             allowNull: true,
         },
         score: {
