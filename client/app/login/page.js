@@ -45,7 +45,7 @@ export default function Login() {
 
         <div className= "background">
         <div className="wrapper">
-            <h1>Login</h1>
+            <h1 className ="login-text" >Login</h1>
             {error && <p id="error-message">{error}</p>}
             <form id="form" onSubmit={handleSubmit}>
                 <div>
@@ -80,7 +80,7 @@ export default function Login() {
                 </div>
                 <button type="submit">Login</button>
             </form>
-            <p>New here? <a href="/signup">Create an Account</a></p>
+            <p className ="login-text">New here? <a href="/signup">Create an Account</a></p>
         </div>
         </div>
     );

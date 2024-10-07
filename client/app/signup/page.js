@@ -43,7 +43,7 @@ export default function SignUp() {
     return (
         <div className="background">
             <div className="wrapper">
-                <h1>Signup</h1>
+                <h1 className ="signup-text">Signup</h1>
                 
                 <form id="form" onSubmit={handleSubmit}>
                     <div>
@@ -114,7 +114,7 @@ export default function SignUp() {
                 {/* Display error message */}
                 {errorMessage && <p className="error">{errorMessage}</p>}
                 
-                <p>Already have an Account? <a href="/login">login</a> </p>
+                <p className ="signup-text">Already have an Account? <a href="/login">login</a> </p>
             </div>
         </div>
     );
