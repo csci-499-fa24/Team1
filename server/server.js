@@ -9,6 +9,8 @@ const { getInspectionDetails } = require("./controllers/inspections")
 app.use(cors());
 app.use(express.json());
 
+require('./cron/storeRestaurants');
+
 app.get("/api/home", (req, res) => {
     res.json({message: "Hello World!"});
 });

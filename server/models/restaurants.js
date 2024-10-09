@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         cuisine_description: {
             type: DataTypes.STRING(50),
-            allowNull: false,
+            allowNull: true,
         },
     });
 
