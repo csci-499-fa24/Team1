@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import  "../styles/signup.css"
 
 export default function SignUp() {
     const [userName, setUserName] = useState('');
@@ -114,7 +115,7 @@ export default function SignUp() {
                 {/* Display error message */}
                 {errorMessage && <p className="error">{errorMessage}</p>}
                 
-                <p className ="signup-text">Already have an Account? <a href="/login">login</a> </p>
+                <p className ="signup-text">Already have an Account? <a href="/login">Login</a> </p>
             </div>
         </div>
     );

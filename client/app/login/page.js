@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import  "../styles/login.css"
 
 export default function Login() {
     const [email, setEmail] = useState('');
