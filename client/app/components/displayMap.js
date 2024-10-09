@@ -8,7 +8,7 @@ const GoogleMapEmbed = () => {
       style={{
         display: 'flex',
         justifyContent: 'center',
-        marginTop: '40px', 
+        marginTop: '70px', 
         height: '600px',
         width: '100%',
       }}
