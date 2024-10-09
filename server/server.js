@@ -4,6 +4,8 @@ const sequelize = require('sequelize');
 const db = require("./models");
 const app = express();
 
+const { getInspectionDetails } = require("./controllers/inspections")
+
 app.use(cors());
 app.use(express.json());
 
@@ -12,6 +14,8 @@ app.get("/api/home", (req, res) => {
 });
 
 app.use("/api", require("./controllers"));
+
+app.get("/api/inspections/:camis", getInspectionDetails);
 
 db.sequelize.sync({ force: false });
 
