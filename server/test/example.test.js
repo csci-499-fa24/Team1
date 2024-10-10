@@ -17,7 +17,6 @@ describe("Example API", () => {
       const response = await request(app).post("/example").send({
         description: "Test description",
       });
-
       expect(response.status).toBe(400);
       expect(response.body.message).toBe("Title is required");
     });

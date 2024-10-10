@@ -1,9 +1,13 @@
 name: 'coverage'
 on:
-      pull_request:
+    pull_request:
       branches:
           - master
           - main
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 jobs:
     coverage:
         runs-on: ubuntu-latest
@@ -17,18 +21,21 @@ jobs:
             uses: actions/setup-node@v3
             with:
               node-version: '18'
+
         # Step 3: Install dependencies
           - name: Install dependencies
             run: npm install
+            working-directory: ./server
 
         # Step 4: Run tests and generate coverage report
           - name: Run Jest tests with coverage
             run: npm test -- --coverage
+            working-directory: ./server
 
         # Step 5: Post coverage report to the pull request
           - name: Post Jest Coverage Report
             uses: ArtiomTr/jest-coverage-report-action@v2
             with:
-              github-token: ${{ secrets.GITHUB_TOKEN }}
+              #github-token: ${{ secrets.GITHUB_TOKEN }}
               working-directory: ./server
               # test-command: "npm test -- --coverage"
