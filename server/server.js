@@ -21,7 +21,7 @@ const corsOptions = {
 
 
 app.use(cookieParser()); 
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
