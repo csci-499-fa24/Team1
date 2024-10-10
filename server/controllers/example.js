@@ -28,6 +28,7 @@ router.post("/", async (req, res) => {
       example: newExample,
     });
     
+    
   } catch (error) {
     console.error("Error posting", error);
     res.status(500).json({
