@@ -1,0 +1,28 @@
+name: 'coverage'
+on:
+      pull_request_target:
+      branches:
+          - master
+          - main
+jobs:
+    coverage:
+        runs-on: ubuntu-latest
+        steps:
+        # Step 1: Checkout the repository code
+          - name: Checkout repository
+            uses: actions/checkout@v3
+
+        # Step 2: Install dependencies
+          - name: Install dependencies
+            run: npm install
+
+        # Step 3: Run tests and generate coverage report
+          - name: Run Jest tests with coverage
+            run: npm test -- --coverage
+
+        # Step 4: Post coverage report to the pull request
+          - name: Post Jest Coverage Report
+            uses: ArtiomTr/jest-coverage-report-action@v2
+            with:
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              # test-command: "npm test -- --coverage"
