@@ -13,7 +13,7 @@ export default async function RestaurantDetails({ params }) {
   const { camis } = params;
 
   // Fetching the data from the API
-  const res = await fetch(`http://localhost:8080/api/inspections/${camis}`);
+  const res = await fetch(`https://team1-server.onrender.com/api/inspections/${camis}`);
   if (!res.ok) {
     return <div>Failed to load restaurant data</div>;
   }
