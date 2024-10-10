@@ -22,7 +22,10 @@ const corsOptions = {
 
 app.use(cookieParser()); 
 app.use(cors(corsOptions));
+
 app.use(express.json());
+
+require('./cron/storeRestaurants');
 
 app.get("/api/home", (req, res) => {
     res.json({message: "Hello World!"});
