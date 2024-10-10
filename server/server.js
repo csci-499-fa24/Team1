@@ -4,8 +4,11 @@ const sequelize = require('sequelize');
 const db = require("./models");
 const app = express();
 
+
 app.use(cors());
 app.use(express.json());
+
+require('./cron/storeRestaurants');
 
 app.get("/api/home", (req, res) => {
     res.json({message: "Hello World!"});
