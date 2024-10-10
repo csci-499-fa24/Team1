@@ -37,7 +37,6 @@ app.use("/api", require("./controllers"));
 //routes for signup and login
 app.use('/api/v1/auth', authRouter);
 
-
 //no route match
 app.use('*', catchAsync (async(req, res, next) => {
   

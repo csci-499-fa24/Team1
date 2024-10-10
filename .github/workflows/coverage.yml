@@ -1,6 +1,6 @@
 name: 'coverage'
 on:
-      pull_request_target:
+      pull_request:
       branches:
           - master
           - main
@@ -16,13 +16,13 @@ jobs:
           - name: Install dependencies
             run: npm install
 
-        # Step 3: Run tests and generate coverage report
-          - name: Run Jest tests with coverage
-            run: npm test -- --coverage
+        # # Step 3: Run tests and generate coverage report
+        #   - name: Run Jest tests with coverage
+        #     run: npm test -- --coverage
 
         # Step 4: Post coverage report to the pull request
           - name: Post Jest Coverage Report
             uses: ArtiomTr/jest-coverage-report-action@v2
-            with:
-              github-token: ${{ secrets.GITHUB_TOKEN }}
+            # with:
+              # github-token: ${{ secrets.GITHUB_TOKEN }}
               # test-command: "npm test -- --coverage"
