@@ -17,13 +17,18 @@ jobs:
             uses: actions/setup-node@v3
             with:
               node-version: '18'
+              
         # Step 3: Install dependencies
           - name: Install dependencies
             run: npm install
+            with:
+              working-directory: ./server
 
         # Step 4: Run tests and generate coverage report
           - name: Run Jest tests with coverage
             run: npm test -- --coverage
+            with:
+              working-directory: ./server
 
         # Step 5: Post coverage report to the pull request
           - name: Post Jest Coverage Report
