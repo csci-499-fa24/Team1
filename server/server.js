@@ -6,6 +6,7 @@ const app = express();
 
 const { getInspectionDetails } = require("./controllers/inspections")
 
+
 app.use(cors());
 app.use(express.json());
 
