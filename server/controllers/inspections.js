@@ -21,7 +21,12 @@ exports.getInspectionDetails = async (req, res) => {
       return res.status(404).json({ error: 'Restaurant not found or no inspection data available.' });
     }
 
-    res.status(200).json(inspectionDetails);
+    // Added deduplication logic: remove duplicate entries based on violation_code + inspection_date
+    const uniqueInspections = [...new Map(
+      inspectionDetails.map(item => [item.inspection_date + item.violation_code, item])
+    ).values()]; // <-- Deduplicate the results here too for safety
+
+    res.status(200).json(uniqueInspections);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to retrieve data' });

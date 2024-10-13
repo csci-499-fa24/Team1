@@ -20,6 +20,13 @@ export default async function RestaurantDetails({ params }) {
 
   const inspectionDetails = await res.json();
 
+  // Deduplicate results by combining inspection_date and violation_code
+  const uniqueInspectionDetails = [
+    ...new Map(
+      inspectionDetails.map((item) => [item.inspection_date + item.violation_code, item])
+    ).values(),
+  ]; // <-- Deduplicate based on violation_code + inspection_date
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <h1>Inspection Details for Restaurant ID: {camis}</h1>
