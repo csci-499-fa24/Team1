@@ -1,4 +1,3 @@
-// client/app/restaurants/[camis]/page.js
 import React from 'react';
 import styles from './details.module.css';
 
@@ -25,13 +24,13 @@ export default async function RestaurantDetails({ params }) {
     ...new Map(
       inspectionDetails.map((item) => [item.inspection_date + item.violation_code, item])
     ).values(),
-  ]; // <-- Deduplicate based on violation_code + inspection_date
+  ]; 
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <h1>Inspection Details for Restaurant ID: {camis}</h1>
-      {inspectionDetails.length ? (
-        inspectionDetails.map((inspection) => (
+      {uniqueInspectionDetails.length ? (
+        uniqueInspectionDetails.map((inspection) => (
           <div key={inspection.id} className={styles['inspection-card']}>
             <h2>{inspection.Restaurant.dba}</h2>
             <p><strong>Cuisine:</strong> {inspection.Restaurant.cuisine_description}</p>

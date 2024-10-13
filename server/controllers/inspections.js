@@ -1,4 +1,3 @@
-// controllers/inspections.js
 const { Inspections, Restaurants, Locations } = require('../models');
 
 // Function to get inspection details for a specific restaurant by its camis
@@ -24,7 +23,7 @@ exports.getInspectionDetails = async (req, res) => {
     // Added deduplication logic: remove duplicate entries based on violation_code + inspection_date
     const uniqueInspections = [...new Map(
       inspectionDetails.map(item => [item.inspection_date + item.violation_code, item])
-    ).values()]; // <-- Deduplicate the results here too for safety
+    ).values()]; 
 
     res.status(200).json(uniqueInspections);
   } catch (error) {

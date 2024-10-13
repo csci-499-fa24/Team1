@@ -38,7 +38,7 @@ async function upsertRestaurantData(data) {
 
             // Check if there's an existing inspection for the restaurant
             const inspectionExists = await Inspections.findOne({
-                where: { camis: item.camis, inspection_date: item.inspection_date, violation_code: item.violation_code } // <-- Added violation_code here
+                where: { camis: item.camis, inspection_date: item.inspection_date, violation_code: item.violation_code } 
             });
 
             // Upsert Inspection only if it doesn't exist
@@ -67,7 +67,7 @@ async function upsertRestaurantData(data) {
                     grade: item.grade,
                     grade_date: item.grade_date,
                     inspection_type: item.inspection_type,
-                }, { where: { camis: item.camis, inspection_date: item.inspection_date, violation_code: item.violation_code } }); // <-- Added violation_code here
+                }, { where: { camis: item.camis, inspection_date: item.inspection_date, violation_code: item.violation_code } }); 
                 console.log(`Updated inspection for CAMIS ${item.camis}`);
             }
 
