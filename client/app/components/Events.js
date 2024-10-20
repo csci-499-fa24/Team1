@@ -132,7 +132,6 @@ const Events = () => {
 
   return (
     <div className="events-container">
-      <h1>NYC Events</h1>
       <div className="filter-form">
         <div>
           <label>Borough: </label>
