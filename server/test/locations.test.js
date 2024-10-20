@@ -43,7 +43,7 @@ describe("GET /locations", () => {
     expect(db.Locations.findAll).toHaveBeenCalledTimes(1);
     
     expect(db.Locations.findAll).toHaveBeenCalledWith({
-      attributes: ['latitude', 'longitude'],
+      attributes: ['camis', 'latitude', 'longitude'],
       include: [
         {
           model: db.Restaurants,

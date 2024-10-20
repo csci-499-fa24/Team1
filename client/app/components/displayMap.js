@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import axios from 'axios'; // To make API requests
+import Cookies from 'js-cookie'; // For authorization
+
 
 const containerStyle = {
   width: '100%',
@@ -29,12 +32,23 @@ const GoogleMapComponent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [geolocationError, setGeolocationError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+
+   // Load Google Maps script only once
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
+  });
+
+
+
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
+        
         setLocations(data);
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -46,7 +60,7 @@ const GoogleMapComponent = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });
+          setCurrentLocation({ lat: latitude, lng: longitude });    
           fetchLocations(); // Fetch locations after getting the current position
         },
         (error) => {
@@ -60,11 +74,51 @@ const GoogleMapComponent = () => {
       setGeolocationError(true);
       fetchLocations(); // Fetch all locations if geolocation is not supported
     }
-  }, []);
+
+
+  }, []);    
+
+
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
+    
   };
+
+
+
+  // Handle adding to favorites
+  const handleAddToFavorites = async (location) => {
+    const token = Cookies.get('token'); // Get the token for authenticated requests
+    try {
+     
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
+        {
+          
+           camis: location.camis,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+     // const data = await response.json();
+     
+      if (response.status === 201) {
+        alert('Location added to favorites!');
+      }
+    
+
+    } catch (error) {
+      console.error('Error adding location to favorites:', error);
+      alert('Failed to add favorite location.');
+      
+    }
+  };
+
+
 
   // Filter locations if the user allows location access
   const filteredLocations = currentLocation
@@ -79,11 +133,22 @@ const GoogleMapComponent = () => {
       })
     : locations; 
 
+
+    // Handle load error and loading state for the map
+  if (loadError) {
+    return <div>Error loading maps</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Loading maps...</div>;
+  }
+ 
   return (
-    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}>
+    //<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={currentLocation || { lat: 40.7128, lng: -74.0060 }} 
+        
         zoom={currentLocation ? 15 : 12} 
       >
         {currentLocation && (
@@ -118,12 +183,14 @@ const GoogleMapComponent = () => {
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street: 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
-              
+              <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites
+              </button>
             </div>
           </InfoWindow>
         )}
+
       </GoogleMap>
-    </LoadScript>
+    //</LoadScript>
   );
 };
 
