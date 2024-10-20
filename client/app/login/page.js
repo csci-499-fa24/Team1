@@ -6,37 +6,43 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import  "../styles/login.css"
 
+
+
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
 
+
     useEffect(() => {
-        // Check for existing token
-        const checkToken = async () => {  
-            try {
-                const response = await axios.get(process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/auth/check-token", {
-                    withCredentials: true,
-                });
-               
-                if (response.data.status === 'success') {
-                    
-                    router.push('/personal');
+
+        const token = Cookies.get("token");
+        if (token) {
+            axios.get(process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/auth/authentication", {
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-            } catch (err) {
-                // Token is invalid or does not exist, do nothing
-            }
-        };
-        checkToken();
+            })
+                .then(response => {
+                    if (response.data.status === 'success') {
+                        router.push('/profile');
+                    }
+                })
+                .catch(error => {
+                    Cookies.remove("token");
+                });
+        }
     }, [router]);
- 
+
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post(process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/auth/login", { email, password });
             Cookies.set('token', response.data.token);
-            router.push('/personal');
+            router.push('/profile');
         } catch (err) {
             setError('Invalid login credentials.');
         }
@@ -86,4 +92,3 @@ export default function Login() {
         </div>
     );
 }
-

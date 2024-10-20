@@ -1,4 +1,6 @@
+
 require('dotenv').config({path: `${process.cwd()}/.env`});
+
 const express = require("express");
 const cors = require('cors');
 const sequelize = require('sequelize');
@@ -9,10 +11,11 @@ const app = express();
 const { getInspectionDetails } = require("./controllers/inspections")
 
 //
-const authRouter = require('./route/authRoute');
+const authRouter = require('./routes/authRoute');
 const globalErrorHandler = require("./controllers/errorController");
 const catchAsync = require("./utils/asyncError");
 const cookieParser = require('cookie-parser');
+const favoriteRouter = require('./routes/favoriteRoute');
 
 //CORS configuration ensures that your server allows requests from 
 //http://localhost:3000 and supports credentials (cookies).
@@ -20,6 +23,7 @@ const corsOptions = {
     origin: process.env.NEXT_PUBLIC_CLIENT_URL, // Your frontend's origin
     credentials: true, // Allow credentials (cookies)
 };
+
 
 
 app.use(cookieParser()); 
@@ -39,6 +43,10 @@ app.get("/api/inspections/:camis", getInspectionDetails);
 
 //routes for signup and login
 app.use('/api/v1/auth', authRouter);
+
+//routes for favoritePlaces
+app.use('/api/v1/favorites', favoriteRouter);
+
 
 //no route match
 app.use('*', catchAsync (async(req, res, next) => {
