@@ -16,6 +16,7 @@ describe("GET /locations", () => {
   it("should return a list of locations with restaurant details", async () => {
     const mockLocations = [
       {
+        camis: "12345678",
         latitude: "40.7128",
         longitude: "-74.0060",
         Restaurant: {
@@ -26,6 +27,7 @@ describe("GET /locations", () => {
           boro: "Manhattan",
           cuisine_description: "American", 
           phone: "1234567890",
+          camis: "12345678",
         },
       },
     ];
@@ -49,7 +51,7 @@ describe("GET /locations", () => {
       include: [
         {
           model: db.Restaurants,
-          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone'],
+          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone', 'camis'],
         },
       ],
     });
