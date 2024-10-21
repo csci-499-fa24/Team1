@@ -179,11 +179,8 @@ describe('AuthController', () => {
         });
 
         it('should authenticate a user with a valid token', async () => {
-<<<<<<< HEAD
+
             const token = jwt.sign({id: mockUser.id }, process.env.JWT_SECRET_KEY || 'default-secret-key'); // Ensure secret key is correct
-=======
-            const token = jwt.sign({id: mockUser.id }, process.env.JWT_SECRET_KEY ||'default-secret-key'); // Ensure secret key is correct
->>>>>>> ce1fc7314bf1400f689b07d2a4199e26adfe6545
             User.findByPk.mockResolvedValue(mockUser); // Mock finding the user
         
             const res = await request(app)
@@ -202,7 +199,6 @@ describe('AuthController', () => {
         
         it('should fail if no token is provided', async () => {
             const res = await request(app).get('/api/v1/auth/authentication');
-
             expect(res.statusCode).toEqual(401);
             expect(res.body.message).toEqual('Please login to get access');
         });
@@ -221,11 +217,7 @@ describe('AuthController', () => {
         
 
         it('should fail if the user does not exist', async () => {
-<<<<<<< HEAD
             const token = jwt.sign({ id: 999 }, process.env.JWT_SECRET_KEY || 'default-secret-key'); // Non-existent user ID
-=======
-            const token = jwt.sign({ id: 999 }, process.env.JWT_SECRET_KEY ||'default-secret-key'); // Non-existent user ID
->>>>>>> ce1fc7314bf1400f689b07d2a4199e26adfe6545
             User.findByPk.mockResolvedValue(null); // Simulate user not found
 
             const res = await request(app)
