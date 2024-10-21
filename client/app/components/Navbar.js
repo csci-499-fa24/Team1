@@ -1,31 +1,58 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
-import Logo from "../Assets/Logo2.png";
-//import { BsCart2 } from "react-icons/bs";
-//import { HiOutlineBars3 } from "react-icons/hi2";
-//import Box from "@mui/material/Box";
-//import Drawer from "@mui/material/Drawer";
-//import List from "@mui/material/List";
-//import Divider from "@mui/material/Divider";
-//import ListItem from "@mui/material/ListItem";
-//import ListItemButton from "@mui/material/ListItemButton";
-//import ListItemIcon from "@mui/material/ListItemIcon";
-//import ListItemText from "@mui/material/ListItemText";
-//import HomeIcon from "@mui/icons-material/Home";
-//import InfoIcon from "@mui/icons-material/Info";
-//import CommentRoundedIcon from "@mui/icons-material/CommentRounded";
-//import PhoneRoundedIcon from "@mui/icons-material/PhoneRounded";
-//import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
+import "../styles/Navbar.css";
 
-const Navbar = () => {
-  
-    <nav>
-      <div className="nav-logo-container">
-        <img src={Logo} alt="" />
+function Navbar() {
+  const [active, setActive] = useState("nav__menu");
+  const [icon, setIcon] = useState("nav__toggler");
+  const navToggle = () => {
+    if (active === "nav__menu") {
+      setActive("nav__menu nav__active");
+    } else setActive("nav__menu");
+
+    // Icon Toggler
+    if (icon === "nav__toggler") {
+      setIcon("nav__toggler toggle");
+    } else setIcon("nav__toggler");
+  };
+  return (
+    <nav className="nav container">
+      <a href="#" className="nav__brand">
+        Restaurant & Bar Tracker
+      </a>
+      <ul className={active}>
+        <li className="nav__item">
+          <a href="/" className="nav__link">
+            Home
+          </a>
+        </li>
+        <li className="nav__item">
+          <a href="/map" className="nav__link">
+            Map
+          </a>
+        </li>
+        <li className="nav__item">
+          <a href="/events" className="nav__link">
+            NYC Events
+          </a>
+        </li>
+        <li className="nav__item">
+          <a href="#" className="nav__link">
+            Login
+          </a>
+        </li>
+        <li className="nav__item">
+          <a href="#" className="nav__link">
+            
+          </a>
+        </li>
+      </ul>
+      <div onClick={navToggle} className={icon}>
+        <div className="line1"></div>
+        <div className="line2"></div>
+        <div className="line3"></div>
       </div>
-      
     </nav>
-  
-};
+  );
+}
 
 export default Navbar;
