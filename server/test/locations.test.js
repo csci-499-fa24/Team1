@@ -24,6 +24,8 @@ describe("GET /locations", () => {
           street: "Main St",
           zipcode: "10001",
           boro: "Manhattan",
+          cuisine_description: "American", 
+          phone: "1234567890",
         },
       },
     ];
@@ -47,7 +49,7 @@ describe("GET /locations", () => {
       include: [
         {
           model: db.Restaurants,
-          attributes: ['dba', 'building', 'street', 'zipcode', 'boro'],
+          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone'],
         },
       ],
     });

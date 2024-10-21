@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
       include: [
         {
           model: db.Restaurants,
-          attributes: ['dba', 'building', 'street', 'zipcode', 'boro'], 
+          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone', 'camis'], 
         },
       ],
     });

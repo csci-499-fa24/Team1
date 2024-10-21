@@ -5,6 +5,7 @@ import GoogleMapEmbed from "../components/displayMap";
 import { useRouter } from "next/navigation"; // for redirection
 import axios from "axios";  // for API requests
 import Cookies from "js-cookie"; // for accessing cookies
+import Navbar from "../components/Navbar";
 
 export default function mapPage() {
 
@@ -49,6 +50,7 @@ export default function mapPage() {
     }     
     return (
         <div>
+            <Navbar/>
             <GoogleMapEmbed />
 
 

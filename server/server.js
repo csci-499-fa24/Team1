@@ -41,6 +41,9 @@ app.use("/api", require("./controllers"));
 
 app.get("/api/inspections/:camis", getInspectionDetails);
 
+const { getRestaurantHours } = require('./controllers/getRestaurantHours'); // Import the route for fetching restaurant hours
+app.get('/api/restaurant-hours', getRestaurantHours); //route to fetch restaurant hours
+
 //routes for signup and login
 app.use('/api/v1/auth', authRouter);
 
