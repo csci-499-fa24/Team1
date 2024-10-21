@@ -2,11 +2,19 @@ import React from "react";
 
 import Imagen from 'next/image';
 
+import { useRouter } from 'next/navigation';
+
 import BannerBackground from '../assets/home-banner-background.png';
 import BannerImage from '../assets/food_home.jpg';
 
 
 const Home = () => {
+  const router = useRouter(); 
+
+  const handleSignUp = () => {
+    router.push('/signup'); 
+  };
+  
   return (
     <div className="home-container">
       
@@ -21,7 +29,10 @@ const Home = () => {
           <p className="primary-text">
             All restaurant and bar granted with grade A after inspection by the NYC authority.
           </p>
-          <button className="secondary-button">
+          <button 
+            className="secondary-button"
+            onClick={handleSignUp}
+          >
             Sign up {" "}
           </button>
         </div>
