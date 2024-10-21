@@ -179,7 +179,7 @@ describe('AuthController', () => {
         });
 
         it('should authenticate a user with a valid token', async () => {
-            const token = jwt.sign({id: mockUser.id }, process.env.JWT_SECRET_KEY); // Ensure secret key is correct
+            const token = jwt.sign({id: mockUser.id }, process.env.JWT_SECRET_KEY || 'default-secret-key'); // Ensure secret key is correct
             User.findByPk.mockResolvedValue(mockUser); // Mock finding the user
         
             const res = await request(app)
@@ -217,7 +217,7 @@ describe('AuthController', () => {
         
 
         it('should fail if the user does not exist', async () => {
-            const token = jwt.sign({ id: 999 }, process.env.JWT_SECRET_KEY); // Non-existent user ID
+            const token = jwt.sign({ id: 999 }, process.env.JWT_SECRET_KEY || 'default-secret-key'); // Non-existent user ID
             User.findByPk.mockResolvedValue(null); // Simulate user not found
 
             const res = await request(app)
