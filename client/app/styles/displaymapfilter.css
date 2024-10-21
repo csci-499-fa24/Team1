@@ -1,0 +1,44 @@
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .filter-section {
+    position: absolute;
+    bottom: 4px;
+    left: 8px;
+    background-color: rgb(193, 192, 192, 0.9); /* Slightly transparent background */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Ensure it's on top of the map */
+  }
+  
+  .filter-toggle-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .filter-dropdown {
+    margin-top: 10px;
+  }
+  
+  .filter-item {
+    margin-bottom: 15px;
+  }
+  
+  .filter-item label {
+    margin-right: 10px;
+  }
+  
+  .filter-item select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
