@@ -5,7 +5,7 @@ const { Restaurants } = require('../models');
 async function getPlaceIdByName(name, address) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   
-  console.log(`Searching for placeId with name: ${name}, address: ${address}`); // DEBUG: Log the name and address being sent
+  console.log(`Searching for placeId with name: ${name}, address: ${address}`); // Log the name and address being sent
 
   try {
     const response = await axios.get(`https://maps.googleapis.com/maps/api/place/findplacefromtext/json`, {
@@ -17,10 +17,10 @@ async function getPlaceIdByName(name, address) {
       },
     });
 
-    console.log('Google API Response:', response.data); // DEBUG: Log the full response from Google
+    console.log('Google API Response:', response.data); //Log the full response from Google
 
     const placeId = response.data.candidates[0]?.place_id; // Extract place_id from API response
-    console.log('Found placeId:', placeId); // DEBUG: Log the placeId if found
+    console.log('Found placeId:', placeId); // Log the placeId if found
     return placeId || null;
   } catch (error) {
     console.error('Error fetching placeId:', error);
@@ -36,20 +36,20 @@ exports.getRestaurantHours = async (req, res) => {
     const restaurant = await Restaurants.findOne({ where: { camis } });
     
     if (!restaurant) {
-      console.log(`Restaurant not found for camis: ${camis}`); // DEBUG: Log when restaurant is not found
+      console.log(`Restaurant not found for camis: ${camis}`); // Log when restaurant is not found
       return res.status(404).json({ error: 'Restaurant not found' });
     }
 
-    const restaurantName = restaurant.dba; // Assuming the restaurant name is stored under "dba"
+    const restaurantName = restaurant.dba; 
     const restaurantAddress = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
 
-    console.log(`Restaurant found: ${restaurantName}, Address: ${restaurantAddress}`); // DEBUG: Log the restaurant details
+    console.log(`Restaurant found: ${restaurantName}, Address: ${restaurantAddress}`); // Log the restaurant details
 
     // Fetch the `placeId` dynamically using restaurant name and address
     const placeId = await getPlaceIdByName(restaurantName, restaurantAddress);
 
     if (!placeId) {
-      console.log(`Failed to find placeId for: ${restaurantName}, ${restaurantAddress}`); // DEBUG: Log when placeId is not found
+      console.log(`Failed to find placeId for: ${restaurantName}, ${restaurantAddress}`); // Log when placeId is not found
       return res.status(404).json({ error: 'Failed to find placeId for the restaurant' });
     }
 
@@ -65,7 +65,7 @@ exports.getRestaurantHours = async (req, res) => {
 
     const restaurantDetails = response.data.result;
     if (!restaurantDetails || !restaurantDetails.opening_hours) {
-      console.log('No opening hours available for this place'); // DEBUG: Log if hours are not available
+      console.log('No opening hours available for this place'); //Log if hours are not available
       return res.status(404).json({ error: 'No hours available for this place' });
     }
 
@@ -75,7 +75,7 @@ exports.getRestaurantHours = async (req, res) => {
       hours: restaurantDetails.opening_hours,
     });
   } catch (error) {
-    console.error('Error fetching restaurant hours:', error); // DEBUG: Log unexpected errors
+    console.error('Error fetching restaurant hours:', error); //Log unexpected errors
     res.status(500).json({ error: 'Failed to retrieve restaurant hours' });
   }
 };
