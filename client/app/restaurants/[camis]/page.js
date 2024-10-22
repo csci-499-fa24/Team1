@@ -42,6 +42,7 @@ export default function RestaurantDetails({ params }) {
     setRestaurantAddress(`${data[0].Restaurant.building} ${data[0].Restaurant.street}, ${data[0].Restaurant.boro}, NY ${data[0].Restaurant.zipcode}`);
   }
 
+
   const uniqueInspectionDetails = [
     ...new Map(
       data.map((item) => [item.inspection_date + item.violation_code, item])
