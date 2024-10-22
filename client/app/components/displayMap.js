@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import axios from 'axios'; // To make API requests
+import Cookies from 'js-cookie'; // For authorization
 import "../styles/displaymapfilter.css";
 
 const containerStyle = {
@@ -42,12 +44,20 @@ const GoogleMapComponent = () => {
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Load Google Maps script only once
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
+  });
+
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
+        
         setLocations(data);
 
         // Extract unique cuisine descriptions
@@ -67,7 +77,7 @@ const GoogleMapComponent = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });
+          setCurrentLocation({ lat: latitude, lng: longitude });    
           fetchLocations(); // Fetch locations after getting the current position
         },
         (error) => {
@@ -81,12 +91,56 @@ const GoogleMapComponent = () => {
       setGeolocationError(true);
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
-  }, []);
+
+
+  }, []);    
+
+
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
+    
   };
 
+
+
+  // Handle adding to favorites
+  const handleAddToFavorites = async (location) => {
+    const token = Cookies.get('token'); // Get the token for authenticated requests
+    try {
+     
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
+        {
+          
+           camis: location.camis,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+     // const data = await response.json();
+     
+      if (response.status === 201) {
+        alert('Location added to favorites!');
+      }
+    
+
+    } catch (error) {
+      console.error('Error adding location to favorites:', error);
+      alert('Failed to add favorite location.');
+      
+    }
+  };
+
+
+
+  // // Filter locations if the user allows location access
+  // const filteredLocations = currentLocation
+  //   ? locations.filter((location) => {
+  //       const distance = calculateDistance(
   // Filter locations based on both cuisine_description and distance from the current location
   const filteredLocations = locations.filter((location) => {
     const distance = currentLocation
@@ -104,6 +158,16 @@ const GoogleMapComponent = () => {
     );
   });
 
+
+    // Handle load error and loading state for the map
+  if (loadError) {
+    return <div>Error loading maps</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Loading maps...</div>;
+  }
+ 
   return (
     <div className="map-container">
       <div className="filter-section">
@@ -115,7 +179,7 @@ const GoogleMapComponent = () => {
         {filterVisible && (
           <div className="filter-dropdown">
             {/* Cuisine Filter */}
-            <div className="filter-item">
+             <div className="filter-item"> {/*div a */}
               <label htmlFor="filterCuisine">Filter by Cuisine: </label>
               <select
                 id="filterCuisine"
@@ -129,10 +193,10 @@ const GoogleMapComponent = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> {/*div a */}
 
             {/* Distance Filter */}
-            <div className="filter-item">
+            <div className="filter-item"> {/*div b */}
               <label htmlFor="filterDistance">Filter by Distance (miles): </label>
               <select
                 id="filterDistance"
@@ -145,31 +209,30 @@ const GoogleMapComponent = () => {
                 <option value={10}>10 miles</option>
                 <option value={25}>25 miles</option>
               </select>
-            </div>
+            </div> {/*div b */}
           </div>
         )}
       </div>
+    {/* //<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}> */}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={currentLocation || { lat: 40.7128, lng: -74.0060 }} 
+        zoom={currentLocation ? 15 : 12} 
+        options={{
+          styles: "f9f8fc87a66fc282", 
+        }}
+      >
+        {currentLocation && (
+          <Marker
+            position={currentLocation}
+            title="You are here"
+            icon={{
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", 
+            }}
+          />
+        )}
 
-      <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={currentLocation || { lat: 40.7128, lng: -74.0060 }} 
-          zoom={currentLocation ? 15 : 12} 
-          options={{
-            styles: "f9f8fc87a66fc282", 
-          }}
-        >
-          {currentLocation && (
-            <Marker
-              position={currentLocation}
-              title="You are here"
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", 
-              }}
-            />
-          )}
-
-          {filteredLocations.map((location, index) => (
+        {filteredLocations.map((location, index) => (
             <Marker
               key={index}
               position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
@@ -178,36 +241,41 @@ const GoogleMapComponent = () => {
             />
           ))}
 
-          {selectedLocation && (
-            <InfoWindow
-              position={{
-                lat: parseFloat(selectedLocation.latitude),
-                lng: parseFloat(selectedLocation.longitude),
-              }}
-              onCloseClick={() => setSelectedLocation(null)}
-            >
-              <div style={{ color: 'black', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
-                <h4>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h4>
-                <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
-                <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
-                <br />
-                <p>
-                  <strong>Phone: </strong>
-                  {formatPhoneNumber(selectedLocation.Restaurant.phone)}
-                </p>
-                <a 
-                  href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={{ color: 'blue', textDecoration: 'underline' }}
-                >
-                  View More
-                </a>
-              </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+        {selectedLocation && (
+          <InfoWindow
+            position={{
+              lat: parseFloat(selectedLocation.latitude),
+              lng: parseFloat(selectedLocation.longitude),
+            }}
+            onCloseClick={() => setSelectedLocation(null)}
+          >
+            <div style={{ color: 'black', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+              
+              <h4>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h4>
+              {/* Just for testing */}
+              <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
+              <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
+              
+              <br />
+              <p>
+                <strong>Phone: </strong>
+                {formatPhoneNumber(selectedLocation.Restaurant.phone)}
+              </p>
+              <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
+              <a 
+                href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: 'blue', textDecoration: 'underline' }}
+              >
+                View More
+              </a>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+  {/* //</LoadScript> */}
+
     </div>
   );
 };

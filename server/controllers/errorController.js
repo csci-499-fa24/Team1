@@ -7,6 +7,7 @@ const sendErrorDev = (error, res) => {
     const message = error.message;
     const stack = error.stack;
 
+    console.error('Detailed error log:', error); // Log the complete error object
     res.status(statusCode).json({
         status,
         message,
@@ -32,7 +33,7 @@ const sendErrorProd = (error, res) => {
     }
     
     //error not handle inside the app
-    console.log(error.name, error.message, stack);
+   // console.log(error.name, error.message, stack);
     return res.status(500).json({
         status: 'error',
         message: 'Something went very wrong',

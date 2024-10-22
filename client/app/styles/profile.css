@@ -1,0 +1,71 @@
+.profile-page {
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    padding: 20px;
+    height: 100vh; /* Full viewport height */
+}
+
+.profile-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%; /* Full height to calculate gaps */
+}
+
+.profile-avatar {
+    width: 150px; /* Increased size */
+    height: 150px; /* Increased size */
+    background-color: grey;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    background-image: url(../assets/user-profile.png);
+}
+
+.profile-info h1 {
+    font-size: 3em; /* Increase font size for the username */
+    margin-bottom: 10px; /* Smaller gap after username */
+}
+
+.profile-buttons {
+    display: flex;
+    flex-direction: column; /* Arrange buttons in a column */
+    gap: 15px; /* Add some space between the buttons */
+    margin-bottom: 40px; /* Bigger gap before Sign Out */
+}
+
+.icon-button {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 1.2em; /* Increase button font size */
+    background-color: #2121a0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.icon-button i {
+    margin-right: 10px; /* Space between icon and text */
+}
+
+.icon-button:hover {
+    background-color: #5362a5;
+}
+
+.logout-button {
+    padding: 10px 20px;
+    font-size: 1.2em; /* Increase button font size */
+    background-color: #2d2d5c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+

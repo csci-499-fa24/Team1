@@ -8,11 +8,12 @@
   
   .inspection-card h2 {
     margin-bottom: 10px;
-    
+    color: #111111;
   }
   
   .inspection-card p {
     margin: 5px 0;
-    
+
+    color: #111111;
   }
   

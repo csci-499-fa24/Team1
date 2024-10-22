@@ -5,11 +5,11 @@ const db = require("../models");
 router.get("/", async (req, res) => {
   try {
     const locations = await db.Locations.findAll({
-      attributes: ['latitude', 'longitude'], 
+      attributes: ['camis', 'latitude', 'longitude'], 
       include: [
         {
           model: db.Restaurants,
-          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone'], 
+          attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone', 'camis'], 
         },
       ],
     });
