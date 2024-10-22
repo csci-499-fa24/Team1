@@ -2,7 +2,7 @@ import React from "react";
 
 import Imagen from 'next/image';
 
-import ProfilePic from "../Assets/NY2_home.jpg";
+import ProfilePic from "../assets/NY2_home.jpg";
 //import { AiFillStar } from "react-icons/ai";
 
 const Testimonial = () => {
