@@ -11,7 +11,7 @@ exports.getInspectionDetails = async (req, res) => {
         {
           model: Restaurants,
           as: 'Restaurant', // Use 'as' to match the name in the association
-          attributes: ['dba', 'cuisine_description', 'boro', 'building', 'street', 'zipcode'],
+          attributes: ['dba', 'cuisine_description', 'boro', 'building', 'street', 'zipcode', 'phone'],
         },
       ],
     });
