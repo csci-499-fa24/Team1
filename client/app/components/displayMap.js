@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
+import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
 
 const containerStyle = {
@@ -45,6 +46,9 @@ const GoogleMapComponent = () => {
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [errorMessage, setErrorMessage] = useState('');
+
+
+  const router = useRouter();
 
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
@@ -102,7 +106,9 @@ const GoogleMapComponent = () => {
     
   };
 
-
+  const handleViewMore = () => {
+    router.push(`/restaurants/${selectedLocation.Restaurant.camis}`)
+  };
 
   // Handle adding to favorites
   const handleAddToFavorites = async (location) => {
@@ -249,9 +255,9 @@ const GoogleMapComponent = () => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
-            <div style={{ color: 'black', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+            <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
               
-              <h4>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h4>
+              <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
@@ -261,15 +267,20 @@ const GoogleMapComponent = () => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
-              <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
-              <a 
-                href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-               
-                rel="noopener noreferrer" 
-                style={{ color: 'blue', textDecoration: 'underline' }}
-              >
-                View More
-              </a>
+              <br/>
+              <button 
+                onClick={() => handleAddToFavorites(selectedLocation)}
+                className='favorite-button'
+              >   
+                Add to Favorites 
+              </button>
+
+              <button 
+                onClick={() => handleViewMore()}
+                className='view-button'
+              >   
+                View More 
+              </button>
             </div>
           </InfoWindow>
         )}
