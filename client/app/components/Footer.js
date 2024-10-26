@@ -1,9 +1,4 @@
 import React from "react";
-//import Logo from "../Assets/LOGO3.jfif";
-//import { BsTwitter } from "react-icons/bs";
-//import { SiLinkedin } from "react-icons/si";
-//import { BsYoutube } from "react-icons/bs";
-//import { FaFacebookF } from "react-icons/fa";
 
 const Footer = () => {
   return (

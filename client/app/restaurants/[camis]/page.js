@@ -12,7 +12,6 @@ export default function RestaurantDetails({ params }) {
   const [restaurantName, setRestaurantName] = useState(null);
   const [restaurantAddress, setRestaurantAddress] = useState(null); // Store address outside the inspection details
   const [restaurantCuisine, setRestaurantCuisine] = useState(null); // Store cuisine outside the inspection details
-  const [restaurantPhone, setRestaurantPhone] = useState(null);
   const [isOpenNow, setIsOpenNow] = useState(null); // Track if the restaurant is open now
   const [inspectionDetails, setInspectionDetails] = useState([]);
   const [error, setError] = useState(null); // Error state for both restaurant hours and inspection data
@@ -41,7 +40,6 @@ export default function RestaurantDetails({ params }) {
   if (data.length > 0) {
     setRestaurantCuisine(data[0].Restaurant.cuisine_description);
     setRestaurantAddress(`${data[0].Restaurant.building} ${data[0].Restaurant.street}, ${data[0].Restaurant.boro}, NY ${data[0].Restaurant.zipcode}`);
-    setRestaurantPhone(data[0].Restaurant.phone);
   }
 
 
@@ -72,11 +70,11 @@ export default function RestaurantDetails({ params }) {
         </p>
       )}
       {restaurantCuisine && (
-        <p><strong>Cuisine:</strong> {restaurantCuisine}</p>)}
+        <p><strong>Cuisine:</strong> {restaurantCuisine}</p> 
+      )}
       {restaurantAddress && (
-        <p><strong>Address:</strong> {restaurantAddress}</p>)}
-      {restaurantPhone && (  
-        <p><strong>Phone:</strong> {restaurantPhone}</p>)}
+        <p><strong>Address:</strong> {restaurantAddress}</p>
+      )}
        
       <br></br>
       <h2>Inspection Detail:</h2>
@@ -106,15 +104,7 @@ export default function RestaurantDetails({ params }) {
         !error && <p>Loading restaurant hours...</p>
       )}
 
-<button 
-  onClick={() => {
-    if (window.history.length > 1) {
-      router.back(); // Go back if there is history
-    } else {
-      window.close(); // Close the tab if no history
-    }
-  }} 
-  style={{ margin: '20px 0', padding: '10px 20px', cursor: 'pointer', fontSize: '16px' }}>Go Back</button>
+      <button onClick={() => router.back()} style={{ margin: '20px 0', padding: '10px 20px', cursor: 'pointer', fontSize: '16px' }}> Go Back </button>
     </div>
   );
 }

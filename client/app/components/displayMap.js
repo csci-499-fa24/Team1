@@ -264,7 +264,7 @@ const GoogleMapComponent = () => {
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
               <a 
                 href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-               
+                target="_blank" 
                 rel="noopener noreferrer" 
                 style={{ color: 'blue', textDecoration: 'underline' }}
               >
