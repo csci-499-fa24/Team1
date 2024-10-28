@@ -5,9 +5,9 @@ class AppError extends Error {
         super(message)   // pass to parent class
         this.statusCode = statusCode;
         this.status = `${statusCode}`.startsWith(4) ? 'fail' : 'error';  
-        this.isOperational = true;   //a property that tell it is a custom error
+        this.isOperational = true;   
 
-        Error.captureStackTrace(this, this.constructor); //syntax to capture stacktrace, get line number and file name
+        Error.captureStackTrace(this, this.constructor); 
     }
 }
 
