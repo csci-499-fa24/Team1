@@ -4,6 +4,8 @@ import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
 import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
+import restaurantIcon from '../assets/restaurant_icon.png';
+import barIcon from '../assets/bar_icon.png'; 
 
 const containerStyle = {
   width: '100%',
@@ -47,6 +49,11 @@ const GoogleMapComponent = () => {
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
   const [errorMessage, setErrorMessage] = useState('');
+
+
+  // Keywords to identify bars and exclude specific keywords
+  const barKeywords = ["bar", "pub", "tavern", "lounge"];
+  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"]; 
 
   const router = useRouter();
 
@@ -147,10 +154,6 @@ const GoogleMapComponent = () => {
     const cuisine = location.Restaurant.cuisine_description
       ? location.Restaurant.cuisine_description.toLowerCase()
       : ""; 
-  
-    // Keywords to identify bars and exclude specific keywords
-    const barKeywords = ["bar", "pub", "tavern", "lounge"];
-    const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq"]; 
   
     const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
     const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
@@ -273,6 +276,18 @@ const GoogleMapComponent = () => {
               key={index}
               position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
               title={location.Restaurant.dba}
+              icon={{
+                url: (() => {
+                  const isLocationBar = isBar(location); 
+                  const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
+                
+                  return shouldShowBar
+                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                })(),
+                scaledSize: new window.google.maps.Size(30, 30),
+                anchor: new window.google.maps.Point(15, 30),          
+              }}
               onClick={() => handleMarkerClick(location)}
             />
           ))}
