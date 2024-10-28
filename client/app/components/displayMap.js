@@ -45,8 +45,8 @@ const GoogleMapComponent = () => {
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
+  const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
   const [errorMessage, setErrorMessage] = useState('');
-
 
   const router = useRouter();
 
@@ -142,6 +142,23 @@ const GoogleMapComponent = () => {
   };
 
 
+  const isBar = (location) => {
+    const name = location.Restaurant.dba.toLowerCase();
+    const cuisine = location.Restaurant.cuisine_description
+      ? location.Restaurant.cuisine_description.toLowerCase()
+      : ""; 
+  
+    // Keywords to identify bars and exclude specific keywords
+    const barKeywords = ["bar", "pub", "tavern", "lounge"];
+    const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq"]; 
+  
+    const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+    const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+  
+    return isLikelyBar && !isExcluded;
+  };
+  
+  
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation
@@ -160,7 +177,10 @@ const GoogleMapComponent = () => {
 
     return (
       (filter === '' || location.Restaurant.cuisine_description === filter) && // cuisine_description filter
-      (currentLocation ? distance <= distanceFilter : true) // distance filter
+      (currentLocation ? distance <= distanceFilter : true) && // distance filter
+      (typeFilter === '' ||
+        (typeFilter === 'Bar' && isBar(location)) || 
+        (typeFilter === 'Restaurant' && !isBar(location))) 
     );
   });
 
@@ -216,6 +236,16 @@ const GoogleMapComponent = () => {
                 <option value={25}>25 miles</option>
               </select>
             </div> {/*div b */}
+
+            {/* Bar or Restaurant Filter */}
+            <div className="filter-item">
+              <label htmlFor="filterType">Filter by Restaurant or Bar: </label>
+              <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                <option value="">All</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Bar">Bar</option>
+              </select>
+            </div>
           </div>
         )}
       </div>
