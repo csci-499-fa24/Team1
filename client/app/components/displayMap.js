@@ -46,6 +46,12 @@ const GoogleMapComponent = () => {
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [errorMessage, setErrorMessage] = useState('');
 
+
+  //Agregado para filtrar por nombre
+  const [filterName, setNameFilter] = useState(''); //Filter for name dba
+  const [nameOptions, setNameOptions] = useState([]); //Holds name
+
+
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
@@ -67,6 +73,20 @@ const GoogleMapComponent = () => {
             .filter(cuisine => cuisine && cuisine.trim() !== '')
         )];
         setCuisineOptions(uniqueCuisines);
+
+
+        //Extract unique Names descriptions
+        
+        const uniqueNames = [...new Set(
+          data
+            .map((location) => location.Restaurant.dba)
+            .filter(namerestaurant => namerestaurant && namerestaurant.trim() !== '')
+        )];
+        setNameOptions(uniqueNames);
+
+
+
+
       } catch (error) {
         console.error('Error fetching locations:', error);
       }
@@ -153,7 +173,13 @@ const GoogleMapComponent = () => {
       : 0;
 
     return (
-      (filter === '' || location.Restaurant.cuisine_description === filter) && // cuisine_description filter
+      (filter === '' || location.Restaurant.cuisine_description === filter) || // cuisine_description filter
+
+
+      (filter === ''|| location.Restaurant.dba === filter)&& //Name filter
+
+
+
       (currentLocation ? distance <= distanceFilter : true) // distance filter
     );
   });
@@ -194,6 +220,27 @@ const GoogleMapComponent = () => {
                 ))}
               </select>
             </div> {/*div a */}
+
+
+
+            {/* Name Restaurant Filter */}
+            <div className="filter-item"> {/*div a */}
+              <label htmlFor="filterRestaurantName">Filter by Name: </label>
+              <select
+                id="filterRestaurantName"
+                value={filterName}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="">Hold Shift key while searching</option>
+                {nameOptions.map((namerestaurant, index) => (
+                  <option key={index} value={namerestaurant}>
+                    {namerestaurant}
+                  </option>
+                ))}
+              </select>
+            </div> {/*div a */}
+
+
 
             {/* Distance Filter */}
             <div className="filter-item"> {/*div b */}
@@ -264,7 +311,7 @@ const GoogleMapComponent = () => {
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
               <a 
                 href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-               
+                target="_blank" 
                 rel="noopener noreferrer" 
                 style={{ color: 'blue', textDecoration: 'underline' }}
               >
