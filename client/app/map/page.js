@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"; // for redirection
 import axios from "axios";  // for API requests
 import Cookies from "js-cookie"; // for accessing cookies
 import Navbar from "../components/Navbar";
+import "../styles/displaymapfilter.css"
 
 export default function mapPage() {
 
@@ -52,12 +53,6 @@ export default function mapPage() {
         <div>
             <Navbar/>
             <GoogleMapEmbed />
-
-
-            <button onClick={() => router.push('/profile')}>
-                back
-            </button>
-            
         </div>
     );
 };

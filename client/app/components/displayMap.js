@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
+import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
 import { useDraggableCard } from './useDraggableCard';
 import ExpandableCard from './ExpandableCard';
@@ -47,6 +48,7 @@ const GoogleMapComponent = () => {
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
+  const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
   const cardRef = useRef(null); // Reference for the expandable card
@@ -55,6 +57,13 @@ const GoogleMapComponent = () => {
     y: window.innerHeight / 2 - 300,
   });
 
+
+
+  // Keywords to identify bars and exclude specific keywords
+  const barKeywords = ["bar", "pub", "tavern", "lounge"];
+  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"]; 
+
+  const router = useRouter();
 
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
@@ -109,6 +118,8 @@ const GoogleMapComponent = () => {
     
   };
 
+
+
   const handleViewMoreClick = async (location) => {
     try {
       const inspectionRes = await axios.get(
@@ -161,7 +172,6 @@ const GoogleMapComponent = () => {
   
 
   } catch (error) {
-
       // Check if there's a response and extract the custom message
     if (error.response && error.response.data && error.response.data.message) {
         alert(error.response.data.message); // Display custom error message from backend
@@ -172,6 +182,18 @@ const GoogleMapComponent = () => {
     console.error('Error adding location to favorites:', error);
     
   }
+};
+
+const isBar = (location) => {
+  const name = location.Restaurant.dba.toLowerCase();
+  const cuisine = location.Restaurant.cuisine_description
+    ? location.Restaurant.cuisine_description.toLowerCase()
+    : ""; 
+
+  const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+  const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+
+  return isLikelyBar && !isExcluded;
 };
 
   // // Filter locations if the user allows location access
@@ -191,7 +213,10 @@ const GoogleMapComponent = () => {
 
     return (
       (filter === '' || location.Restaurant.cuisine_description === filter) && // cuisine_description filter
-      (currentLocation ? distance <= distanceFilter : true) // distance filter
+      (currentLocation ? distance <= distanceFilter : true) && // distance filter
+      (typeFilter === '' ||
+        (typeFilter === 'Bar' && isBar(location)) || 
+        (typeFilter === 'Restaurant' && !isBar(location))) 
     );
   });
 
@@ -247,6 +272,16 @@ const GoogleMapComponent = () => {
                 <option value={25}>25 miles</option>
               </select>
             </div> {/*div b */}
+
+            {/* Bar or Restaurant Filter */}
+            <div className="filter-item">
+              <label htmlFor="filterType">Filter by Restaurant or Bar: </label>
+              <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                <option value="">All</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Bar">Bar</option>
+              </select>
+            </div>
           </div>
         )}
       </div>
@@ -274,6 +309,18 @@ const GoogleMapComponent = () => {
               key={index}
               position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
               title={location.Restaurant.dba}
+              icon={{
+                url: (() => {
+                  const isLocationBar = isBar(location); 
+                  const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
+                
+                  return shouldShowBar
+                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                })(),
+                scaledSize: new window.google.maps.Size(30, 30),
+                anchor: new window.google.maps.Point(15, 30),          
+              }}
               onClick={() => handleMarkerClick(location)}
             />
           ))}
@@ -286,9 +333,9 @@ const GoogleMapComponent = () => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
-            <div style={{ color: 'black', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+            <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
               
-              <h4>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h4>
+              <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
@@ -298,6 +345,7 @@ const GoogleMapComponent = () => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
+
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
               <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
 
