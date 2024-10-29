@@ -1,12 +1,18 @@
 import React from "react";
-
 import Imagen from 'next/image';
-
 import AboutBackground from "../assets/about-background.png";
 import AboutBackgroundImage from "../assets/NY3_home.jpg";
-//import { BsFillPlayCircleFill } from "react-icons/bs";
+
+import {useRouter} from 'next/navigation';
 
 const About = () => {
+
+  const router = useRouter();
+
+  const handleRecommendation=()=>{
+    router.push('https://www.therumhousenyc.com');
+  };
+
   return (
     <div className="about-section-container">
       <div className="about-background-image-container">
@@ -27,10 +33,8 @@ const About = () => {
           Sign up si you can have a personalized map with displayed only your selected locations.        
         </p>
         <div className="about-buttons-container">
-          <button className="secondary-button">Place of the week</button>
-          <button className="watch-video-button">
-            Watch Video
-          </button>
+          <button className="secondary-button" onClick={handleRecommendation}>Place of the week</button>          
+         
         </div>
       </div>
     </div>

@@ -137,36 +137,42 @@ const GoogleMapComponent = () => {
   };  
   
 
-  // Handle adding to favorites
-  const handleAddToFavorites = async (location) => {
-    const token = Cookies.get('token'); // Get the token for authenticated requests
-    try {
-     
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
-        {
-          
-           camis: location.camis,
+ // Handle adding to favorites
+ const handleAddToFavorites = async (location) => {
+  const token = Cookies.get('token'); // Get the token for authenticated requests
+  try {
+   
+    const response = await axios.post(
+      process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
+      {
+        
+         camis: location.camis,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-     // const data = await response.json();
-     
-      if (response.status === 201) {
-        alert('Location added to favorites!');
       }
-    
-
-    } catch (error) {
-      console.error('Error adding location to favorites:', error);
-      alert('Failed to add favorite location.');
-      
+    );
+   
+    if (response.status === 201) {
+      alert('Location added to favorites!');
     }
-  };
+  
+
+  } catch (error) {
+
+      // Check if there's a response and extract the custom message
+    if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message); // Display custom error message from backend
+    } else {
+      alert('Failed to add favorite location.'); // Fallback error message
+    }
+
+    console.error('Error adding location to favorites:', error);
+    
+  }
+};
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation

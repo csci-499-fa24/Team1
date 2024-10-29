@@ -1,71 +1,244 @@
-.profile-page {
-    display: flex;
-    justify-content: flex-start; /* Align items to the left */
-    padding: 20px;
-    height: 100vh; /* Full viewport height */
-}
 
-.profile-left {
+
+/* Main profile container */
+.profile-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    height: 100%; /* Full height to calculate gaps */
+    height: 100vh;
+    width: 100vw;
+    background-color: #fdf7f7;
+    background-image: url(../assets/map.jpg);
 }
 
-.profile-avatar {
-    width: 150px; /* Increased size */
-    height: 150px; /* Increased size */
-    background-color: grey;
-    border-radius: 50%;
-    margin-bottom: 20px;
-    background-image: url(../assets/user-profile.png);
+/* Top Section */
+.profile-top-section {
+   height: 15%;  
 }
 
-.profile-info h1 {
-    font-size: 3em; /* Increase font size for the username */
-    margin-bottom: 10px; /* Smaller gap after username */
-}
 
-.profile-buttons {
+/* Main Content Section: Left and Right */
+.profile-main-content {
     display: flex;
-    flex-direction: column; /* Arrange buttons in a column */
-    gap: 15px; /* Add some space between the buttons */
-    margin-bottom: 40px; /* Bigger gap before Sign Out */
+    height: 100%; 
 }
 
-.icon-button {
+
+/* Left Section: Button Section */
+.profile-left-section {
+    width: 35%;
+    height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 10px 20px;
-    font-size: 1.2em; /* Increase button font size */
-    background-color: #2121a0;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    justify-content: space-around;   
+    border-radius: 20px ;
+    margin-left: 40px;
 }
 
-.icon-button i {
-    margin-right: 10px; /* Space between icon and text */
+/* Avatar and Welcome Section (below the top section) */
+.profile-avatar-welcome-section {  
+    display: flex; 
+    align-items: center;
+    justify-content: start;
+    gap: 40px;
+    padding: 0px 40px  ;    
+    height: 30%;
+    width: 100%;
+    background-color: #fdfeff;   
+    border-style: solid;
+    border-width: 10px; 
+    border-color: #819be9; 
+    border-radius: 20px;
 }
 
-.icon-button:hover {
-    background-color: #5362a5;
+
+.profile-avatar-welcome-section img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-image: url(../assets/profile.png);
+  
 }
 
-.logout-button {
-    padding: 10px 20px;
-    font-size: 1.2em; /* Increase button font size */
-    background-color: #2d2d5c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.profile-avatar-welcome-section h2 {
+    font-size: 50px;
+    color: #252153;
+    text-align: center;
 }
 
-.logout-button:hover {
-    background-color: #cc0000;
+.favorite-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color:  #da9696; 
+    padding: 20px 20px; 
+    border-radius: 20px;
+    
 }
+
+/* Style for the "Favorites" title */
+.favorites-title {
+    font-size: 34px; 
+    text-align: center; 
+    font-weight: bold;
+    margin-bottom: 20px; 
+    color: #800000; 
+}
+
+.favorite-section .favorites-container .favorite-item {
+    padding: 10px;
+    transition: background-color 0.3s ease; /* Smooth color transition */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.favorite-section .favorites-container .favorite-item:hover {
+    background-color: #ecc7d2; /* Choose a color that suits your design */
+    color: #8a3333; /* change the text color */
+}
+
+/* Initial state: hidden off-screen */
+.profile-right-section {
+    display: flex;
+    justify-content: center;
+    width: 65%;
+   /*  height: 100%; */
+    position: absolute; /* Position it off-screen */
+    right: -100%; /* Move it completely off-screen to the right */
+    top: 10%; /* Adjust based on your layout */
+    transition: right 0.5s ease; /* Smooth slide transition */
+    z-index: 10;
+}
+
+
+
+/* When active, slide it into view */
+.profile-right-section.active {
+    right: 0; /* Move it into view */
+}
+
+
+ .infoContainer {
+    display: flex;
+    flex-direction: column;
+    width: fit-content; 
+    overflow: hidden;
+    border-radius: 20px;
+    background-color: #fafafa;
+    justify-content: center;
+    padding: 20px ;   
+    border-style: solid;
+    border-width: 20px;
+    border-color: #bfc7bd;
+    transition: max-height 0.3s ease-in-out;
+    align-items: center;
+     text-align: center;
+     
+}
+
+.place-details {
+    transition: max-height 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+
+.place-details .opening-hours p {
+    margin: 0;
+    padding: 0.5em 0;
+}
+.place-details .opening-hours p:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
+.place-details .website p{
+    width: 400px;
+}
+ 
+
+
+
+/* Mobile responsive styling for PlaceDetails slide-over */
+@media (max-width: 768px) {
+    .profile-main-content {
+        flex-direction: column;
+    }
+
+    .profile-avatar-welcome-section img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        /* background-image: url(../assets/profile.png); */
+      
+    }
+    
+    .profile-avatar-welcome-section h2 {
+        font-size: 30px;
+        color: #252153;
+        text-align: center;
+    }
+
+    /* Left section (favorites list) should take full width initially */
+    .profile-left-section {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    /* Right section (PlaceDetails) will cover the entire screen on mobile */
+    .profile-right-section {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #fafafa;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(100%);
+        z-index: 20;
+    }
+
+    /* Active class for showing the right section (PlaceDetails) */
+    .profile-right-section.active {
+        right: 0;
+    } 
+    .profile-right-section.mobile-active {
+        transform: translateX(0);
+    }
+
+    /* Adjust the infoContainer to fill the mobile screen */
+    .infoContainer {
+        width: 100%;
+        padding: 20px;
+        height: 100%;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    /* Close button style */
+    .close-button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #800000;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+
+    /* Back button styling for mobile view */
+    .back-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    } 
+}
+
 
