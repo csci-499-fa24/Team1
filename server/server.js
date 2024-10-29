@@ -9,7 +9,7 @@ const app = express();
 
 
 const { getInspectionDetails } = require("./controllers/inspections")
-
+const reviewsRoute = require('./controllers/getReviews');
 //
 const authRouter = require('./routes/authRoute');
 const globalErrorHandler = require("./controllers/errorController");
@@ -43,6 +43,7 @@ app.get("/api/inspections/:camis", getInspectionDetails);
 
 const { getRestaurantHours } = require('./controllers/getRestaurantHours'); // Import the route for fetching restaurant hours
 app.get('/api/restaurant-hours', getRestaurantHours); //route to fetch restaurant hours
+app.get('/api/v1/restaurant-reviews', reviewsRoute.getRestaurantReviews);
 
 //routes for signup and login
 app.use('/api/v1/auth', authRouter);
@@ -59,7 +60,6 @@ app.use('*', catchAsync (async(req, res, next) => {
 
 //global error handler
 app.use(globalErrorHandler);
-
 
 db.sequelize.sync({ force: false });
 
