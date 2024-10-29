@@ -1,9 +1,8 @@
 import React from "react";
-
 import Imagen from 'next/image';
+import Navbar1 from "./Navbar1";
 
 import { useRouter } from 'next/navigation';
-
 import BannerBackground from '../assets/home-banner-background.png';
 import BannerImage from '../assets/food_home.jpg';
 
@@ -17,7 +16,7 @@ const Home = () => {
   
   return (
     <div className="home-container">
-      
+      <Navbar1 />
       <div className="home-banner-container">
         <div className="home-bannerImage-container">
           <Imagen src={BannerBackground} alt="" />
@@ -29,12 +28,7 @@ const Home = () => {
           <p className="primary-text">
             All restaurant and bar granted with grade A after inspection by the NYC authority.
           </p>
-          <button 
-            className="secondary-button"
-            onClick={handleSignUp}
-          >
-            Sign up {" "}
-          </button>
+         
         </div>
         <div className="home-image-section">
           <Imagen src={BannerImage} alt="" />
