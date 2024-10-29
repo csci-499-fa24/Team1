@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
 import "../styles/displaymapfilter.css";
+import { useDraggableCard } from './useDraggableCard';
+import ExpandableCard from './ExpandableCard';
+import { fetchReviewsByPlaceId } from './fetchReviews';
 
 const containerStyle = {
   width: '100%',
@@ -45,6 +48,13 @@ const GoogleMapComponent = () => {
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
+  const cardRef = useRef(null); // Reference for the expandable card
+  const { cardPosition, setCardPosition, handleDragStart } = useDraggableCard({
+    x: window.innerWidth / 2 - 250,
+    y: window.innerHeight / 2 - 300,
+  });
+
 
 
   //Agregado para filtrar por nombre
@@ -112,17 +122,40 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
 
-
   }, []);    
-
-
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
     
   };
 
-
+  const handleViewMoreClick = async (location) => {
+    try {
+      const inspectionRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+      );
+  
+      const hoursRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
+      );
+  
+      // Call the new backend route for reviews
+      const reviewsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
+      );
+  
+      setSelectedRestaurant({
+        ...location,
+        inspectionDetails: inspectionRes.data,
+        restaurantHours: hoursRes.data.hours,
+        isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data, 
+      });
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error);
+    }
+  };  
+  
 
   // Handle adding to favorites
   const handleAddToFavorites = async (location) => {
@@ -154,7 +187,6 @@ const GoogleMapComponent = () => {
       
     }
   };
-
 
 
   // // Filter locations if the user allows location access
@@ -307,19 +339,23 @@ const GoogleMapComponent = () => {
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
-              <a 
-                href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                style={{ color: 'blue', textDecoration: 'underline' }}
-              >
-                View More
-              </a>
+              <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
+
+
             </div>
           </InfoWindow>
         )}
       </GoogleMap>
-  {/* //</LoadScript> */}
+  {/* Expandable Card */}
+  {selectedRestaurant && (
+  <ExpandableCard
+    restaurant={selectedRestaurant}
+    position={cardPosition}
+    onClose={() => setSelectedRestaurant(null)}
+    handleDragStart={handleDragStart}
+    reviews={selectedRestaurant.reviews} 
+  />
+)}
 
     </div>
   );
