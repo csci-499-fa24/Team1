@@ -1,24 +1,28 @@
-.favorites-container {
-    padding: 20px;
-    text-align: center;
-}
 
-.favorites-list {
-    list-style: none;
-    padding: 0;
-}
+.favorites-container {
+    display: flex;
+    /*  height: 44vh;  */
+    background-color: #f9f9f9;
+} 
 
 .favorite-item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
+    /* display: flex;  */
+    cursor: pointer;    
+ }
 
-.favorite-item h3 {
-    margin: 0;
-    font-size: 20px;
-}
+ .favorite-details { 
+    flex-grow: 1;     
+     padding: 5px 5px;
+     text-align: left;
 
-.favorite-item p {
-    margin: 5px 0 0 0;
-    color: gray;
+  } 
+
+/* Remove button styling */
+.remove-favorite-btn {
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 16px;
+  
 }

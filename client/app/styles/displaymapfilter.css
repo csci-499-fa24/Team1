@@ -1,68 +1,125 @@
 .map-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+  }
+  
+  .filter-section {
+    position: absolute;
+    bottom: 4px;
+    left: 8px;
+    background-color: rgb(193, 192, 192, 0.9); /* Slightly transparent background */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Ensure it's on top of the map */
+  }
+  
+  .filter-toggle-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .filter-dropdown {
+    margin-top: 10px;
+  }
+  
+  .filter-item {
+    margin-bottom: 15px;
+  }
+  
+  .filter-item label {
+    margin-right: 10px;
+  }
+  
+  .filter-item select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .expandable-card {
+    position: absolute;
+    top: 15%; /* Keeps the card below the navbar */
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 80%;
+    max-width: 500px;
+    max-height: 70vh; 
+    overflow-y: auto; 
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 100;
+    animation: slideDown 0.5s ease forwards;
+  }
+  @keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%); /* Starts above the viewport */
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0); /* Moves to the desired position */
+    }
 }
 
-.filter-section {
-  position: absolute;
-  bottom: 4px;
-  left: 8px;
-  background-color: rgb(193, 192, 192, 0.9); /* Slightly transparent background */
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10; /* Ensure it's on top of the map */
-}
-
-.filter-toggle-button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.filter-dropdown {
-  margin-top: 10px;
-}
-
-.filter-item {
-  margin-bottom: 15px;
-}
-
-.filter-item label {
-  margin-right: 10px;
-}
-
-.filter-item select {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.map-back-button {
-  position: absolute;
-  top: 70px;
-  left: 8px;
-  background-color: rgb(211, 211, 211); /* Slightly transparent background */
-  padding: 12px;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10; 
-}
-
-.favorite-button {
-  display: block;
-  margin: 10px 0;
-  padding: 4px 12px;
-  cursor: pointer;
-}
-.view-button {
-  display: block;
-  margin: 2px 0;
-  padding: 4px 12px;
-  cursor: pointer;
-  justify-content: center;
-}
+  .expandable-card h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-top: 0;
+    position: relative;
+    padding-bottom: 8px;
+  }
+  
+  .expandable-card h3::after {
+    content: "";
+    display: block;
+    width: 80%;
+    height: 2px;
+    background-color: #ddd;
+    margin: 0 auto;
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+  }
+  
+  .inspection-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+  }
+  
+  .inspection-card p {
+    margin: 5px 0;
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .expandable-card p {
+    margin: 5px 0;
+  }
+  
+  .expandable-card ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  

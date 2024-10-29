@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
 import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
+import { useDraggableCard } from './useDraggableCard';
+import ExpandableCard from './ExpandableCard';
+import { fetchReviewsByPlaceId } from './fetchReviews';
 
 const containerStyle = {
   width: '100%',
@@ -47,6 +50,13 @@ const GoogleMapComponent = () => {
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
+  const cardRef = useRef(null); // Reference for the expandable card
+  const { cardPosition, setCardPosition, handleDragStart } = useDraggableCard({
+    x: window.innerWidth / 2 - 250,
+    y: window.innerHeight / 2 - 300,
+  });
+
 
 
   // Keywords to identify bars and exclude specific keywords
@@ -101,65 +111,90 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
 
-
   }, []);    
-
-
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
     
   };
 
-  const handleViewMore = () => {
-    router.push(`/restaurants/${selectedLocation.Restaurant.camis}`)
-  };
 
-  // Handle adding to favorites
-  const handleAddToFavorites = async (location) => {
-    const token = Cookies.get('token'); // Get the token for authenticated requests
+
+  const handleViewMoreClick = async (location) => {
     try {
-     
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
-        {
-          
-           camis: location.camis,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const inspectionRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
-     // const data = await response.json();
-     
-      if (response.status === 201) {
-        alert('Location added to favorites!');
-      }
-    
-
+  
+      const hoursRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
+      );
+  
+      // Call the new backend route for reviews
+      const reviewsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
+      );
+  
+      setSelectedRestaurant({
+        ...location,
+        inspectionDetails: inspectionRes.data,
+        restaurantHours: hoursRes.data.hours,
+        isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data, 
+      });
     } catch (error) {
-      console.error('Error adding location to favorites:', error);
-      alert('Failed to add favorite location.');
-      
+      console.error("Error fetching restaurant details:", error);
     }
-  };
+  };  
+  
 
+ // Handle adding to favorites
+ const handleAddToFavorites = async (location) => {
+  const token = Cookies.get('token'); // Get the token for authenticated requests
+  try {
+   
+    const response = await axios.post(
+      process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
+      {
+        
+         camis: location.camis,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+   
+    if (response.status === 201) {
+      alert('Location added to favorites!');
+    }
+  
 
-  const isBar = (location) => {
-    const name = location.Restaurant.dba.toLowerCase();
-    const cuisine = location.Restaurant.cuisine_description
-      ? location.Restaurant.cuisine_description.toLowerCase()
-      : ""; 
-  
-    const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
-    const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
-  
-    return isLikelyBar && !isExcluded;
-  };
-  
-  
+  } catch (error) {
+      // Check if there's a response and extract the custom message
+    if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message); // Display custom error message from backend
+    } else {
+      alert('Failed to add favorite location.'); // Fallback error message
+    }
+
+    console.error('Error adding location to favorites:', error);
+    
+  }
+};
+
+const isBar = (location) => {
+  const name = location.Restaurant.dba.toLowerCase();
+  const cuisine = location.Restaurant.cuisine_description
+    ? location.Restaurant.cuisine_description.toLowerCase()
+    : ""; 
+
+  const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+  const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+
+  return isLikelyBar && !isExcluded;
+};
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation
@@ -310,25 +345,24 @@ const GoogleMapComponent = () => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
-              <br/>
-              <button 
-                onClick={() => handleAddToFavorites(selectedLocation)}
-                className='favorite-button'
-              >   
-                Add to Favorites 
-              </button>
 
-              <button 
-                onClick={() => handleViewMore()}
-                className='view-button'
-              >   
-                View More 
-              </button>
+              <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
+              <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
+
             </div>
           </InfoWindow>
         )}
       </GoogleMap>
-  {/* //</LoadScript> */}
+  {/* Expandable Card */}
+  {selectedRestaurant && (
+  <ExpandableCard
+    restaurant={selectedRestaurant}
+    position={cardPosition}
+    onClose={() => setSelectedRestaurant(null)}
+    handleDragStart={handleDragStart}
+    reviews={selectedRestaurant.reviews} 
+  />
+)}
 
     </div>
   );

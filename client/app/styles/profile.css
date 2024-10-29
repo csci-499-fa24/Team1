@@ -1,71 +1,261 @@
-.profile-page {
-    display: flex;
-    justify-content: flex-start; /* Align items to the left */
-    padding: 20px;
-    height: 100vh; /* Full viewport height */
-}
 
-.profile-left {
+/* Main profile container */
+.profile-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    height: 100%; /* Full height to calculate gaps */
+    height: 100vh;
+    width: 100vw;
+    background-color: #fdf7f7;
+    background-image: url(../assets/map.jpg);
+    background-size: cover; /* Ensures background scales with screen size */
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.profile-avatar {
-    width: 150px; /* Increased size */
-    height: 150px; /* Increased size */
-    background-color: grey;
-    border-radius: 50%;
-    margin-bottom: 20px;
-    background-image: url(../assets/user-profile.png);
+/* Top Section */
+.profile-top-section {
+    height: 12vh; /* Proportional to viewport height */
 }
 
-.profile-info h1 {
-    font-size: 3em; /* Increase font size for the username */
-    margin-bottom: 10px; /* Smaller gap after username */
-}
-
-.profile-buttons {
+/* Main Content Section: Left and Right */
+.profile-main-content {
     display: flex;
-    flex-direction: column; /* Arrange buttons in a column */
-    gap: 15px; /* Add some space between the buttons */
-    margin-bottom: 40px; /* Bigger gap before Sign Out */
+    height: 88vh; /* Fill remaining space */
+    overflow: hidden; /* Prevent overflow on smaller screens */
 }
 
-.icon-button {
+/* Left Section: Button Section */
+.profile-left-section {
+    width: 30vw; /* Proportional to viewport width */
+    height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 10px 20px;
-    font-size: 1.2em; /* Increase button font size */
-    background-color: #2121a0;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    justify-content: space-evenly;   
+    border-radius: 1.5vw; /* Responsive border radius */
+    margin-left: 2vw;
 }
 
-.icon-button i {
-    margin-right: 10px; /* Space between icon and text */
+/* Avatar and Welcome Section (below the top section) */
+.profile-avatar-welcome-section {  
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start;
+    gap: 2vw;
+    padding: 0 2vw;    
+    height: 25vh;
+    width: 100%;
+    background-color: #fdfeff;   
+    border: 0.5vw solid #819be9; 
+    border-radius: 1.5vw;
 }
 
-.icon-button:hover {
-    background-color: #5362a5;
+
+
+.profile-avatar-welcome-section i {
+    font-size: 7.5vw; /* Adjusts size based on viewport width */
+    color: #7e8085; /* Customize the color as needed */
 }
 
-.logout-button {
-    padding: 10px 20px;
-    font-size: 1.2em; /* Increase button font size */
-    background-color: #2d2d5c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+
+.profile-avatar-welcome-section h2 {
+    font-size: 2.5vw;
+    color: #252153;
+    text-align: center;
 }
 
-.logout-button:hover {
-    background-color: #cc0000;
+
+
+.favorite-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 55vh; 
+    background-color:  #da9696; 
+    padding: 1vw 1vw;     
+    border-radius: 1vw;
+   
+} 
+
+.favorites-title {
+    font-size: 1.7vw;
+    text-align: center;  
+    font-weight: bold;
+    margin-bottom: 1vw; 
+    color: #800000; 
 }
 
+.favorite-section .favorites-container {
+   overflow: auto;  
+}
+    
+
+.favorite-section .favorites-container .favorite-item {
+    padding: 0.5vw; 
+    transition: background-color .3s ease;  
+    display: flex;  
+    width: 27vw;
+ } 
+    
+ 
+.favorite-section .favorites-container .favorite-item:hover {
+    background-color: #ecc7d2;
+    color: #8a3333;
+}
+ 
+
+
+/* Right Section */
+.profile-right-section {
+    display: flex;
+    justify-content: center;
+    width: 65vw;
+    position: absolute; 
+    right: -100%; /* Off-screen */
+    transition: right 0.5s ease;
+     z-index: 10; 
+     margin-top: 4vh;
+}
+
+/* Responsive active class for the right section */
+.profile-right-section.active {
+    right: 0;
+}
+
+
+.infoContainer {
+    display: flex;
+    flex-direction: column;
+    width: fit-content; 
+    max-height: 80vh; /* Limit height to viewport height */
+    overflow-y: auto; /* Enable scrolling when content exceeds max height */
+    border-radius: 1.5vw;
+    background-color: #fafafa;
+    justify-content: center;
+    padding: 1vw; 
+    border: 0.5vw solid #bfc7bd; 
+    transition: max-height 0.3s ease-in-out;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    overflow-y: auto;  
+}
+
+.place-details {
+    max-height: 75vh; /* Limit expansion */
+    transition: max-height 0.3s ease-in-out;   
+}
+
+
+
+/* Responsive styling for PlaceDetails on mobile */
+@media (max-width: 768px) {
+ 
+    .profile-main-content {
+        flex-direction: column;
+    }
+    .favorites-title {
+        font-size: 5vw;
+    }
+
+    .favorite-section{
+        padding: 8px;
+    }
+    .favorite-section .favorites-container {
+         height: 100%;
+         padding: 10px 10px;
+     }
+
+     .favorite-section .favorites-container .favorite-item {
+        padding: 1vw 1vw;   
+         display: flex;
+         width: 100%; 
+        
+     } 
+     .favorites-list{
+        height: 100%;
+     }
+    /* Left section (favorites list) should take full width initially  */
+     .profile-left-section { 
+        width: 100vw;
+        height: 100vh;
+        margin-left: 0; 
+    } 
+
+
+      /* Adjust avatar icon size and welcome text for better proportion */
+      .profile-avatar-welcome-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        gap: 15px; /* Spacing between avatar icon and welcome message */
+    }
+
+    .profile-avatar-welcome-section i {
+        font-size: 20vw; 
+    }
+
+    .profile-avatar-welcome-section h2 {
+        font-size: 10vw; 
+    }
+
+
+
+    /* Right section (PlaceDetails) will cover the entire screen on mobile  */
+    
+     .profile-right-section {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background-color: #fafafa;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(100%);
+        z-index: 20;
+    } 
+ 
+
+    /* Active class for showing the right section (PlaceDetails)  */
+    .profile-right-section.active {
+        right: 0;
+    } 
+    .profile-right-section.mobile-active {
+        transform: translateX(0);
+    }
+
+    /* Adjust the infoContainer to fill the mobile screen  */
+    .infoContainer {
+        width: 100%;
+        padding: 20px;
+        height: 100%;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+  
+    /* Close button style  */
+    .close-button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #800000;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+
+    /* Back button styling for mobile view  */
+    .back-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    } 
+}
