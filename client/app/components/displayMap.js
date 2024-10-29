@@ -387,6 +387,7 @@ const isBar = (location) => {
 
               <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
 
+ Temporary merge branch 2
             </div>
           </InfoWindow>
         )}
