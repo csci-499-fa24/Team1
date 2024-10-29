@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ExpandableCard = ({ restaurant, position, onClose, handleDragStart }) => (
+const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, reviews }) => (
   <div
     className="expandable-card"
     style={{ top: `${position.y}px`, left: `${position.x}px`, position: "absolute" }}
@@ -43,6 +43,22 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart }) => (
     ) : (
       <p>No inspection data available</p>
     )}
+    {/* Display Reviews */}
+    <h4>Reviews:</h4>
+{reviews && reviews.length > 0 ? (
+  reviews.map((review, index) => (
+    <React.Fragment key={index}>
+      <div className="review-card">
+        <p><strong>{review.author_name}</strong> ({review.time}):</p>
+        <p>Rating: {review.rating}</p>
+        <p>{review.text}</p>
+      </div>
+      {index < reviews.length - 1 && <hr />} 
+    </React.Fragment>
+  ))
+) : (
+  <p>No reviews available</p>
+)}
   </div>
 );
 

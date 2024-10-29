@@ -1,7 +1,7 @@
 .map-container {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
   }
   
   .filter-section {
@@ -49,8 +49,8 @@
     transform: translate(-50%, 0);
     width: 80%;
     max-width: 500px;
-    max-height: 70vh; /* Set maximum height to 70% of the viewport */
-    overflow-y: auto; /* Enables vertical scrolling within the card */
+    max-height: 70vh; 
+    overflow-y: auto; 
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -58,7 +58,17 @@
     z-index: 100;
     animation: slideDown 0.5s ease forwards;
   }
-  
+  @keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%); /* Starts above the viewport */
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0); /* Moves to the desired position */
+    }
+}
+
   .expandable-card h3 {
     text-align: center;
     font-size: 1.8rem;

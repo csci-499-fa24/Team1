@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'; // For authorization
 import "../styles/displaymapfilter.css";
 import { useDraggableCard } from './useDraggableCard';
 import ExpandableCard from './ExpandableCard';
+import { fetchReviewsByPlaceId } from './fetchReviews';
 
 const containerStyle = {
   width: '100%',
@@ -101,7 +102,6 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
 
-
   }, []);    
 
   const handleMarkerClick = (location) => {
@@ -111,26 +111,31 @@ const GoogleMapComponent = () => {
 
   const handleViewMoreClick = async (location) => {
     try {
-      // Fetch inspection details
       const inspectionRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
   
-      // Fetch restaurant hours
       const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
+      );
+  
+      // Call the new backend route for reviews
+      const reviewsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
   
       setSelectedRestaurant({
         ...location,
         inspectionDetails: inspectionRes.data,
         restaurantHours: hoursRes.data.hours,
-        isOpenNow: hoursRes.data.hours.open_now, // Track if open
+        isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data, 
       });
     } catch (error) {
-      console.error('Error fetching restaurant details:', error);
+      console.error("Error fetching restaurant details:", error);
     }
-  };
+  };  
+  
 
   // Handle adding to favorites
   const handleAddToFavorites = async (location) => {
@@ -162,7 +167,6 @@ const GoogleMapComponent = () => {
       
     }
   };
-
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation
@@ -302,6 +306,7 @@ const GoogleMapComponent = () => {
     position={cardPosition}
     onClose={() => setSelectedRestaurant(null)}
     handleDragStart={handleDragStart}
+    reviews={selectedRestaurant.reviews} 
   />
 )}
 
