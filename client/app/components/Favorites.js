@@ -65,7 +65,7 @@ export default function Favorites({ onFavoriteClick }) { // Accept onFavoriteCli
     }
 
     return (
-        <div className="favorites-scrollable-container">
+        <div className="favorites-container">
             <ul className="favorites-list">
                 {favorites.length === 0 ? (
                     <p>No favorites added yet.</p>
@@ -82,13 +82,14 @@ export default function Favorites({ onFavoriteClick }) { // Accept onFavoriteCli
                                     {place.Restaurant.building} {place.Restaurant.street}, {place.Restaurant.boro}, NY {place.Restaurant.zipcode}
                                 </p>
                             </div>
+                           
                             <button 
                                 className="remove-favorite-btn" 
                                 onClick={(e) => {
                                     e.stopPropagation(); // Prevent triggering the click on the item
                                     handleRemoveFavorite(place.id);
                                 }}
-                                title="Remove Favorite"
+                               
                             >
                                 <i className="fa fa-trash"></i>
                             </button>

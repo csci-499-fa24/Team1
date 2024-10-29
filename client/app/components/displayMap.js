@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
+import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
+import { useDraggableCard } from './useDraggableCard';
+import ExpandableCard from './ExpandableCard';
+import { fetchReviewsByPlaceId } from './fetchReviews';
 
 const containerStyle = {
   width: '100%',
@@ -44,7 +48,22 @@ const GoogleMapComponent = () => {
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
+  const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
+  const cardRef = useRef(null); // Reference for the expandable card
+  const { cardPosition, setCardPosition, handleDragStart } = useDraggableCard({
+    x: window.innerWidth / 2 - 250,
+    y: window.innerHeight / 2 - 300,
+  });
+
+
+
+  // Keywords to identify bars and exclude specific keywords
+  const barKeywords = ["bar", "pub", "tavern", "lounge"];
+  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"]; 
+
+  const router = useRouter();
 
 
   //Agregado para filtrar por nombre
@@ -112,28 +131,48 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
 
-
   }, []);    
-
-
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
     
   };
 
+  const handleViewMoreClick = async (location) => {
+    try {
+      const inspectionRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+      );
+  
+      const hoursRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
+      );
+  
+      // Call the new backend route for reviews
+      const reviewsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
+      );
+  
+      setSelectedRestaurant({
+        ...location,
+        inspectionDetails: inspectionRes.data,
+        restaurantHours: hoursRes.data.hours,
+        isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data, 
+      });
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error);
+    }
+  };  
 
-
-  // Handle adding to favorites
-  const handleAddToFavorites = async (location) => {
+ // Handle adding to favorites
+ const handleAddToFavorites = async (location) => {
     const token = Cookies.get('token'); // Get the token for authenticated requests
     try {
-     
       const response = await axios.post(
         process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
         {
-          
-           camis: location.camis,
+          camis: location.camis,
         },
         {
           headers: {
@@ -146,16 +185,31 @@ const GoogleMapComponent = () => {
       if (response.status === 201) {
         alert('Location added to favorites!');
       }
-    
 
     } catch (error) {
-      console.error('Error adding location to favorites:', error);
-      alert('Failed to add favorite location.');
-      
+        // Check if there's a response and extract the custom message
+        if (error.response && error.response.data && error.response.data.message) {
+          alert(error.response.data.message); // Display custom error message from backend
+        } else {
+          alert('Failed to add favorite location.'); // Fallback error message
+        }
+
+        console.error('Error adding location to favorites:', error);
     }
   };
 
 
+const isBar = (location) => {
+  const name = location.Restaurant.dba.toLowerCase();
+  const cuisine = location.Restaurant.cuisine_description
+    ? location.Restaurant.cuisine_description.toLowerCase()
+    : ""; 
+
+  const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+  const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+
+  return isLikelyBar && !isExcluded;
+};
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation
@@ -173,12 +227,12 @@ const GoogleMapComponent = () => {
       : 0;
 
     return (
-      
-      ((filter === '' || location.Restaurant.cuisine_description === filter) || // cuisine_description filter
-      
-      (filter === ''|| location.Restaurant.dba === filter)) &&  //Name filter
-
-      (currentLocation ? distance <= distanceFilter : true) // distance filter
+      (filter === '' || location.Restaurant.cuisine_description === filter) || // cuisine_description filter
+      (filter === ''|| location.Restaurant.dba === filter)) &&
+      (currentLocation ? distance <= distanceFilter : true) && // distance filter
+      (typeFilter === '' ||
+        (typeFilter === 'Bar' && isBar(location)) || 
+        (typeFilter === 'Restaurant' && !isBar(location))
     );
   });
 
@@ -255,6 +309,16 @@ const GoogleMapComponent = () => {
                 <option value={25}>25 miles</option>
               </select>
             </div> {/*div b */}
+
+            {/* Bar or Restaurant Filter */}
+            <div className="filter-item">
+              <label htmlFor="filterType">Filter by Restaurant or Bar: </label>
+              <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                <option value="">All</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Bar">Bar</option>
+              </select>
+            </div>
           </div>
         )}
       </div>
@@ -282,6 +346,18 @@ const GoogleMapComponent = () => {
               key={index}
               position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
               title={location.Restaurant.dba}
+              icon={{
+                url: (() => {
+                  const isLocationBar = isBar(location); 
+                  const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
+                
+                  return shouldShowBar
+                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                    : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                })(),
+                scaledSize: new window.google.maps.Size(30, 30),
+                anchor: new window.google.maps.Point(15, 30),          
+              }}
               onClick={() => handleMarkerClick(location)}
             />
           ))}
@@ -294,9 +370,9 @@ const GoogleMapComponent = () => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
-            <div style={{ color: 'black', backgroundColor: 'white', padding: '10px', borderRadius: '5px' }}>
+            <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
               
-              <h4>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h4>
+              <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
@@ -306,20 +382,25 @@ const GoogleMapComponent = () => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
+
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
-              <a 
-                href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                style={{ color: 'blue', textDecoration: 'underline' }}
-              >
-                View More
-              </a>
+
+              <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
+
             </div>
           </InfoWindow>
         )}
       </GoogleMap>
-  {/* //</LoadScript> */}
+  {/* Expandable Card */}
+  {selectedRestaurant && (
+  <ExpandableCard
+    restaurant={selectedRestaurant}
+    position={cardPosition}
+    onClose={() => setSelectedRestaurant(null)}
+    handleDragStart={handleDragStart}
+    reviews={selectedRestaurant.reviews} 
+  />
+)}
 
     </div>
   );
