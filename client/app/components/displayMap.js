@@ -4,8 +4,6 @@ import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
 import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
-import restaurantIcon from '../assets/restaurant_icon.png';
-import barIcon from '../assets/bar_icon.png'; 
 
 const containerStyle = {
   width: '100%',
