@@ -101,7 +101,7 @@ export default function Personal() {
 
                 <div className="profile-left-section">
                     <div className="profile-avatar-welcome-section">
-                        <img src=""  />
+                       <i class="fa fa-user-circle"></i>
                         <div>
                             <h2>Welcome,</h2>
                             <h2> {user.userName}</h2>
@@ -141,4 +141,3 @@ export default function Personal() {
 
 
 }
-
