@@ -46,6 +46,12 @@ const GoogleMapComponent = () => {
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
   const [errorMessage, setErrorMessage] = useState('');
 
+
+  //Agregado para filtrar por nombre
+  const [filterName, setNameFilter] = useState(''); //Filter for name dba
+  const [nameOptions, setNameOptions] = useState([]); //Holds name
+
+
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
@@ -67,6 +73,20 @@ const GoogleMapComponent = () => {
             .filter(cuisine => cuisine && cuisine.trim() !== '')
         )];
         setCuisineOptions(uniqueCuisines);
+
+
+        //Extract unique Names descriptions
+        
+        const uniqueNames = [...new Set(
+          data
+            .map((location) => location.Restaurant.dba)
+            .filter(namerestaurant => namerestaurant && namerestaurant.trim() !== '')
+        )];
+        setNameOptions(uniqueNames);
+
+
+
+
       } catch (error) {
         console.error('Error fetching locations:', error);
       }
@@ -104,42 +124,37 @@ const GoogleMapComponent = () => {
 
 
 
- // Handle adding to favorites
- const handleAddToFavorites = async (location) => {
-  const token = Cookies.get('token'); // Get the token for authenticated requests
-  try {
-   
-    const response = await axios.post(
-      process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
-      {
-        
-         camis: location.camis,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+  // Handle adding to favorites
+  const handleAddToFavorites = async (location) => {
+    const token = Cookies.get('token'); // Get the token for authenticated requests
+    try {
+     
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
+        {
+          
+           camis: location.camis,
         },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+     // const data = await response.json();
+     
+      if (response.status === 201) {
+        alert('Location added to favorites!');
       }
-    );
-   
-    if (response.status === 201) {
-      alert('Location added to favorites!');
-    }
-  
-
-  } catch (error) {
-
-      // Check if there's a response and extract the custom message
-    if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message); // Display custom error message from backend
-    } else {
-      alert('Failed to add favorite location.'); // Fallback error message
-    }
-
-    console.error('Error adding location to favorites:', error);
     
-  }
-};
+
+    } catch (error) {
+      console.error('Error adding location to favorites:', error);
+      alert('Failed to add favorite location.');
+      
+    }
+  };
+
 
 
   // // Filter locations if the user allows location access
@@ -158,7 +173,11 @@ const GoogleMapComponent = () => {
       : 0;
 
     return (
-      (filter === '' || location.Restaurant.cuisine_description === filter) && // cuisine_description filter
+      
+      ((filter === '' || location.Restaurant.cuisine_description === filter) || // cuisine_description filter
+      
+      (filter === ''|| location.Restaurant.dba === filter)) &&  //Name filter
+
       (currentLocation ? distance <= distanceFilter : true) // distance filter
     );
   });
@@ -199,6 +218,27 @@ const GoogleMapComponent = () => {
                 ))}
               </select>
             </div> {/*div a */}
+
+
+
+            {/* Name Restaurant Filter */}
+            <div className="filter-item"> {/*div a */}
+              <label htmlFor="filterRestaurantName">Filter by Name: </label>
+              <select
+                id="filterRestaurantName"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="">All - Hold Shift key while searching</option>
+                {nameOptions.map((namerestaurant, index) => (
+                  <option key={index} value={namerestaurant}>
+                    {namerestaurant}
+                  </option>
+                ))}
+              </select>
+            </div> {/*div a */}
+
+
 
             {/* Distance Filter */}
             <div className="filter-item"> {/*div b */}
@@ -269,7 +309,7 @@ const GoogleMapComponent = () => {
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
               <a 
                 href={`/restaurants/${selectedLocation.Restaurant.camis}`} 
-               
+                target="_blank" 
                 rel="noopener noreferrer" 
                 style={{ color: 'blue', textDecoration: 'underline' }}
               >
