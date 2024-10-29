@@ -16,9 +16,9 @@ const generateToken = (payload) => {
     
 }
 
+
 // sign up - wrap with catchAsync error 
 const signup = catchAsync(async (req, res, next) => {
-//const signup = async (req, res, next) => {
     const { userName, email, password, confirmPassword } = req.body;
 
 
@@ -60,6 +60,13 @@ const signup = catchAsync(async (req, res, next) => {
         });
     } catch (error) {
        
+         // Check if it's a Sequelize validation error
+         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            // Extract the validation error message
+            const message = error.errors.map(err => err.message).join(', ');
+            return next(new AppError(message, 400)); // Send the Sequelize error message
+        }
+        
         console.error('Error during user creation:', error); // Log the error
         return next(new AppError('Failed to create the user', 500));
     }
@@ -130,7 +137,7 @@ const authentication =  catchAsync(async(req, res, next) => {
     }
     
     //3. get the user detail from db and add to req object
-   // console.log('User Detail Retrieved:'); // Log the user details from the DB
+  
     const userDetail = await user.User.findByPk(tokenDetail.id);
 
     if(!userDetail) {

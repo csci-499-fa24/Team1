@@ -1,24 +1,54 @@
-.favorites-container {
-    padding: 20px;
-    text-align: center;
-}
-
-.favorites-list {
-    list-style: none;
-    padding: 0;
-}
-
-.favorite-item {
+/* Scrollable container for favorites list */
+.favorites-scrollable-container {
+    max-height: 400px; /* Adjust height as needed */
+    overflow-y: auto;
+    padding-right: 10px; /* Space for scrollbar */
+    border: 1px solid #ddd;
+    border-radius: 8px;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
 }
 
-.favorite-item h3 {
+/* Styles for the favorites list */
+.favorites-list {
+    list-style-type: none;
+    padding: 0;
     margin: 0;
-    font-size: 20px;
 }
 
-.favorite-item p {
-    margin: 5px 0 0 0;
-    color: gray;
+/* Each favorite item */
+.favorite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.favorite-item:last-child {
+    border-bottom: none;
+}
+
+/* Details of each favorite place */
+.favorite-details {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+/* Remove button styling */
+.remove-favorite-btn {
+    background: none;
+    border: none;
+    color: #ff6666;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.remove-favorite-btn:hover {
+    color: #ff0000;
+}
+
+/* Icon styling for the remove button */
+.remove-favorite-btn i {
+    font-size: 18px;
 }
