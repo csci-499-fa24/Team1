@@ -44,7 +44,7 @@ const GoogleMapComponent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [geolocationError, setGeolocationError] = useState(false);
-  const [filterVisible, setFilterVisible] = useState(false); 
+  const [filterVisible, setFilterVisible] = useState(false);
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
@@ -57,11 +57,16 @@ const GoogleMapComponent = () => {
     y: window.innerHeight / 2 - 300,
   });
 
-
+  const [searchInput, setSearchInput] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const [coordinates, setCoordinates] = useState({ latitude: null, longitude: null });
 
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
-  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"]; 
+  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"];
 
   const router = useRouter();
 
@@ -82,7 +87,7 @@ const GoogleMapComponent = () => {
       try {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
-        
+
         setLocations(data);
 
         // Extract unique cuisine descriptions
@@ -95,7 +100,7 @@ const GoogleMapComponent = () => {
 
 
         //Extract unique Names descriptions
-        
+
         const uniqueNames = [...new Set(
           data
             .map((location) => location.Restaurant.dba)
@@ -116,7 +121,7 @@ const GoogleMapComponent = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });    
+          setCurrentLocation({ lat: latitude, lng: longitude });
           fetchLocations(); // Fetch locations after getting the current position
         },
         (error) => {
@@ -131,11 +136,11 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
 
-  }, []);    
+  }, []);
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
-    
+
   };
 
   const handleViewMoreClick = async (location) => {
@@ -143,27 +148,27 @@ const GoogleMapComponent = () => {
       const inspectionRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
-  
+
       const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
       );
-  
+
       // Call the new backend route for reviews
       const reviewsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
-  
+
       setSelectedRestaurant({
         ...location,
         inspectionDetails: inspectionRes.data,
         restaurantHours: hoursRes.data.hours,
         isOpenNow: hoursRes.data.hours.open_now,
-        reviews: reviewsRes.data, 
+        reviews: reviewsRes.data,
       });
     } catch (error) {
       console.error("Error fetching restaurant details:", error);
     }
-  };  
+  };
 
  // Handle adding to favorites
  const handleAddToFavorites = async (location) => {
@@ -181,7 +186,7 @@ const GoogleMapComponent = () => {
         }
       );
      // const data = await response.json();
-     
+
       if (response.status === 201) {
         alert('Location added to favorites!');
       }
@@ -203,7 +208,7 @@ const isBar = (location) => {
   const name = location.Restaurant.dba.toLowerCase();
   const cuisine = location.Restaurant.cuisine_description
     ? location.Restaurant.cuisine_description.toLowerCase()
-    : ""; 
+    : "";
 
   const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
   const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
@@ -231,11 +236,86 @@ const isBar = (location) => {
       (filter === ''|| location.Restaurant.dba === filter)) &&
       (currentLocation ? distance <= distanceFilter : true) && // distance filter
       (typeFilter === '' ||
-        (typeFilter === 'Bar' && isBar(location)) || 
+        (typeFilter === 'Bar' && isBar(location)) ||
         (typeFilter === 'Restaurant' && !isBar(location))
     );
   });
 
+  const handleSearchInputChange = (event) => {
+    const value = event.target.value;
+    setSearchInput(value);
+
+
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+
+    setDebounceTimeout(
+      setTimeout(() => {
+        if (value) {
+          fetchSuggestions(value);
+        } else {
+          setSuggestions([]);
+        }
+      }, 1000)
+    );
+  };
+
+
+  const fetchSuggestions = async (input) => {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&addressdetails=1&limit=5&viewbox=-74.2591,40.9176,-73.7004,40.4774&bounded=1`;
+    setIsLoading(true);
+    setError('');
+
+
+    try {
+      const response = await axios.get(url);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setError("Failed to fetch suggestions.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handleSuggestionClick = (place) => {
+    setSearchInput(place.display_name);
+    setSuggestions([]);
+    fetchCoordinates(place.display_name);
+  };
+
+
+  const fetchCoordinates = async (location) => {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`;
+
+
+    try {
+      const response = await axios.get(url);
+      if (response.data.length > 0) {
+        const { lat, lon } = response.data[0];
+        setCoordinates({ latitude: lat, longitude: lon });
+        setCurrentLocation({ lat: parseFloat(lat), lng: parseFloat(lon) });
+        console.log("Fetched Coordinates:", { latitude: lat, longitude: lon });
+      } else {
+        console.error("No coordinates found for the location.");
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      setError("Failed to fetch coordinates.");
+    }
+  };
+
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [debounceTimeout]);
 
     // Handle load error and loading state for the map
   if (loadError) {
@@ -245,7 +325,7 @@ const isBar = (location) => {
   if (!isLoaded) {
     return <div>Loading maps...</div>;
   }
- 
+
   return (
     <div className="map-container">
       <div className="filter-section">
@@ -321,14 +401,37 @@ const isBar = (location) => {
             </div>
           </div>
         )}
+
+        {/* Enter starting Location */}
+       <div className="starting-location">
+         <input
+           type="text"
+           placeholder="Input starting Location"
+           value={searchInput}
+           onChange={handleSearchInputChange}
+           className="search-input"
+         />
+         {isLoading && <div>Loading...</div>}
+         {error && <div>{error}</div>}
+         {suggestions.length > 0 && (
+           <ul className="suggestions-list">
+             {suggestions.map((suggestion) => (
+               <li key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
+                 {suggestion.display_name}
+               </li>
+             ))}
+           </ul>
+         )}
+       </div>
+
       </div>
     {/* //<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}> */}
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={currentLocation || { lat: 40.7128, lng: -74.0060 }} 
-        zoom={currentLocation ? 15 : 12} 
+        center={currentLocation || { lat: 40.7128, lng: -74.0060 }}
+        zoom={currentLocation ? 15 : 12}
         options={{
-          styles: "f9f8fc87a66fc282", 
+          styles: "f9f8fc87a66fc282",
         }}
       >
         {currentLocation && (
@@ -336,7 +439,7 @@ const isBar = (location) => {
             position={currentLocation}
             title="You are here"
             icon={{
-              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", 
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
             }}
           />
         )}
@@ -348,15 +451,15 @@ const isBar = (location) => {
               title={location.Restaurant.dba}
               icon={{
                 url: (() => {
-                  const isLocationBar = isBar(location); 
+                  const isLocationBar = isBar(location);
                   const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
-                
+
                   return shouldShowBar
                     ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
                     : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
                 })(),
                 scaledSize: new window.google.maps.Size(30, 30),
-                anchor: new window.google.maps.Point(15, 30),          
+                anchor: new window.google.maps.Point(15, 30),
               }}
               onClick={() => handleMarkerClick(location)}
             />
@@ -371,12 +474,12 @@ const isBar = (location) => {
             onCloseClick={() => setSelectedLocation(null)}
           >
             <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
-              
+
               <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
-              
+
               <br />
               <p>
                 <strong>Phone: </strong>
@@ -399,7 +502,7 @@ const isBar = (location) => {
     position={cardPosition}
     onClose={() => setSelectedRestaurant(null)}
     handleDragStart={handleDragStart}
-    reviews={selectedRestaurant.reviews} 
+    reviews={selectedRestaurant.reviews}
   />
 )}
 

@@ -51,7 +51,7 @@ export default function Personal() {
             });
     }, [router]);
 
-   
+
 
     // Handle clicking a favorite
     const onFavoriteClick = (place) => {
@@ -87,15 +87,15 @@ export default function Personal() {
         );
     }
 
-    
+
     return (
         <div className="profile-container">
             {/* Top Section */}
             <div className="profile-top-section">
-                 <Navbar /> 
+                 <Navbar />
             </div>
-            
-            
+
+
             {/* Main Content */}
             <div className="profile-main-content">
 
@@ -115,8 +115,8 @@ export default function Personal() {
                             <Favorites onFavoriteClick={onFavoriteClick} />
                         </div>
                     </div>
-                </div> 
-               
+                </div>
+
                 <div
                     className={`profile-right-section ${isSlideOut ? 'active' : ''} ${
                         isMobileDetailsVisible ? 'mobile-active' : ''
@@ -132,11 +132,11 @@ export default function Personal() {
                         )}
                     </div>
                 </div>
-                
+
             </div>
 
         </div>
-        
+
     );
 
 
