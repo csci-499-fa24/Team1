@@ -6,7 +6,7 @@
     height: 100vh;
     width: 100vw;
     background-color: #fdf7f7;
-    background-image: url(../assets/map.jpg);
+    background-image: url(../assets/user-page.jpg);
     background-size: cover; /* Ensures background scales with screen size */
     background-position: center;
     background-repeat: no-repeat;
@@ -48,13 +48,14 @@
     background-color: #fdfeff;   
     border: 0.5vw solid #819be9; 
     border-radius: 1.5vw;
+    
 }
 
 
 
-.profile-avatar-welcome-section i {
-    font-size: 7.5vw; /* Adjusts size based on viewport width */
-    color: #7e8085; /* Customize the color as needed */
+.profile-avatar-welcome-section  {
+    font-size: 7.5vw; 
+    color: #7e8085;  
 }
 
 
@@ -71,7 +72,8 @@
     flex-direction: column;
     width: 100%;
     max-height: 55vh; 
-    background-color:  #da9696; 
+    /* background-color:#d4949490;  */
+    background-color:#c5b89490;
     padding: 1vw 1vw;     
     border-radius: 1vw;
    
@@ -105,157 +107,175 @@
  
 
 
-/* Right Section */
-.profile-right-section {
-    display: flex;
-    justify-content: center;
-    width: 65vw;
+
+ .place-details {
     position: absolute; 
-    right: -100%; /* Off-screen */
-    transition: right 0.5s ease;
-     z-index: 10; 
-     margin-top: 4vh;
-}
-
-/* Responsive active class for the right section */
-.profile-right-section.active {
-    right: 0;
-}
-
-
-.infoContainer {
-    display: flex;
-    flex-direction: column;
-    width: fit-content; 
-    max-height: 80vh; /* Limit height to viewport height */
-    overflow-y: auto; /* Enable scrolling when content exceeds max height */
-    border-radius: 1.5vw;
-    background-color: #fafafa;
-    justify-content: center;
-    padding: 1vw; 
-    border: 0.5vw solid #bfc7bd; 
-    transition: max-height 0.3s ease-in-out;
-    align-items: center;
-    text-align: center;
-    box-sizing: border-box;
-    overflow-y: auto;  
-}
-
-.place-details {
-    max-height: 75vh; /* Limit expansion */
-    transition: max-height 0.3s ease-in-out;   
-}
+    top: 15%; 
+     left: 50%; 
+     transform: translate(-50%, 0); 
+    width: 80%;
+    max-width: 400px;
+    max-height: 60vh; 
+    overflow-y: auto; 
+    
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 100;
+    animation: slideDown 0.5s ease forwards;
+    
+  }
+  @keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%); /* Starts above the viewport */
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0); /* Moves to the desired position */
+    }
+} 
 
 
 
-/* Responsive styling for PlaceDetails on mobile */
-@media (max-width: 768px) {
- 
+.place-photo {
+    width: 100%;
+    max-height: 20vw;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+
+
+  .opening-hours-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .opening-hours-item {
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+     
+  }
+
+  .opening-hours-day {
+      font-weight: bold;
+      min-width: 120px; 
+      color:#d10000;
+  }
+
+  .opening-hours-time {     
+       font-size: 0.95em;  
+  }
+
+  .website a {
+    color:#007bff;
+  }
+
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+  }
+
+
+
+   @media (max-width: 768px) {
+    /* Main profile container */
+   .profile-container {
+        height: auto;
+        width: 100%;
+        background-size: cover;
+        padding: 10px; /* Add some padding for better spacing */
+    }
+
+    /* Top Section */
+    .profile-top-section {
+        height: 10vh; 
+    }
+
+    /* Main Content Section */
     .profile-main-content {
         flex-direction: column;
+        height: auto;
+        overflow: visible; /* Allow content to flow naturally on small screens */
     }
-    .favorites-title {
-        font-size: 5vw;
+
+    /* Left Section */
+    .profile-left-section {
+        width: 100%; /* Full width on mobile */
+        max-height: 40%;
+        margin-left: 0;
+        border-radius: 1vw; /* Smaller border radius for mobile */
+        overflow-y: hidden;
     }
-
-    .favorite-section{
-        padding: 8px;
-    }
-    .favorite-section .favorites-container {
-         height: 100%;
-         padding: 10px 10px;
-     }
-
-     .favorite-section .favorites-container .favorite-item {
-        padding: 1vw 1vw;   
-         display: flex;
-         width: 100%; 
-        
-     } 
-     .favorites-list{
-        height: 100%;
-     }
-    /* Left section (favorites list) should take full width initially  */
-     .profile-left-section { 
-        width: 100vw;
-        height: 100vh;
-        margin-left: 0; 
-    } 
-
-
-      /* Adjust avatar icon size and welcome text for better proportion */
+  /* Avatar and Welcome Section */
       .profile-avatar-welcome-section {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        gap: 15px; /* Spacing between avatar icon and welcome message */
-    }
+        gap: 5vw;
+        height: auto;    
+        padding: 10px;
+        font-size: 20vw;
+        /* display: flex; 
+        align-items: center;  
+        text-align: center;  */
+    }  
 
-    .profile-avatar-welcome-section i {
-        font-size: 20vw; 
-    }
-
+    /* Adjust font sizes */
     .profile-avatar-welcome-section h2 {
-        font-size: 10vw; 
+        font-size: 7.5vw;
     }
 
+    /* Favorites Section */
+    .favorite-section {
+      max-height: calc(100vh - 25vh); /* Adjust based on other sections */
+      overflow-y: hidden;  
+        padding: 2vw;
+        border-radius: 1vw;
+        max-height: 80vh;
+    }
 
+    .favorites-title {
+        font-size: 6vw; 
+        margin-bottom: 1vw;
+    }
 
-    /* Right section (PlaceDetails) will cover the entire screen on mobile  */
     
-     .profile-right-section {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        background-color: #fafafa;
-        transition: transform 0.3s ease-in-out;
-        transform: translateX(100%);
-        z-index: 20;
+    .favorite-section .favorites-container .favorite-item {
+        width: 90%;
+        padding: 1vw;
+        margin-bottom: 1vw;
+        font-size: 4vw;
     } 
- 
 
-    /* Active class for showing the right section (PlaceDetails)  */
-    .profile-right-section.active {
-        right: 0;
-    } 
-    .profile-right-section.mobile-active {
-        transform: translateX(0);
-    }
-
-    /* Adjust the infoContainer to fill the mobile screen  */
-    .infoContainer {
-        width: 100%;
-        padding: 20px;
-        height: 100%;
+    .place-details {
+        width: 95vw;
+        height: 94vh;  
+        top: 0;
+        left: 0; 
+        transform: none; 
+        padding: 1rem;
+        border-radius: 10;
+        max-width: none; 
+        max-height: 94vh; 
         overflow-y: auto;
-        box-sizing: border-box;
+        animation: none;  
+        background: white;
     }
 
-  
-    /* Close button style  */
-    .close-button {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: #800000;
-        color: white;
-        border: none;
-        padding: 10px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
+    .place-details .place-photo {
+         max-height: 40vh; 
+         width: 100%;
     }
 
 
-    /* Back button styling for mobile view  */
-    .back-button {
-        background-color: #007bff;
-        color: #fff;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        margin-bottom: 10px;
-        cursor: pointer;
-    } 
 }
+  
