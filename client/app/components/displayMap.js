@@ -264,7 +264,7 @@ const isBar = (location) => {
 
 
   const fetchSuggestions = async (input) => {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&addressdetails=1&limit=5`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&addressdetails=1&limit=5&viewbox=-74.2591,40.9176,-73.7004,40.4774&bounded=1`;
     setIsLoading(true);
     setError('');
 
