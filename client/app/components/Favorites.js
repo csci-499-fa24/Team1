@@ -1,10 +1,14 @@
 
-
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "../styles/favorite.css"; // Import the CSS for the favorites component
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas   
+ } from '@fortawesome/free-solid-svg-icons';
+  library.add(fas)  
 
 export default function Favorites({ onFavoriteClick }) { // Accept onFavoriteClick prop
     const [favorites, setFavorites] = useState([]);
@@ -35,11 +39,11 @@ export default function Favorites({ onFavoriteClick }) { // Accept onFavoriteCli
     };
 
     // Handle removing a favorite place
-    const handleRemoveFavorite = async (placeId) => {
+    const handleRemoveFavorite = async (camis) => {
         const token = Cookies.get("token");
         try {
             const response = await axios.delete(
-                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/remove/${placeId}`,
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/remove/${camis}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -87,11 +91,10 @@ export default function Favorites({ onFavoriteClick }) { // Accept onFavoriteCli
                                 className="remove-favorite-btn" 
                                 onClick={(e) => {
                                     e.stopPropagation(); // Prevent triggering the click on the item
-                                    handleRemoveFavorite(place.id);
-                                }}
-                               
+                                    handleRemoveFavorite(place.camis);
+                                }}                         
                             >
-                                <i className="fa fa-trash"></i>
+                                <FontAwesomeIcon icon="trash" />
                             </button>
                         </li>
                     ))

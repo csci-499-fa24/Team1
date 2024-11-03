@@ -8,6 +8,12 @@ import { useDraggableCard } from './useDraggableCard';
 import ExpandableCard from './ExpandableCard';
 import { fetchReviewsByPlaceId } from './fetchReviews';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+
+
 const containerStyle = {
   width: '100%',
   height: '700px',
@@ -81,7 +87,7 @@ const GoogleMapComponent = () => {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
 
-
+  
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -108,9 +114,6 @@ const GoogleMapComponent = () => {
         )];
         setNameOptions(uniqueNames);
 
-
-
-
       } catch (error) {
         console.error('Error fetching locations:', error);
       }
@@ -135,75 +138,125 @@ const GoogleMapComponent = () => {
       setGeolocationError(true);
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
+  }, []);   
 
+
+    //fetch favorites
+    const [favorites, setFavorites] = useState([]);
+    useEffect(() => {
+      
+      const fetchFavorites = async () => {
+            const token = Cookies.get('token');  // Get the token for authenticated requests
+          try {
+              const response = await axios.get(
+                  `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
+                  { headers: { Authorization: `Bearer ${token}` } }
+              );
+            
+              if (response.status === 200) {
+                  setFavorites(response.data.data.favoritePlaces);
+                
+              }
+          } catch (error) {
+              console.error('Error fetching favorites:', error);
+             
+          }
+      };
+    
+      fetchFavorites();
   }, []);
 
+ 
+  //handle marker click
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
-
   };
 
+
+  //handle view more
   const handleViewMoreClick = async (location) => {
     try {
       const inspectionRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
-
-      const hoursRes = await axios.get(
+  
+     /*   const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
-      );
+      );  */
+  
 
       // Call the new backend route for reviews
       const reviewsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
+      
+       // Fetch additional place details
+       const placeDetailsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`,
+        { params: { camis: location.Restaurant.camis } }
+       );
+
 
       setSelectedRestaurant({
         ...location,
         inspectionDetails: inspectionRes.data,
-        restaurantHours: hoursRes.data.hours,
-        isOpenNow: hoursRes.data.hours.open_now,
-        reviews: reviewsRes.data,
+        //  restaurantHours: hoursRes.data.hours, 
+        //  isOpenNow: hoursRes.data.hours.open_now, 
+        reviews: reviewsRes.data, 
+        placeDetails: {     
+          photoUrl: placeDetailsRes.data.data.photoUrl,
+          website: placeDetailsRes.data.data.website,
+          rating: placeDetailsRes.data.data.rating,
+          hours: placeDetailsRes.data.data.hours,  
+          isOpenNow: placeDetailsRes.data.data.hours.open_now,  
+      },
+
       });
     } catch (error) {
       console.error("Error fetching restaurant details:", error);
     }
-  };
+  }; 
+  
 
- // Handle adding to favorites
- const handleAddToFavorites = async (location) => {
-    const token = Cookies.get('token'); // Get the token for authenticated requests
+
+// handle add to favorites
+  const handleAddToFavorites = async (location) => {
+    const token = Cookies.get('token');
+    const isFavorite = favorites.some(favorite => favorite.camis === location.camis);
     try {
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
-        {
-          camis: location.camis,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-     // const data = await response.json();
+      if (isFavorite) {
+        // Remove favorite
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/remove/${location.camis}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+  
+        if (response.status === 204) {
+         
+          setFavorites(favorites.filter(favorite => favorite.camis !== location.camis));
+          console.log(favorites)
 
-      if (response.status === 201) {
-        alert('Location added to favorites!');
+        }
+      } else {
+        // Add favorite
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/add`,
+          { camis: location.camis },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+  
+        if (response.status === 201) {
+         setFavorites([...favorites, { camis: location.camis }]);
+        }
       }
-
     } catch (error) {
-        // Check if there's a response and extract the custom message
-        if (error.response && error.response.data && error.response.data.message) {
-          alert(error.response.data.message); // Display custom error message from backend
-        } else {
-          alert('Failed to add favorite location.'); // Fallback error message
-        }
-
-        console.error('Error adding location to favorites:', error);
+      // Handle error
+      console.error("Error adding/removing favorite:", error);
     }
   };
 
 
+  
 const isBar = (location) => {
   const name = location.Restaurant.dba.toLowerCase();
   const cuisine = location.Restaurant.cuisine_description
@@ -317,6 +370,7 @@ const isBar = (location) => {
     };
   }, [debounceTimeout]);
 
+
     // Handle load error and loading state for the map
   if (loadError) {
     return <div>Error loading maps</div>;
@@ -325,6 +379,7 @@ const isBar = (location) => {
   if (!isLoaded) {
     return <div>Loading maps...</div>;
   }
+
 
   return (
     <div className="map-container">
@@ -466,6 +521,7 @@ const isBar = (location) => {
           ))}
 
         {selectedLocation && (
+          
           <InfoWindow
             position={{
               lat: parseFloat(selectedLocation.latitude),
@@ -473,6 +529,7 @@ const isBar = (location) => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
+                   
             <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
 
               <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
@@ -485,27 +542,38 @@ const isBar = (location) => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
+             
+             <div>
+                <FontAwesomeIcon className='view-more-icon'
+                    icon={faInfoCircle} 
+                    onClick={() => handleViewMoreClick(selectedLocation)} 
+                    style={{ cursor: 'pointer', fontSize: '1.5em', color: '#007bff' }}
+                />
 
-              <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
-
-              <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
-
- Temporary merge branch 2
+                <FontAwesomeIcon className='heart-icon'
+                  onClick={() => handleAddToFavorites(selectedLocation)}
+                  icon={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? solidHeart : regularHeart}
+                  color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
+                />
+              </div>
             </div>
           </InfoWindow>
+          
         )}
       </GoogleMap>
   {/* Expandable Card */}
-  {selectedRestaurant && (
+  {selectedRestaurant && ( 
   <ExpandableCard
     restaurant={selectedRestaurant}
     position={cardPosition}
     onClose={() => setSelectedRestaurant(null)}
     handleDragStart={handleDragStart}
-    reviews={selectedRestaurant.reviews}
-  />
-)}
+    reviews={selectedRestaurant.reviews} 
+    
 
+  />
+  
+)}
     </div>
   );
 };

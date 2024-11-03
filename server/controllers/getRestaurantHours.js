@@ -20,7 +20,7 @@ async function getPlaceIdByName(name, address) {
     console.log('Google API Response:', response.data); 
 
     const placeId = response.data.candidates[0]?.place_id; // Extract place_id from API response
-    console.log('Found placeId:', placeId);
+    //console.log('Found placeId:', placeId);
     return placeId || null;
   } catch (error) {
     console.error('Error fetching placeId:', error);
@@ -36,7 +36,7 @@ async function getRestaurantHours(req, res) {
     const restaurant = await Restaurants.findOne({ where: { camis } });
     
     if (!restaurant) {
-      console.log(`Restaurant not found for camis: ${camis}`); 
+     // console.log(`Restaurant not found for camis: ${camis}`); 
       return res.status(404).json({ error: 'Restaurant not found' });
     }
 
