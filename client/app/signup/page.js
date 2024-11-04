@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import '../globals.css';
 import  "../styles/signup.css"
 
 export default function SignUp() {

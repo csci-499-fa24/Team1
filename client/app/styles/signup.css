@@ -1,19 +1,14 @@
 /**********signup/login********************************************/
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-:root{
-  --accent-color: #2e2e7a;
-  --base-color: white;
-  --text-color: #6f6e75;
-  --input-color: #F3F0FF;
-}
+
 *{
   margin: 0;
   padding: 0;
 }
 html{
-  font-family: Poppins, Segoe UI, sans-serif;
-  font-size: 12pt;
+  font-family: var(--font-family);
+  font-size: 10pt;
   color: var(--text-color);
   text-align: center;
 }
@@ -51,7 +46,7 @@ h1{
 }
 
 .signup-text{
-  color:#9999c0; 
+  color: var(--extra-text-color);
 }
 
 form{
@@ -89,7 +84,8 @@ form input{
   height: 50px;
   padding: 1em;
   font: inherit;
-  color:#180875e3;
+  font-size: 18px;
+  color: var(--primary-color);
   border-radius: 0 10px 10px 0;
   border: 2px solid var(--input-color);
   border-left: none;
