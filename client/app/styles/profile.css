@@ -1,179 +1,182 @@
-
-/* Main profile container */
 .profile-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    background-color: #fdf7f7;
-    background-image: url(../assets/user-page.jpg);
-    background-size: cover; /* Ensures background scales with screen size */
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    align-items: center; 
+    padding: 2vw;
 }
 
-/* Top Section */
 .profile-top-section {
-    height: 12vh; /* Proportional to viewport height */
+    width: 100%;
+    height: 8vh;
+    display: flex;
+    justify-content: center;
 }
 
-/* Main Content Section: Left and Right */
 .profile-main-content {
     display: flex;
-    height: 88vh; /* Fill remaining space */
-    overflow: hidden; /* Prevent overflow on smaller screens */
+    justify-content: center;
+    width: 80%;
+    height: 80vh;
+    max-width: 1200px;
+    border-radius: 1.5vw;
+    overflow: hidden;
+    margin-top: 1vh;
+    padding: 2vw;
 }
 
-/* Left Section: Button Section */
 .profile-left-section {
-    width: 30vw; /* Proportional to viewport width */
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;   
-    border-radius: 1.5vw; /* Responsive border radius */
-    margin-left: 2vw;
+    justify-content: center;
+    width: 60%;
+    padding: 2vw;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    position: relative; 
+    margin-top: 4vw;
 }
 
-/* Avatar and Welcome Section (below the top section) */
-.profile-avatar-welcome-section {  
-    display: flex; 
-    align-items: center; 
-    justify-content: flex-start;
-    gap: 2vw;
-    padding: 0 2vw;    
-    height: 25vh;
-    width: 100%;
-    background-color: #fdfeff;   
-    border: 0.5vw solid #819be9; 
-    border-radius: 1.5vw;
-    
+.profile-welcome-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
 }
 
-
-
-.profile-avatar-welcome-section  {
-    font-size: 7.5vw; 
-    color: #7e8085;  
+.avatar-icon {
+    font-size: 7vw;
+    color: var(--text-color);
+    position: absolute;
+    top: -0.5vw;
+    transform: translateY(-50%);
+    z-index: 10px;
 }
 
-
-.profile-avatar-welcome-section h2 {
-    font-size: 2.5vw;
-    color: #252153;
+.welcome-message {
+    color: #4e5d6c;
+    font-size: 2vw;
+    font-weight: 600;
     text-align: center;
+    margin-top: 2.5vw;
 }
 
-
-
+/* Favorites Section */
 .favorite-section {
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 100%;
-    max-height: 55vh; 
-    /* background-color:#d4949490;  */
-    background-color:#c5b89490;
-    padding: 1vw 1vw;     
+    max-width: 500px;
+    padding: 1.5vw;
     border-radius: 1vw;
-   
-} 
+    margin-top: 2vw;
+}
 
 .favorites-title {
-    font-size: 1.7vw;
-    text-align: center;  
+    font-size: 1.5vw;
     font-weight: bold;
-    margin-bottom: 1vw; 
-    color: #800000; 
+    color: var(--primary-color);
+    margin-bottom: 1vw;
+    text-align: center;
 }
 
-.favorite-section .favorites-container {
-   overflow: auto;  
+.favorites-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    width: 100%;
+    max-height: 40vh;
+    padding: 0.5vw;
 }
-    
 
-.favorite-section .favorites-container .favorite-item {
-    padding: 0.5vw; 
-    transition: background-color .3s ease;  
-    display: flex;  
-    width: 27vw;
- } 
-    
- 
-.favorite-section .favorites-container .favorite-item:hover {
-    background-color: #ecc7d2;
-    color: #8a3333;
-}
- 
-
-
-
- .place-details {
-    position: absolute; 
-    top: 15%; 
-     left: 50%; 
-     transform: translate(-50%, 0); 
-    width: 80%;
-    max-width: 400px;
-    max-height: 60vh; 
-    overflow-y: auto; 
-    
-    background-color: rgba(255, 255, 255, 0.8);
+.favorite-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5vw 1vw;
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    z-index: 100;
-    animation: slideDown 0.5s ease forwards;
+    transition: background-color 0.3s;
+    margin-bottom: 0.5vw;
+    width: 90%;
     
-  }
-  @keyframes slideDown {
+}
+
+.favorite-item:hover {
+    background-color: var(--secondary-text-color);
+}
+
+/* Place Details */
+.place-details {
+    position: fixed;
+    bottom: 3%;
+    right: 3%;
+    width: 80%;
+    max-width: 500px;
+    height: 60vh;
+    overflow-y: auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 1vw;
+    z-index: 100;
+    transform: none;
+}
+
+@keyframes slideDown {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%); /* Starts above the viewport */
+        transform: translate(-50%, -50%);
     }
     100% {
         opacity: 1;
-        transform: translate(-50%, 0); /* Moves to the desired position */
+        transform: translate(-50%, 0);
     }
-} 
-
-
+}
 
 .place-photo {
     width: 100%;
     max-height: 20vw;
     border-radius: 8px;
     margin-bottom: 15px;
-  }
+}
 
+.opening-hours-header:hover {
+    color: var(--accent-color);
+    cursor: pointer;
+}
 
-  .opening-hours-list {
+.opening-hours-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
-  }
+}
 
-  .opening-hours-item {
-      display: flex;
-      align-items: center;
-      padding: 4px 0;
-     
-  }
+.opening-hours-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
 
-  .opening-hours-day {
-      font-weight: bold;
-      min-width: 120px; 
-      color:#d10000;
-  }
+.opening-hours-day {
+    font-weight: bold;
+    min-width: 120px;
+    color: var(--text-color);
+}
 
-  .opening-hours-time {     
-       font-size: 0.95em;  
-  }
+.opening-hours-time {     
+    font-size: 0.95em;  
+}
 
-  .website a {
-    color:#007bff;
-  }
-
+.website a {
+    color: #007bff;
+}
 
 .close-button {
     position: absolute;
@@ -185,97 +188,44 @@
     cursor: pointer;
     font-weight: bold;
     color: #555;
-  }
+}
 
-
-
-   @media (max-width: 768px) {
-    /* Main profile container */
-   .profile-container {
-        height: auto;
-        width: 100%;
-        background-size: cover;
-        padding: 10px; /* Add some padding for better spacing */
-    }
-
-    /* Top Section */
-    .profile-top-section {
-        height: 10vh; 
-    }
-
-    /* Main Content Section */
+/* Responsive Styles */
+@media (max-width: 768px) {
     .profile-main-content {
         flex-direction: column;
+        width: 90%;
         height: auto;
-        overflow: visible; /* Allow content to flow naturally on small screens */
+        padding: 4vw;
     }
 
-    /* Left Section */
     .profile-left-section {
-        width: 100%; /* Full width on mobile */
-        max-height: 40%;
-        margin-left: 0;
-        border-radius: 1vw; /* Smaller border radius for mobile */
-        overflow-y: hidden;
-    }
-  /* Avatar and Welcome Section */
-      .profile-avatar-welcome-section {
-        gap: 5vw;
-        height: auto;    
-        padding: 10px;
-        font-size: 20vw;
-        /* display: flex; 
-        align-items: center;  
-        text-align: center;  */
-    }  
-
-    /* Adjust font sizes */
-    .profile-avatar-welcome-section h2 {
-        font-size: 7.5vw;
+        width: 100%;
+        padding: 4vw;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
     }
 
-    /* Favorites Section */
     .favorite-section {
-      max-height: calc(100vh - 25vh); /* Adjust based on other sections */
-      overflow-y: hidden;  
-        padding: 2vw;
-        border-radius: 1vw;
-        max-height: 80vh;
+        width: 100%;
+        margin-top: 2vw;
+    }
+
+    .avatar-icon {
+        font-size: 12vw;
+    }
+
+    .welcome-message {
+        font-size: 6vw;
     }
 
     .favorites-title {
-        font-size: 6vw; 
-        margin-bottom: 1vw;
+        font-size: 5vw;
     }
-
-    
-    .favorite-section .favorites-container .favorite-item {
-        width: 90%;
-        padding: 1vw;
-        margin-bottom: 1vw;
-        font-size: 4vw;
-    } 
 
     .place-details {
-        width: 95vw;
-        height: 94vh;  
-        top: 0;
-        left: 0; 
-        transform: none; 
-        padding: 1rem;
-        border-radius: 10;
-        max-width: none; 
-        max-height: 94vh; 
-        overflow-y: auto;
-        animation: none;  
-        background: white;
+        width: 90%;
+        height: auto;
+        max-height: 80vh;
     }
-
-    .place-details .place-photo {
-         max-height: 40vh; 
-         width: 100%;
-    }
-
-
 }
-  
