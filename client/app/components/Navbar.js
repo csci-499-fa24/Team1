@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";  // Make sure this is inside the component's body
+import '../globals.css';
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -42,11 +43,6 @@ function Navbar() {
         Restaurant & Bar Tracker
       </a>
       <ul className={active}>
-        <li className="nav__item">
-          <a href="/" className="nav__link">
-            Home
-          </a>
-        </li>
         <li className="nav__item">
           <a href="/map" className="nav__link">
             Map

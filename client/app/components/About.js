@@ -2,6 +2,7 @@ import React from "react";
 import Imagen from 'next/image';
 import AboutBackground from "../assets/about-background.png";
 import AboutBackgroundImage from "../assets/NY3_home.jpg";
+import '../globals.css';
 
 import {useRouter} from 'next/navigation';
 
