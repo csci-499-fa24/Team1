@@ -76,7 +76,6 @@ const GoogleMapComponent = () => {
 
   const router = useRouter();
 
-
   //Agregado para filtrar por nombre
   const [filterName, setNameFilter] = useState(''); //Filter for name dba
   const [nameOptions, setNameOptions] = useState([]); //Holds name
@@ -85,6 +84,7 @@ const GoogleMapComponent = () => {
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
+    libraries: ["places"],
   });
 
   
@@ -94,7 +94,23 @@ const GoogleMapComponent = () => {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
 
-        setLocations(data);
+        // Map over locations to update marker positions
+        const updatedLocations = await Promise.all(
+          data.map(async (location) => {
+            try {
+              const preciseCoordinates = await fetchPreciseCoordinates(location);
+              return {
+                ...location,
+                latitude: preciseCoordinates.lat,
+                longitude: preciseCoordinates.lng,
+              };
+            } catch (error) {
+              console.error("Error refining coordinates:", error);
+              return location; // If geocoding fails, use the original location
+            }
+          })
+        );
+        setLocations(updatedLocations);
 
         // Extract unique cuisine descriptions
         const uniqueCuisines = [...new Set(
@@ -140,7 +156,25 @@ const GoogleMapComponent = () => {
     }
   }, []);   
 
-
+  const fetchPreciseCoordinates = async (location) => {
+    const address = `${location.Restaurant.building} ${location.Restaurant.street}, ${location.Restaurant.boro}, NY ${location.Restaurant.zipcode}`;
+    
+    const geocoder = new window.google.maps.Geocoder();
+    
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          resolve({
+            lat: results[0].geometry.location.lat(),
+            lng: results[0].geometry.location.lng(),
+          });
+        } else {
+          console.error("Geocode failed:", status);
+          reject(status);
+        }
+      });
+    });
+  };
     //fetch favorites
     const [favorites, setFavorites] = useState([]);
     useEffect(() => {
@@ -440,8 +474,6 @@ const isBar = (location) => {
                 <option value={1}>1 mile</option>
                 <option value={2}>2 miles</option>
                 <option value={5}>5 miles</option>
-                <option value={10}>10 miles</option>
-                <option value={25}>25 miles</option>
               </select>
             </div> {/*div b */}
 
