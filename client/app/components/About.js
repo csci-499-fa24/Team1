@@ -31,7 +31,7 @@ const About = () => {
           As a tourist or new visitor of NYC we want you have the best experience visiting places graded with A certificate.
         </p>
         <p className="primary-text">
-          Sign up si you can have a personalized map with displayed only your selected locations.        
+          Sign up so you can have a personalized map with displayed only your selected locations.        
         </p>
         <div className="about-buttons-container">
           <button className="secondary-button" onClick={handleRecommendation}>Place of the week</button>          

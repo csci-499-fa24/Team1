@@ -15,10 +15,10 @@ const Testimonial = () => {
       <div className="testimonial-section-bottom">
         <Imagen src={ProfilePic} alt="" />
         <p>
-          The restaureant is located at the top of the building with a wonderful sight of the city, the Argentinian barbecue is the best.
+          The restaurant is located at the top of the building with a wonderful sight of the city, this Argentinian barbecue is the best.
         </p>
         
-        <h2>The Restaurants and bars tracking Team</h2>
+        <h2>By the Restaurant and Bar tracking team!</h2>
       </div>
     </div>
   );
