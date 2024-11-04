@@ -4,6 +4,7 @@ import axios from 'axios'; // To make API requests
 import Cookies from 'js-cookie'; // For authorization
 import { useRouter } from 'next/navigation';
 import "../styles/displaymapfilter.css";
+import '../globals.css';
 import { useDraggableCard } from './useDraggableCard';
 import ExpandableCard from './ExpandableCard';
 import { fetchReviewsByPlaceId } from './fetchReviews';
@@ -11,8 +12,8 @@ import { fetchReviewsByPlaceId } from './fetchReviews';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-
+import { faCircleInfo, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 const containerStyle = {
   width: '100%',
@@ -383,123 +384,145 @@ const isBar = (location) => {
 
   return (
     <div className="map-container">
-      <div className="filter-section">
-        <button onClick={() => setFilterVisible(!filterVisible)} className="filter-toggle-button">
-          {filterVisible ? 'Hide Filters' : 'Show Filters'}
-        </button>
-
-        {/* Filter Section - Hidden until toggled */}
-        {filterVisible && (
-          <div className="filter-dropdown">
-            {/* Cuisine Filter */}
-             <div className="filter-item"> {/*div a */}
-              <label htmlFor="filterCuisine">Filter by Cuisine: </label>
-              <select
-                id="filterCuisine"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-              >
-                <option value="">All</option>
-                {cuisineOptions.map((cuisine, index) => (
-                  <option key={index} value={cuisine}>
-                    {cuisine}
-                  </option>
+      {/* Change location and filters */}
+      <div className="search-filter-container">
+        <p className="page-title">Explore Restaurants and Bars</p>
+        {/* Input starting location */}
+        <div className="starting-location">
+          {isLoading ? (
+            <div className="loading">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="xMidYMid"
+              style={{ shapeRendering: 'auto', display: 'block', background: 'transparent' }}
+            >
+              <g>
+                {/* Repeated rects with animation */}
+                {[...Array(12).keys()].map((i) => (
+                  <g key={i} transform={`rotate(${i * 30} 50 50)`}>
+                    <rect fill="#494986" height="12" width="6" ry="6" rx="3" y="24" x="47">
+                      <animate
+                        repeatCount="indefinite"
+                        begin={`-${(12 - i) / 12}s`} // stagger the animations
+                        dur="1.0309278350515465s"
+                        keyTimes="0;1"
+                        values="1;0"
+                        attributeName="opacity"
+                      />
+                    </rect>
+                  </g>
                 ))}
-              </select>
-            </div> {/*div a */}
-
-
-
-            {/* Name Restaurant Filter */}
-            <div className="filter-item"> {/*div a */}
-              <label htmlFor="filterRestaurantName">Filter by Name: </label>
-              <select
-                id="filterRestaurantName"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-              >
-                <option value="">All - Hold Shift key while searching</option>
-                {nameOptions.map((namerestaurant, index) => (
-                  <option key={index} value={namerestaurant}>
-                    {namerestaurant}
-                  </option>
-                ))}
-              </select>
-            </div> {/*div a */}
-
-
-
-            {/* Distance Filter */}
-            <div className="filter-item"> {/*div b */}
-              <label htmlFor="filterDistance">Filter by Distance (miles): </label>
-              <select
-                id="filterDistance"
-                value={distanceFilter}
-                onChange={(e) => setDistanceFilter(parseInt(e.target.value))}
-              >
-                <option value={1}>1 mile</option>
-                <option value={2}>2 miles</option>
-                <option value={5}>5 miles</option>
-                <option value={10}>10 miles</option>
-                <option value={25}>25 miles</option>
-              </select>
-            </div> {/*div b */}
-
-            {/* Bar or Restaurant Filter */}
-            <div className="filter-item">
-              <label htmlFor="filterType">Filter by Restaurant or Bar: </label>
-              <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-                <option value="">All</option>
-                <option value="Restaurant">Restaurant</option>
-                <option value="Bar">Bar</option>
-              </select>
-            </div>
+              </g>
+            </svg>
           </div>
-        )}
-
-        {/* Enter starting Location */}
-       <div className="starting-location">
-         <input
-           type="text"
-           placeholder="Input starting Location"
-           value={searchInput}
-           onChange={handleSearchInputChange}
-           className="search-input"
-         />
-         {isLoading && <div>Loading...</div>}
-         {error && <div>{error}</div>}
-         {suggestions.length > 0 && (
-           <ul className="suggestions-list">
-             {suggestions.map((suggestion) => (
-               <li key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
-                 {suggestion.display_name}
-               </li>
-             ))}
-           </ul>
-         )}
-       </div>
-
-      </div>
-    {/* //<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}> */}
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={currentLocation || { lat: 40.7128, lng: -74.0060 }}
-        zoom={currentLocation ? 15 : 12}
-        options={{
-          styles: "f9f8fc87a66fc282",
-        }}
-      >
-        {currentLocation && (
-          <Marker
-            position={currentLocation}
-            title="You are here"
-            icon={{
-              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            }}
+          ) : (
+            <FontAwesomeIcon 
+              icon={faMagnifyingGlass} 
+              className={`search-icon ${searchInput ? 'active' : ''}`} 
+            />
+          )}
+          <input
+            type="text"
+            placeholder="Change starting location"
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            className="search-input"
           />
-        )}
-
-        {filteredLocations.map((location, index) => (
+          
+          {error && <div className="error">{error}</div>}
+          {suggestions.length > 0 && (
+            <ul className="suggestions-list">
+              {suggestions.map((suggestion) => (
+                <li key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
+                  {suggestion.display_name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+  
+        {/* Filter section when toggled */}
+        <div className="filter-section">
+          <button
+            onClick={() => setFilterVisible(!filterVisible)}
+            className="filter-toggle-icon"
+            aria-label={filterVisible ? 'Hide Filters' : 'Show Filters'}
+          >
+            <FontAwesomeIcon icon={faFilter} className={filterVisible ? 'active' : ''} /> 
+          </button>
+  
+          {filterVisible && (
+            <div className="filter-list">
+              <div className="filter-item">
+                <label htmlFor="filterCuisine">Cuisine: </label>
+                <select id="filterCuisine" value={filter} onChange={(e) => setFilter(e.target.value)}>
+                  <option value="">All</option>
+                  {cuisineOptions.map((cuisine, index) => (
+                    <option key={index} value={cuisine}>
+                      {cuisine}
+                    </option>
+                  ))}
+                </select>
+              </div>
+  
+              <div className="filter-item">
+                <label htmlFor="filterRestaurantName">Name: </label>
+                <select id="filterRestaurantName" value={filter} onChange={(e) => setFilter(e.target.value)}>
+                  <option value="">All</option>
+                  {nameOptions.map((namerestaurant, index) => (
+                    <option key={index} value={namerestaurant}>
+                      {namerestaurant}
+                    </option>
+                  ))}
+                </select>
+              </div>
+  
+              <div className="filter-item">
+                <label htmlFor="filterDistance">Distance (miles): </label>
+                <select id="filterDistance" value={distanceFilter} onChange={(e) => setDistanceFilter(parseInt(e.target.value))}>
+                  <option value={1}>1</option>
+                  <option value={2}>2</option>
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                </select>
+              </div>
+  
+              <div className="filter-item">
+                <label htmlFor="filterType">Type: </label>
+                <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                  <option value="">All</option>
+                  <option value="Restaurant">Restaurant</option>
+                  <option value="Bar">Bar</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+  
+      {/* Map Section */}
+      <div className="google-map">
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={currentLocation || { lat: 40.7128, lng: -74.0060 }}
+          zoom={currentLocation ? 15 : 12}
+          options={{
+            styles: "f9f8fc87a66fc282",
+          }}
+        >
+          {currentLocation && (
+            <Marker
+              position={currentLocation}
+              title="You are here"
+              icon={{
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+              }}
+            />
+          )}
+  
+          {filteredLocations.map((location, index) => (
             <Marker
               key={index}
               position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
@@ -508,7 +531,6 @@ const isBar = (location) => {
                 url: (() => {
                   const isLocationBar = isBar(location);
                   const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
-
                   return shouldShowBar
                     ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
                     : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
@@ -519,63 +541,54 @@ const isBar = (location) => {
               onClick={() => handleMarkerClick(location)}
             />
           ))}
-
-        {selectedLocation && (
-          
-          <InfoWindow
-            position={{
-              lat: parseFloat(selectedLocation.latitude),
-              lng: parseFloat(selectedLocation.longitude),
-            }}
-            onCloseClick={() => setSelectedLocation(null)}
-          >
-                   
-            <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
-
-              <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
-              {/* Just for testing */}
-              <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
-              <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
-
-              <br />
-              <p>
-                <strong>Phone: </strong>
-                {formatPhoneNumber(selectedLocation.Restaurant.phone)}
-              </p>
-             
-             <div>
-                <FontAwesomeIcon className='view-more-icon'
-                    icon={faInfoCircle} 
-                    onClick={() => handleViewMoreClick(selectedLocation)} 
-                    style={{ cursor: 'pointer', fontSize: '1.5em', color: '#007bff' }}
-                />
-
-                <FontAwesomeIcon className='heart-icon'
-                  onClick={() => handleAddToFavorites(selectedLocation)}
-                  icon={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? solidHeart : regularHeart}
-                  color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
-                />
-              </div>
-            </div>
-          </InfoWindow>
-          
-        )}
-      </GoogleMap>
-  {/* Expandable Card */}
-  {selectedRestaurant && ( 
-  <ExpandableCard
-    restaurant={selectedRestaurant}
-    position={cardPosition}
-    onClose={() => setSelectedRestaurant(null)}
-    handleDragStart={handleDragStart}
-    reviews={selectedRestaurant.reviews} 
-    
-
-  />
   
-)}
+          {selectedLocation && (
+            <InfoWindow
+              position={{
+                lat: parseFloat(selectedLocation.latitude),
+                lng: parseFloat(selectedLocation.longitude),
+              }}
+              onCloseClick={() => setSelectedLocation(null)}
+            >
+              <div className="info-window-content">
+                <h3>{selectedLocation.Restaurant.dba || 'No Name'}</h3>
+                <p>{`${selectedLocation.Restaurant.building || ''} ${selectedLocation.Restaurant.street || ''}`.trim() || 'No Address'}</p>
+                <p>{`${selectedLocation.Restaurant.boro || ''}, NY ${selectedLocation.Restaurant.zipcode || ''}`.trim()}</p>
+                <p><strong>Phone: </strong>{formatPhoneNumber(selectedLocation.Restaurant.phone)}</p>
+                <br/>
+                <div className="info-window-icons">
+                  <FontAwesomeIcon
+                    className='view-more-icon'
+                    icon={faCircleInfo}
+                    onClick={() => handleViewMoreClick(selectedLocation)}
+                  />
+                  <FontAwesomeIcon
+                    className='heart-icon'
+                    icon={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? solidHeart : regularHeart}
+                    color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
+                    onClick={() => handleAddToFavorites(selectedLocation)}
+                  />
+                </div>
+              </div>
+            </InfoWindow>
+          )}
+        </GoogleMap>
+  
+        {/* Expandable Card */}
+        {selectedRestaurant && (
+          <ExpandableCard
+            restaurant={selectedRestaurant}
+            position={cardPosition}
+            onClose={() => setSelectedRestaurant(null)}
+            handleDragStart={handleDragStart}
+            reviews={selectedRestaurant.reviews}
+          />
+        )}
+      </div>
     </div>
   );
+  
+  
 };
 
 export default GoogleMapComponent;
