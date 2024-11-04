@@ -220,7 +220,7 @@ const GoogleMapComponent = () => {
      console.log('time:', time);
     try {
         const response = await axios.post(
-            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plan/add',
+            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
             {
                 camis: location.camis,
                 longitude: location.longitude,

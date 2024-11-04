@@ -52,6 +52,8 @@ app.use('/api/v1/auth', authRouter);
 //routes for favoritePlaces
 app.use('/api/v1/favorites', favoriteRouter);
 
+//user-plan
+app.use('/api/v1/user-plans', userPlanRoutes);
 
 //no route match
 app.use('*', catchAsync (async(req, res, next) => {
@@ -62,8 +64,6 @@ app.use('*', catchAsync (async(req, res, next) => {
 //global error handler
 app.use(globalErrorHandler);
 
-//user-plan
-app.use('/api/v1/user-plans', userPlanRoutes);
 
 db.sequelize.sync({ force: false });
 
