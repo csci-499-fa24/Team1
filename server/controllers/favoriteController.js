@@ -6,7 +6,7 @@ const axios = require('axios');
 
 // Add a new favorite place
 const addFavoritePlace = catchAsync(async (req, res, next) => {
-    const { camis } = req.body; // The camis (restaurant ID) is passed in the request body
+    const { camis } = req.body; 
     const userId = req.user.id; // Assuming user is authenticated and userId is available
 
     // Check if the restaurant with the provided camis exists
@@ -18,18 +18,18 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
 
     // Create the favorite place
     try {
-        const favoritePlace = await FavoritePlaces.create({
-            
+        const favoritePlace = await FavoritePlaces.create({         
             userId,
             camis, 
         });
-
+        
         return res.status(201).json({
             status: 'success',
             data: {
-                favoritePlace,
+                favoritePlace
             },
         });
+       
     } catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
             // Extract the unique constraint error message
@@ -42,63 +42,73 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
 });
 
 
+
 // Get all favorite places for the logged-in user
- const getFavoritePlaces = catchAsync(async (req, res, next) => {
+const getFavoritePlaces = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
 
-    // Fetch favorite places and include associated restaurant and location details
-    const favoritePlaces = await FavoritePlaces.findAll({
-        where: { userId },
-        include: [
-            {
-                model: Restaurants,
-                attributes: ['dba', 'building', 'street', 'zipcode', 'boro'], // Fetch restaurant data
-                include: {
-                    model: Locations, // Nested include to fetch location data
-                    attributes: ['latitude', 'longitude'],
+    try {
+        // Fetch favorite places and include associated restaurant and location details
+        const favoritePlaces = await FavoritePlaces.findAll({
+            where: { userId },
+            include: [
+                {
+                    model: Restaurants,
+                    attributes: ['dba', 'building', 'street', 'zipcode', 'boro'], // Fetch restaurant data
+                    include: {
+                        model: Locations, // Nested include to fetch location data
+                        attributes: ['latitude', 'longitude'],
+                    },
                 },
-            },
-        ],
-    });
+            ],
+        });
 
-    // Always return an empty array when no favorite places are found
-    return res.status(200).json({
-        status: 'success',
-        data: {
-            favoritePlaces: favoritePlaces.length ? favoritePlaces : [], // Return an empty array if no favorites
-        },
-    });
+        // Always return an empty array when no favorite places are found
+        return res.status(200).json({
+            status: 'success',
+            data: {
+                favoritePlaces: favoritePlaces.length ? favoritePlaces : [], // Return an empty array if no favorites
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching favorite places:', error); // Log the error for debugging
+        return next(new AppError('Failed to retrieve favorite places', 500)); // Handle the error
+    }
 });
 
 
- 
+
 // Remove a favorite place
 const deleteFavoritePlace = catchAsync(async (req, res, next) => {
-    const { camis } = req.params; // camis of the favorite place to delete
-  
+    const { camis } = req.params;
     const userId = req.user.id;
-    console.log(camis); // for debugging purposes
-  
-    const favoritePlace = await FavoritePlaces.findOne({
-      where: { camis, userId }, // Use camis for filtering
-    });
-  
-    if (!favoritePlace) {
-      return next(new AppError('Favorite place not found', 404));
+
+    try {
+        const favoritePlace = await FavoritePlaces.findOne({
+            where: { camis, userId },
+        });
+
+        if (!favoritePlace) {
+            return next(new AppError('Favorite place not found', 404));
+        }
+
+        await favoritePlace.destroy();
+
+        return res.status(204).json({
+            status: 'success',
+            message: 'Favorite place deleted',
+        });
+    } catch (error) {   
+        return next(new AppError('Failed to delete favorite place', 500));
     }
-  
-    await favoritePlace.destroy();
-  
-    return res.status(204).json({
-      status: 'success',
-      message: 'Favorite place deleted',
-    });
-  });
+
+});
 
 
 
 // fetch place details
 const fetchPlaceDetails = catchAsync(async (req, res, next) => {
+  
     const { camis } = req.query;
     
     if (!camis) {
@@ -111,8 +121,9 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
         // Step 1: Fetch restaurant details from the database using `camis`
         const restaurant = await Restaurants.findOne({ where: { camis } });
         if (!restaurant) {
-            console.log(`Restaurant not found for camis: ${camis}`);
-            return res.status(404).json({ error: 'Restaurant not found' });
+
+            //return res.status(404).json({ error: 'Restaurant not found' });
+            return next(new AppError('Restaurant not found', 404));  // Ensure this error is returned
         }
         const name = restaurant.dba;
         const address = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
@@ -185,13 +196,14 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error("Error fetching place details:", error);
+       console.error("Error fetching place details:", error);
         return next(new AppError('Failed to fetch place details', 500));
     }
 
 } catch (error) {
     console.error('Error fetching restaurant reviews:', error);
-    res.status(500).json({ error: 'Failed to retrieve restaurant reviews' });
+    //res.status(500).json({ error: 'Failed to retrieve restaurant reviews' });
+    return next(new AppError('Failed to retrieve restaurant reviews', 500));  
 }
 });
 
