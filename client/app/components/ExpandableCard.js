@@ -62,7 +62,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
         {/* Display Rating with Stars */}
         {restaurant.placeDetails.rating && (
           <span style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ marginLeft: '5px' }}>
+            <span style={{ marginLeft: '9px' }}>
               {restaurant.placeDetails.rating}&nbsp;
             </span>
             {populateStars(restaurant.placeDetails.rating)}
@@ -73,13 +73,13 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
       {/* Display Address and Cuisine */}
       <p>
       <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color' }}/>
-        <span style={{ marginLeft: '5px' }}>
+        <span style={{ marginLeft: '9px' }}>
           {`${restaurant.Restaurant.building} ${restaurant.Restaurant.street}, ${restaurant.Restaurant.boro}`}
          </span>
       </p>
       <p>
       <FontAwesomeIcon icon={faUtensils} style={{ color: 'var(--accent-color' }}/>
-        <span style={{ marginLeft: '5px' }}>
+        <span style={{ marginLeft: '9px' }}>
           {restaurant.Restaurant.cuisine_description}
         </span>
       </p>
@@ -88,7 +88,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
       {restaurant.Restaurant.phone && (
         <p>
         <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color' }}/>
-          <span style={{ marginLeft: '5px' }}>
+          <span style={{ marginLeft: '9px' }}>
             {restaurant.Restaurant.phone}
           </span>
         </p>
@@ -103,7 +103,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
               style={{ color: 'var(--accent-color)', fontSize: '1.2em' }} 
             />
           </span>
-          <span style={{ marginLeft: '11px' }}>
+          <span style={{ marginLeft: '13px' }}>
             <a 
               href={restaurant.placeDetails.website} 
               target="_blank" 

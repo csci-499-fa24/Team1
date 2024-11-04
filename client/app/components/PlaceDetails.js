@@ -87,7 +87,7 @@ export default function PlaceDetails({ camis, onClose }) {
             <h2>{placeDetails.name}</h2>
             <p>
                 <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color' }}/>
-                    <span style={{ marginLeft: '5px' }}>
+                    <span style={{ marginLeft: '9px' }}>
                     {placeDetails.address}
                     </span>
             </p>
@@ -102,7 +102,7 @@ export default function PlaceDetails({ camis, onClose }) {
                 {placeDetails.phone && (
                     <p style={{ margin: 0 }}>
                     <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color)' }} />
-                    <span style={{ marginLeft: '5px' }}>
+                    <span style={{ marginLeft: '9px' }}>
                         {placeDetails.phone}
                     </span>
                     </p>
@@ -111,7 +111,7 @@ export default function PlaceDetails({ camis, onClose }) {
                 {/* Display Rating with Stars */}
                 {placeDetails.rating && (
                     <span style={{ display: 'flex', alignItems: 'center' }}>
-                    <span style={{ marginLeft: '5px' }}>
+                    <span style={{ marginLeft: '9px' }}>
                         {placeDetails.rating}&nbsp;
                     </span>
                     {populateStars(placeDetails.rating)}
@@ -128,7 +128,7 @@ export default function PlaceDetails({ camis, onClose }) {
                     style={{ color: 'var(--accent-color)', fontSize: '1.2em' }} 
                     />
                 </span>
-                <span style={{ marginLeft: '11px' }}>
+                <span style={{ marginLeft: '13px' }}>
                     <a 
                     href={placeDetails.website} 
                     target="_blank" 

@@ -80,7 +80,6 @@
 
 .favorites-title {
     font-size: 1.5vw;
-    font-weight: bold;
     color: var(--primary-color);
     margin-bottom: 1vw;
     text-align: center;
@@ -98,19 +97,23 @@
 
 .favorite-item {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5vw 1vw;
-    background-color: #fff;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-    margin-bottom: 0.5vw;
-    width: 90%;
-    
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: var(--base-color);
+    cursor: pointer;
 }
 
 .favorite-item:hover {
     background-color: var(--secondary-text-color);
+}
+
+.favorites-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 }
 
 /* Place Details */
@@ -127,18 +130,20 @@
     padding: 1vw;
     z-index: 100;
     transform: none;
+    animation: slideDown 0.5s ease forwards;
 }
 
 @keyframes slideDown {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%);
+        transform: translate(50%, -50%);
     }
     100% {
         opacity: 1;
-        transform: translate(-50%, 0);
+        transform: translate(40%, 10%); 
     }
 }
+
 
 .place-photo {
     width: 100%;
