@@ -19,8 +19,9 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
     // Create the favorite place
     try {
         const favoritePlace = await FavoritePlaces.create({
+
             userId,
-            camis, // Now storing only the camis
+            camis,
         });
 
         return res.status(201).json({
@@ -40,8 +41,9 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
     }
 });
 
+
 // Get all favorite places for the logged-in user
-const getFavoritePlaces = catchAsync(async (req, res, next) => {
+ const getFavoritePlaces = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
 
     // Fetch favorite places and include associated restaurant and location details
@@ -68,38 +70,53 @@ const getFavoritePlaces = catchAsync(async (req, res, next) => {
     });
 });
 
+
+
 // Remove a favorite place
 const deleteFavoritePlace = catchAsync(async (req, res, next) => {
-    const { id } = req.params; // id of the favorite place to delete
+    const { camis } = req.params; // camis of the favorite place to delete
+
     const userId = req.user.id;
+    console.log(camis); // for debugging purposes
 
     const favoritePlace = await FavoritePlaces.findOne({
-        where: { id, userId },
+      where: { camis, userId }, // Use camis for filtering
     });
 
     if (!favoritePlace) {
-        return next(new AppError('Favorite place not found', 404));
+      return next(new AppError('Favorite place not found', 404));
     }
 
     await favoritePlace.destroy();
 
     return res.status(204).json({
-        status: 'success',
-        message: 'Favorite place deleted',
+      status: 'success',
+      message: 'Favorite place deleted',
     });
-});
+  });
 
 
 
 // fetch place details
 const fetchPlaceDetails = catchAsync(async (req, res, next) => {
-    const { name, address } = req.query;
+    const { camis } = req.query;
 
-    if (!name || !address) {
-        return next(new AppError('Name and address are required', 400));
+    if (!camis) {
+        return next(new AppError('Camis is required', 400));
     }
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+    try {
+        // Step 1: Fetch restaurant details from the database using `camis`
+        const restaurant = await Restaurants.findOne({ where: { camis } });
+        if (!restaurant) {
+            console.log(`Restaurant not found for camis: ${camis}`);
+            return res.status(404).json({ error: 'Restaurant not found' });
+        }
+        const name = restaurant.dba;
+        const address = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
+
 
     try {
         // Step 1: Find place by name and address to get the place ID
@@ -112,9 +129,9 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
             }
         });
 
-        if (response.data.status !== 'OK' || !response.data.candidates.length) {     
+        if (response.data.status !== 'OK' || !response.data.candidates.length) {
             return next(new AppError('Place not found', 404));
-        } 
+        }
 
         const placeId = response.data.candidates[0].place_id;
 
@@ -133,7 +150,7 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
 
         const data = additionalDetailsResponse.data.result;
         const photos = data.photos;
-        
+
         let photoUrl = null;
 
         // Step 3: If there are photos, get the first photo's URL
@@ -171,9 +188,13 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
         console.error("Error fetching place details:", error);
         return next(new AppError('Failed to fetch place details', 500));
     }
+
+} catch (error) {
+    console.error('Error fetching restaurant reviews:', error);
+    res.status(500).json({ error: 'Failed to retrieve restaurant reviews' });
+}
 });
 
 
 
 module.exports = { addFavoritePlace, getFavoritePlaces, deleteFavoritePlace,  fetchPlaceDetails };
-

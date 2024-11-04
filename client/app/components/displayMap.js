@@ -63,6 +63,8 @@ const GoogleMapComponent = () => {
   const [error, setError] = useState('');
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const [coordinates, setCoordinates] = useState({ latitude: null, longitude: null });
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
@@ -173,6 +175,7 @@ const GoogleMapComponent = () => {
  // Handle adding to favorites
  const handleAddToFavorites = async (location) => {
     const token = Cookies.get('token'); // Get the token for authenticated requests
+
     try {
       const response = await axios.post(
         process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/favorites/add',
@@ -203,6 +206,60 @@ const GoogleMapComponent = () => {
     }
   };
 
+  const addToPlan = async (location, date, time) => {
+    const token = Cookies.get('token');
+     // Prepare the parameters to log
+     const camis = location.camis;
+     const longitude = location.longitude;
+     const latitude = location.latitude;
+
+     console.log('camis:', camis);
+     console.log('longitude:', longitude);
+     console.log('latitude:', latitude);
+     console.log('date:', date);
+     console.log('time:', time);
+    try {
+        const response = await axios.post(
+            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plan/add',
+            {
+                camis: location.camis,
+                longitude: location.longitude,
+                latitude: location.latitude,
+                date,
+                time,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status === 201) {
+            alert('Location added to your plan!');
+        }
+
+    } catch (error) {
+        // Check if there's a response and extract the custom message
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message); // Display custom error message from backend
+        } else {
+            alert('Failed to add location to your plan.'); // Fallback error message
+        }
+
+        console.error('Error adding location to plan:', error);
+    }
+};
+
+const handlePlanButtonClick = (location) => {
+  if (!selectedDate || !selectedTime) {
+      // If date or time is not selected, alert the user
+      alert('Please select both date and time before adding to your plan.');
+  } else {
+      // Proceed to add to the plan
+      addToPlan(location, selectedDate, selectedTime);
+  }
+};
 
 const isBar = (location) => {
   const name = location.Restaurant.dba.toLowerCase();
@@ -489,6 +546,19 @@ const isBar = (location) => {
               <button onClick={() => handleAddToFavorites(selectedLocation)}>   Add to Favorites </button>
 
               <button onClick={() => handleViewMoreClick(selectedLocation)}>View More</button>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+              <input
+                type="time"
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+              />
+              <button onClick={() => handlePlanButtonClick(selectedLocation)}>
+                Add to Plan
+              </button>
 
  Temporary merge branch 2
             </div>

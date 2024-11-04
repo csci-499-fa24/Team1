@@ -16,8 +16,9 @@ const globalErrorHandler = require("./controllers/errorController");
 const catchAsync = require("./utils/asyncError");
 const cookieParser = require('cookie-parser');
 const favoriteRouter = require('./routes/favoriteRoute');
+const userPlanRoutes = require('./routes/userPlanRoute');
 
-//CORS configuration ensures that your server allows requests from 
+//CORS configuration ensures that your server allows requests from
 //http://localhost:3000 and supports credentials (cookies).
 const corsOptions = {
     origin: process.env.NEXT_PUBLIC_CLIENT_URL, // Your frontend's origin
@@ -26,7 +27,7 @@ const corsOptions = {
 
 
 
-app.use(cookieParser()); 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 app.use(express.json());
@@ -54,12 +55,15 @@ app.use('/api/v1/favorites', favoriteRouter);
 
 //no route match
 app.use('*', catchAsync (async(req, res, next) => {
-  
+
     throw new AppError(`Can't find ${req.originalUrl} on this server`, 404);
 }));
 
 //global error handler
 app.use(globalErrorHandler);
+
+//user-plan
+app.use('/api/v1/user-plans', userPlanRoutes);
 
 db.sequelize.sync({ force: false });
 
