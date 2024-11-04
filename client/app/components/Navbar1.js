@@ -24,10 +24,6 @@ const Navbar1 = () => {
       <div className="navbar-links-container">
         
         <button className="primary-button" onClick={handleLogin}> Login {""} </button>
-      </div>
-
-      <div className="navbar-links-container">
-        
         <button className="primary-button" onClick={handleSignUp}> Sign up {""} </button>
       </div>
       

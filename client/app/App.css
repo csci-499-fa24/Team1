@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Reem Kufi", sans-serif !important;
+  font-family: var(--font-family)
 }
 img {
   max-width: 100%;
@@ -41,7 +41,8 @@ nav {
 }
 .primary-button {
   padding: 0.9rem 1.75rem;
-  background-color: white;
+  color: white;
+  background-color: var(--accent-color);
   outline: none;
   border: none;
   border-radius: 5rem;
@@ -49,12 +50,14 @@ nav {
   cursor: pointer;
   font-weight: 600;
   transition: 0.2s;
+  display: inline-block; /* Keep the inline-block display */
+  margin-right: 5px; /* Adjust spacing */
 }
 .navbar-cart-icon {
   font-size: 1.15rem;
 }
 .primary-button:hover {
-  background-color: rgb(234, 234, 234);
+  background-color: var(--secondary-color);
 }
 .navbar-menu-container svg {
   font-size: 1.5rem;
@@ -97,7 +100,7 @@ nav {
 }
 .secondary-button {
   padding: 1rem 2.5rem;
-  background-color: #fe9e0d;
+  background-color: var(--accent-color);
   outline: none;
   border: none;
   border-radius: 5rem;
@@ -115,7 +118,7 @@ nav {
   font-size: 1.5rem;
 }
 .secondary-button:hover {
-  background-color: #e48f0f;
+  background-color: var(--accent-color);
 }
 .about-section-container {
   margin-top: 20rem;
@@ -141,7 +144,7 @@ nav {
 }
 .primary-subheading {
   font-weight: 700;
-  color: #fe9e0d;
+  color: var(--accent-color);
   font-size: 1.15rem;
 }
 .about-buttons-container {
@@ -255,7 +258,7 @@ nav {
 .testimonials-stars-container svg {
   margin: 0rem 0.25rem;
   font-size: 1.5rem;
-  color: #fe9e0d;
+  color: var(--accent-color);
 }
 .testimonial-section-bottom h2 {
   margin-top: 1.5rem;
