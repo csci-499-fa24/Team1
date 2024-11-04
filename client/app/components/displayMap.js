@@ -77,7 +77,6 @@ const GoogleMapComponent = () => {
 
   const router = useRouter();
 
-
   //Agregado para filtrar por nombre
   const [filterName, setNameFilter] = useState(''); //Filter for name dba
   const [nameOptions, setNameOptions] = useState([]); //Holds name
@@ -86,6 +85,7 @@ const GoogleMapComponent = () => {
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
+    libraries: ["places"],
   });
 
   
@@ -95,7 +95,23 @@ const GoogleMapComponent = () => {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
 
-        setLocations(data);
+        // Map over locations to update marker positions
+        const updatedLocations = await Promise.all(
+          data.map(async (location) => {
+            try {
+              const preciseCoordinates = await fetchPreciseCoordinates(location);
+              return {
+                ...location,
+                latitude: preciseCoordinates.lat,
+                longitude: preciseCoordinates.lng,
+              };
+            } catch (error) {
+              console.error("Error refining coordinates:", error);
+              return location; // If geocoding fails, use the original location
+            }
+          })
+        );
+        setLocations(updatedLocations);
 
         // Extract unique cuisine descriptions
         const uniqueCuisines = [...new Set(
@@ -141,7 +157,25 @@ const GoogleMapComponent = () => {
     }
   }, []);   
 
-
+  const fetchPreciseCoordinates = async (location) => {
+    const address = `${location.Restaurant.building} ${location.Restaurant.street}, ${location.Restaurant.boro}, NY ${location.Restaurant.zipcode}`;
+    
+    const geocoder = new window.google.maps.Geocoder();
+    
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          resolve({
+            lat: results[0].geometry.location.lat(),
+            lng: results[0].geometry.location.lng(),
+          });
+        } else {
+          console.error("Geocode failed:", status);
+          reject(status);
+        }
+      });
+    });
+  };
     //fetch favorites
     const [favorites, setFavorites] = useState([]);
     useEffect(() => {
@@ -398,7 +432,7 @@ const isBar = (location) => {
               style={{ shapeRendering: 'auto', display: 'block', background: 'transparent' }}
             >
               <g>
-                {/* Repeated rects with animation */}
+                {/* Loading spinner when locations are being fetched */}
                 {[...Array(12).keys()].map((i) => (
                   <g key={i} transform={`rotate(${i * 30} 50 50)`}>
                     <rect fill="#494986" height="12" width="6" ry="6" rx="3" y="24" x="47">
@@ -429,7 +463,7 @@ const isBar = (location) => {
             onChange={handleSearchInputChange}
             className="search-input"
           />
-          
+
           {error && <div className="error">{error}</div>}
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
@@ -440,8 +474,8 @@ const isBar = (location) => {
               ))}
             </ul>
           )}
-        </div>
-  
+        </div> {/*End of changing starting location search bar */}
+
         {/* Filter section when toggled */}
         <div className="filter-section">
           <button
@@ -451,12 +485,16 @@ const isBar = (location) => {
           >
             <FontAwesomeIcon icon={faFilter} className={filterVisible ? 'active' : ''} /> 
           </button>
-  
+
           {filterVisible && (
             <div className="filter-list">
-              <div className="filter-item">
+              {/* Cuisine Filter */}
+              <div className="filter-item"> {/*div a */}
                 <label htmlFor="filterCuisine">Cuisine: </label>
-                <select id="filterCuisine" value={filter} onChange={(e) => setFilter(e.target.value)}>
+                <select 
+                  id="filterCuisine" 
+                  value={filter} 
+                  onChange={(e) => setFilter(e.target.value)}>
                   <option value="">All</option>
                   {cuisineOptions.map((cuisine, index) => (
                     <option key={index} value={cuisine}>
@@ -464,43 +502,54 @@ const isBar = (location) => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> {/*div a */}
   
-              <div className="filter-item">
+              {/* Name Restaurant Filter */}
+              <div className="filter-item"> {/*div b */}
                 <label htmlFor="filterRestaurantName">Name: </label>
-                <select id="filterRestaurantName" value={filter} onChange={(e) => setFilter(e.target.value)}>
-                  <option value="">All</option>
+                <select 
+                  id="filterRestaurantName" 
+                  value={filter} 
+                  onChange={(e) => setFilter(e.target.value)}>
+                  <option value="">All - Hold shift key while searching</option>
                   {nameOptions.map((namerestaurant, index) => (
                     <option key={index} value={namerestaurant}>
                       {namerestaurant}
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> {/*div b */}
   
-              <div className="filter-item">
+              {/* Distance Filter */}
+              <div className="filter-item"> {/*div a */}
                 <label htmlFor="filterDistance">Distance (miles): </label>
-                <select id="filterDistance" value={distanceFilter} onChange={(e) => setDistanceFilter(parseInt(e.target.value))}>
+                <select 
+                  id="filterDistance" 
+                  value={distanceFilter} 
+                  onChange={(e) => setDistanceFilter(parseInt(e.target.value))}>
                   <option value={1}>1</option>
                   <option value={2}>2</option>
                   <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
                 </select>
-              </div>
+              </div> {/*div a */}
   
-              <div className="filter-item">
+              {/* Bar or Restaurant Filter */}
+              <div className="filter-item"> {/*div b */}
                 <label htmlFor="filterType">Type: </label>
-                <select id="filterType" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                <select 
+                  id="filterType" 
+                  value={typeFilter} 
+                  onChange={(e) => setTypeFilter(e.target.value)}>
                   <option value="">All</option>
                   <option value="Restaurant">Restaurant</option>
                   <option value="Bar">Bar</option>
                 </select>
-              </div>
+              </div> {/*div b */}
             </div>
           )}
-        </div>
+        </div> {/*End of filter section */}
       </div>
+
   
       {/* Map Section */}
       <div className="google-map">
