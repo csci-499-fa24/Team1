@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
 import { faCircleInfo, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faLocationDot, faPhone } from '@fortawesome/free-solid-svg-icons';
 
 const containerStyle = {
   width: '100%',
@@ -601,9 +601,23 @@ const isBar = (location) => {
             >
               <div className="info-window-content">
                 <h3>{selectedLocation.Restaurant.dba || 'No Name'}</h3>
-                <p>{`${selectedLocation.Restaurant.building || ''} ${selectedLocation.Restaurant.street || ''}`.trim() || 'No Address'}</p>
-                <p>{`${selectedLocation.Restaurant.boro || ''}, NY ${selectedLocation.Restaurant.zipcode || ''}`.trim()}</p>
-                <p><strong>Phone: </strong>{formatPhoneNumber(selectedLocation.Restaurant.phone)}</p>
+                <p>
+                  <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color)' }} />
+                  <span style={{ marginLeft: '9px' }}>
+                      {`${selectedLocation.Restaurant.building || ''} ${selectedLocation.Restaurant.street || ''}`.trim() || 'No Address'}
+                      <br />
+                      <span style={{ marginLeft: '21px' }}>
+                          {`${selectedLocation.Restaurant.boro || ''}, NY ${selectedLocation.Restaurant.zipcode || ''}`.trim()} 
+                      </span>
+                  </span>
+                </p>
+
+                <p>
+                  <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color' }}/>
+                    <span style={{ marginLeft: '9px' }}>
+                    {formatPhoneNumber(selectedLocation.Restaurant.phone)}
+                    </span>
+                  </p>
                 <br/>
                 <div className="info-window-icons">
                   <FontAwesomeIcon

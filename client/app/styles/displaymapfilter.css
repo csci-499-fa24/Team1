@@ -7,6 +7,12 @@
   margin-bottom: 20px;
 }
 
+.google-map {
+  border-radius: 4px;
+  overflow: hidden;
+  height: 69vh;
+}
+
 .page-title {
   font-size: 20px;
   position: absolute;
@@ -107,7 +113,7 @@
 .filter-list {
   display: flex;
   flex-direction: row;
-  margin-top: -65px;
+  margin-top: -60px;
   gap: 15px;
   width: 100%;
   position: absolute;
@@ -120,6 +126,7 @@
   align-items: center;
   margin-bottom: 0;
   border-radius: 5px; 
+  white-space: nowrap;
 }
 
 .filter-item label {
@@ -187,6 +194,9 @@
   box-shadow: none;
   font-size: 16px; 
   width: 300px;
+}
+.info-window-content p{
+  margin-top: 5px;
 }
 
 .info-window-icons {
@@ -314,6 +324,10 @@
 }
 .expandable-card h4:hover {
   color: var(--accent-color); 
+}
+
+.view-more-icon {
+  color: var(--accent-color);
 }
 
  .heart-icon, .view-more-icon {
