@@ -19,9 +19,8 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
     // Create the favorite place
     try {
         const favoritePlace = await FavoritePlaces.create({
-
             userId,
-            camis,
+            camis, 
         });
 
         return res.status(201).json({
@@ -71,24 +70,23 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
 });
 
 
-
 // Remove a favorite place
 const deleteFavoritePlace = catchAsync(async (req, res, next) => {
     const { camis } = req.params; // camis of the favorite place to delete
-
+  
     const userId = req.user.id;
     console.log(camis); // for debugging purposes
-
+  
     const favoritePlace = await FavoritePlaces.findOne({
       where: { camis, userId }, // Use camis for filtering
     });
-
+  
     if (!favoritePlace) {
       return next(new AppError('Favorite place not found', 404));
     }
-
+  
     await favoritePlace.destroy();
-
+  
     return res.status(204).json({
       status: 'success',
       message: 'Favorite place deleted',
@@ -100,11 +98,10 @@ const deleteFavoritePlace = catchAsync(async (req, res, next) => {
 // fetch place details
 const fetchPlaceDetails = catchAsync(async (req, res, next) => {
     const { camis } = req.query;
-
     if (!camis) {
         return next(new AppError('Camis is required', 400));
     }
-
+    
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
     try {
@@ -116,7 +113,6 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
         }
         const name = restaurant.dba;
         const address = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
-
 
     try {
         // Step 1: Find place by name and address to get the place ID
@@ -178,7 +174,7 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
             phone: data.formatted_phone_number,
             photoUrl // Will be `null` if no photo was fetched
         };
-
+        
         return res.status(200).json({
             status: 'success',
             data: formattedDetails

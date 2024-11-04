@@ -7,6 +7,11 @@ import "../styles/profile.css";
 import Navbar from '../components/Navbar';
 import Favorites from '../components/Favorites';
 import PlaceDetails from '../components/PlaceDetails';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas   
+ } from '@fortawesome/free-solid-svg-icons';
+  library.add(fas)  
 
 export default function Personal() {
     const [user, setUser] = useState(null);
@@ -14,15 +19,15 @@ export default function Personal() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const router = useRouter();
-    const [isSlideOut, setIsSlideOut] = useState(false); // State for slide-out visibility
-    const [isMobileDetailsVisible, setMobileDetailsVisible] = useState(false);
+    
+
+    const closePlaceDetails = () => {
+        setSelectedPlace(null);
+    };
+    
 
     useEffect(() => {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
-        document.head.appendChild(link);
-
+     
         const token = Cookies.get("token");
         if (!token) {
             console.log("Please log in.");
@@ -52,27 +57,12 @@ export default function Personal() {
     }, [router]);
 
 
-
     // Handle clicking a favorite
     const onFavoriteClick = (place) => {
-        const { dba, building, street, boro, zipcode } = place.Restaurant;
-        const name = dba;
-        const address = `${building} ${street}, ${boro}, NY ${zipcode}`;
-        setSelectedPlace({ name, address });
-        setIsSlideOut(true); // Show slide-out when a place is selected
-        if (window.innerWidth <= 768) {
-            setMobileDetailsVisible(true); // Show PlaceDetails in mobile view
-        }
+        const camis = place.camis;
+        setSelectedPlace({camis}); 
     };
 
-    const closeDetails = () => {
-        setMobileDetailsVisible(false); // Hide PlaceDetails in mobile view
-    };
-
-    const handleLogout = () => {
-        Cookies.remove("token");
-        router.push("/login");
-    };
 
     if (loading) {
         return <div>Loading...</div>;
@@ -87,7 +77,6 @@ export default function Personal() {
         );
     }
 
-
     return (
         <div className="profile-container">
             {/* Top Section */}
@@ -95,46 +84,34 @@ export default function Personal() {
                  <Navbar />
             </div>
 
-
             {/* Main Content */}
             <div className="profile-main-content">
 
                 <div className="profile-left-section">
                     <div className="profile-avatar-welcome-section">
-                       <i class="fa fa-user-circle"></i>
-                        <div>
-                            <h2>Welcome,</h2>
+                    <FontAwesomeIcon icon="user-circle" />  
+                        <div>                     
+                            <h2>Welcome,</h2>                 
                             <h2> {user.userName}</h2>
                         </div>
                     </div>
 
                     <div className="favorite-section">
-
-                        <h1 className="favorites-title"> <i className="fa fa-star"></i> Favorites</h1>
+                        <h1 className="favorites-title"> <FontAwesomeIcon icon="star" /> Favorites</h1>
                         <div className="favorites-container">
                             <Favorites onFavoriteClick={onFavoriteClick} />
                         </div>
                     </div>
-                </div>
-
-                <div
-                    className={`profile-right-section ${isSlideOut ? 'active' : ''} ${
-                        isMobileDetailsVisible ? 'mobile-active' : ''
-                    }`}
-                >
-                    <div className="infoContainer">
-                        {selectedPlace && (
-                            <PlaceDetails
-                                name={selectedPlace.name}
-                                address={selectedPlace.address}
-                                onClose={closeDetails} // Close button functionality for mobile view
-                            />
-                        )}
-                    </div>
-                </div>
+                </div> 
+                <div className="profile-right-section"> </div>
 
             </div>
-
+            {selectedPlace && (
+                <PlaceDetails
+                    camis={selectedPlace.camis}
+                    onClose={closePlaceDetails}         
+                />
+            )}    
         </div>
 
     );
