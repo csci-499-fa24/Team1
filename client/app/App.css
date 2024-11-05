@@ -20,7 +20,7 @@ body {
 }
 
 body {
-  background-color: #f6f6f6;
+  background-color: #ffffff;
 }
 
 nav {
@@ -97,7 +97,7 @@ nav {
 }
 .secondary-button {
   padding: 1rem 2.5rem;
-  background-color: #fe9e0d;
+  background-color: #2e2e7a;
   outline: none;
   border: none;
   border-radius: 5rem;
@@ -141,7 +141,7 @@ nav {
 }
 .primary-subheading {
   font-weight: 700;
-  color: #fe9e0d;
+  color: #2e2e7a;
   font-size: 1.15rem;
 }
 .about-buttons-container {

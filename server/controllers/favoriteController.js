@@ -19,6 +19,7 @@ const addFavoritePlace = catchAsync(async (req, res, next) => {
     // Create the favorite place
     try {
         const favoritePlace = await FavoritePlaces.create({         
+
             userId,
             camis, 
         });
@@ -77,7 +78,6 @@ const getFavoritePlaces = catchAsync(async (req, res, next) => {
 });
 
 
-
 // Remove a favorite place
 const deleteFavoritePlace = catchAsync(async (req, res, next) => {
     const { camis } = req.params;
@@ -110,7 +110,6 @@ const deleteFavoritePlace = catchAsync(async (req, res, next) => {
 const fetchPlaceDetails = catchAsync(async (req, res, next) => {
   
     const { camis } = req.query;
-    
     if (!camis) {
         return next(new AppError('Camis is required', 400));
     }
@@ -127,7 +126,6 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
         }
         const name = restaurant.dba;
         const address = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
-      
 
     try {
         // Step 1: Find place by name and address to get the place ID
@@ -140,9 +138,9 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
             }
         });
 
-        if (response.data.status !== 'OK' || !response.data.candidates.length) {     
+        if (response.data.status !== 'OK' || !response.data.candidates.length) {
             return next(new AppError('Place not found', 404));
-        } 
+        }
 
         const placeId = response.data.candidates[0].place_id;
 
@@ -161,7 +159,7 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
 
         const data = additionalDetailsResponse.data.result;
         const photos = data.photos;
-        
+
         let photoUrl = null;
 
         // Step 3: If there are photos, get the first photo's URL
@@ -210,4 +208,3 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
 
 
 module.exports = { addFavoritePlace, getFavoritePlaces, deleteFavoritePlace,  fetchPlaceDetails };
-

@@ -56,7 +56,7 @@ export default function Personal() {
             });
     }, [router]);
 
-   
+
     // Handle clicking a favorite
     const onFavoriteClick = (place) => {
         const camis = place.camis;
@@ -81,9 +81,9 @@ export default function Personal() {
         <div className="profile-container">
             {/* Top Section */}
             <div className="profile-top-section">
-                 <Navbar /> 
+                 <Navbar />
             </div>
-                    
+
             {/* Main Content */}
             <div className="profile-main-content">
 
@@ -104,6 +104,7 @@ export default function Personal() {
                     </div>
                 </div> 
                 <div className="profile-right-section"> </div>
+
             </div>
             {selectedPlace && (
                 <PlaceDetails
@@ -112,7 +113,7 @@ export default function Personal() {
                 />
             )}    
         </div>
-        
+
     );
 
 

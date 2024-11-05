@@ -10,7 +10,7 @@ import { fetchReviewsByPlaceId } from './fetchReviews';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -50,7 +50,7 @@ const GoogleMapComponent = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [geolocationError, setGeolocationError] = useState(false);
-  const [filterVisible, setFilterVisible] = useState(false); 
+  const [filterVisible, setFilterVisible] = useState(false);
   const [filter, setFilter] = useState(''); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
@@ -63,14 +63,20 @@ const GoogleMapComponent = () => {
     y: window.innerHeight / 2 - 300,
   });
 
-
+  const [searchInput, setSearchInput] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const [coordinates, setCoordinates] = useState({ latitude: null, longitude: null });
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
-  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"]; 
+  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"];
 
   const router = useRouter();
-
 
   //Agregado para filtrar por nombre
   const [filterName, setNameFilter] = useState(''); //Filter for name dba
@@ -80,16 +86,33 @@ const GoogleMapComponent = () => {
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
+    libraries: ["places"],
   });
 
-  
+
   useEffect(() => {
     const fetchLocations = async () => {
       try {
         const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
         const data = await response.json();
-        
-        setLocations(data);
+
+        // Map over locations to update marker positions
+        const updatedLocations = await Promise.all(
+          data.map(async (location) => {
+            try {
+              const preciseCoordinates = await fetchPreciseCoordinates(location);
+              return {
+                ...location,
+                latitude: preciseCoordinates.lat,
+                longitude: preciseCoordinates.lng,
+              };
+            } catch (error) {
+              console.error("Error refining coordinates:", error);
+              return location; // If geocoding fails, use the original location
+            }
+          })
+        );
+        setLocations(updatedLocations);
 
         // Extract unique cuisine descriptions
         const uniqueCuisines = [...new Set(
@@ -101,7 +124,7 @@ const GoogleMapComponent = () => {
 
 
         //Extract unique Names descriptions
-        
+
         const uniqueNames = [...new Set(
           data
             .map((location) => location.Restaurant.dba)
@@ -119,7 +142,7 @@ const GoogleMapComponent = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });    
+          setCurrentLocation({ lat: latitude, lng: longitude });
           fetchLocations(); // Fetch locations after getting the current position
         },
         (error) => {
@@ -133,14 +156,31 @@ const GoogleMapComponent = () => {
       setGeolocationError(true);
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
+  }, []);
 
-  }, []);   
-  
+  const fetchPreciseCoordinates = async (location) => {
+    const address = `${location.Restaurant.building} ${location.Restaurant.street}, ${location.Restaurant.boro}, NY ${location.Restaurant.zipcode}`;
 
+    const geocoder = new window.google.maps.Geocoder();
+
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          resolve({
+            lat: results[0].geometry.location.lat(),
+            lng: results[0].geometry.location.lng(),
+          });
+        } else {
+          console.error("Geocode failed:", status);
+          reject(status);
+        }
+      });
+    });
+  };
     //fetch favorites
     const [favorites, setFavorites] = useState([]);
     useEffect(() => {
-      
+
       const fetchFavorites = async () => {
             const token = Cookies.get('token');  // Get the token for authenticated requests
           try {
@@ -148,21 +188,21 @@ const GoogleMapComponent = () => {
                   `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
                   { headers: { Authorization: `Bearer ${token}` } }
               );
-            
+
               if (response.status === 200) {
                   setFavorites(response.data.data.favoritePlaces);
-                
+
               }
           } catch (error) {
               console.error('Error fetching favorites:', error);
-             
+
           }
       };
-    
+
       fetchFavorites();
   }, []);
 
- 
+
   //handle marker click
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
@@ -175,41 +215,45 @@ const GoogleMapComponent = () => {
       const inspectionRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
-  
+
      /*   const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
       );  */
-  
+
+
       // Call the new backend route for reviews
       const reviewsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
-      
+
        // Fetch additional place details
        const placeDetailsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`,
         { params: { camis: location.Restaurant.camis } }
        );
 
+
       setSelectedRestaurant({
         ...location,
         inspectionDetails: inspectionRes.data,
-        //  restaurantHours: hoursRes.data.hours, 
-        //  isOpenNow: hoursRes.data.hours.open_now, 
-        reviews: reviewsRes.data, 
-        placeDetails: {     
+        //  restaurantHours: hoursRes.data.hours,
+        //  isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data,
+        placeDetails: {
           photoUrl: placeDetailsRes.data.data.photoUrl,
           website: placeDetailsRes.data.data.website,
           rating: placeDetailsRes.data.data.rating,
-          hours: placeDetailsRes.data.data.hours,  
-          isOpenNow: placeDetailsRes.data.data.hours.open_now,  
+          hours: placeDetailsRes.data.data.hours,
+          isOpenNow: placeDetailsRes.data.data.hours.open_now,
       },
+
       });
     } catch (error) {
       console.error("Error fetching restaurant details:", error);
     }
-  }; 
-  
+  };
+
+
 
 // handle add to favorites
   const handleAddToFavorites = async (location) => {
@@ -222,9 +266,9 @@ const GoogleMapComponent = () => {
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/remove/${location.camis}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
+
         if (response.status === 204) {
-         
+
           setFavorites(favorites.filter(favorite => favorite.camis !== location.camis));
           console.log(favorites)
 
@@ -236,7 +280,7 @@ const GoogleMapComponent = () => {
           { camis: location.camis },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
+
         if (response.status === 201) {
          setFavorites([...favorites, { camis: location.camis }]);
         }
@@ -247,13 +291,69 @@ const GoogleMapComponent = () => {
     }
   };
 
+  const addToPlan = async (location, date, time) => {
+    const token = Cookies.get('token');
+     // Prepare the parameters to log
+     const camis = location.camis;
+     const longitude = location.longitude;
+     const latitude = location.latitude;
 
-  
+
+     console.log('camis:', camis);
+     console.log('longitude:', longitude);
+     console.log('latitude:', latitude);
+     console.log('date:', date);
+     console.log('time:', time);
+    try {
+        const response = await axios.post(
+            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
+            {
+                camis: location.camis,
+                longitude: location.longitude,
+                latitude: location.latitude,
+                date,
+                time,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+
+        if (response.status === 201) {
+            alert('Location added to your plan!');
+        }
+
+
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message);
+        } else {
+            alert('Failed to add location to your plan.');
+        }
+
+
+        console.error('Error adding location to plan:', error);
+    }
+ };
+
+
+  const handlePlanButtonClick = (location) => {
+    if (!selectedDate || !selectedTime) {
+        alert('Please select both date and time before adding to your plan.');
+    } else {
+        addToPlan(location, selectedDate, selectedTime);
+    }
+  };
+
+
 const isBar = (location) => {
   const name = location.Restaurant.dba.toLowerCase();
   const cuisine = location.Restaurant.cuisine_description
     ? location.Restaurant.cuisine_description.toLowerCase()
-    : ""; 
+    : "";
 
   const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
   const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
@@ -281,11 +381,86 @@ const isBar = (location) => {
       (filter === ''|| location.Restaurant.dba === filter)) &&
       (currentLocation ? distance <= distanceFilter : true) && // distance filter
       (typeFilter === '' ||
-        (typeFilter === 'Bar' && isBar(location)) || 
+        (typeFilter === 'Bar' && isBar(location)) ||
         (typeFilter === 'Restaurant' && !isBar(location))
     );
   });
 
+  const handleSearchInputChange = (event) => {
+    const value = event.target.value;
+    setSearchInput(value);
+
+
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+
+    setDebounceTimeout(
+      setTimeout(() => {
+        if (value) {
+          fetchSuggestions(value);
+        } else {
+          setSuggestions([]);
+        }
+      }, 1000)
+    );
+  };
+
+
+  const fetchSuggestions = async (input) => {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&addressdetails=1&limit=5&viewbox=-74.2591,40.9176,-73.7004,40.4774&bounded=1`;
+    setIsLoading(true);
+    setError('');
+
+
+    try {
+      const response = await axios.get(url);
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+      setError("Failed to fetch suggestions.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handleSuggestionClick = (place) => {
+    setSearchInput(place.display_name);
+    setSuggestions([]);
+    fetchCoordinates(place.display_name);
+  };
+
+
+  const fetchCoordinates = async (location) => {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`;
+
+
+    try {
+      const response = await axios.get(url);
+      if (response.data.length > 0) {
+        const { lat, lon } = response.data[0];
+        setCoordinates({ latitude: lat, longitude: lon });
+        setCurrentLocation({ lat: parseFloat(lat), lng: parseFloat(lon) });
+        console.log("Fetched Coordinates:", { latitude: lat, longitude: lon });
+      } else {
+        console.error("No coordinates found for the location.");
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      setError("Failed to fetch coordinates.");
+    }
+  };
+
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [debounceTimeout]);
 
 
     // Handle load error and loading state for the map
@@ -296,7 +471,7 @@ const isBar = (location) => {
   if (!isLoaded) {
     return <div>Loading maps...</div>;
   }
- 
+
 
   return (
     <div className="map-container">
@@ -357,8 +532,6 @@ const isBar = (location) => {
                 <option value={1}>1 mile</option>
                 <option value={2}>2 miles</option>
                 <option value={5}>5 miles</option>
-                <option value={10}>10 miles</option>
-                <option value={25}>25 miles</option>
               </select>
             </div> {/*div b */}
 
@@ -373,14 +546,37 @@ const isBar = (location) => {
             </div>
           </div>
         )}
+
+        {/* Enter starting Location */}
+       <div className="starting-location">
+         <input
+           type="text"
+           placeholder="Input starting Location"
+           value={searchInput}
+           onChange={handleSearchInputChange}
+           className="search-input"
+         />
+         {isLoading && <div>Loading...</div>}
+         {error && <div>{error}</div>}
+         {suggestions.length > 0 && (
+           <ul className="suggestions-list">
+             {suggestions.map((suggestion) => (
+               <li key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
+                 {suggestion.display_name}
+               </li>
+             ))}
+           </ul>
+         )}
+       </div>
+
       </div>
     {/* //<LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}> */}
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={currentLocation || { lat: 40.7128, lng: -74.0060 }} 
-        zoom={currentLocation ? 15 : 12} 
+        center={currentLocation || { lat: 40.7128, lng: -74.0060 }}
+        zoom={currentLocation ? 15 : 12}
         options={{
-          styles: "f9f8fc87a66fc282", 
+          styles: "f9f8fc87a66fc282",
         }}
       >
         {currentLocation && (
@@ -388,7 +584,7 @@ const isBar = (location) => {
             position={currentLocation}
             title="You are here"
             icon={{
-              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", 
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
             }}
           />
         )}
@@ -400,22 +596,22 @@ const isBar = (location) => {
               title={location.Restaurant.dba}
               icon={{
                 url: (() => {
-                  const isLocationBar = isBar(location); 
+                  const isLocationBar = isBar(location);
                   const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
-                
+
                   return shouldShowBar
                     ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
                     : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
                 })(),
                 scaledSize: new window.google.maps.Size(30, 30),
-                anchor: new window.google.maps.Point(15, 30),          
+                anchor: new window.google.maps.Point(15, 30),
               }}
               onClick={() => handleMarkerClick(location)}
             />
           ))}
 
         {selectedLocation && (
-          
+
           <InfoWindow
             position={{
               lat: parseFloat(selectedLocation.latitude),
@@ -423,24 +619,24 @@ const isBar = (location) => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
-                   
+
             <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
-                    
+
               <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
               {/* Just for testing */}
               <p>{selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street ? selectedLocation.Restaurant.building + ' ' + selectedLocation.Restaurant.street : 'No Address'}</p>
               <p>{selectedLocation.Restaurant.boro + ", NY " + selectedLocation.Restaurant.zipcode}</p>
-              
+
               <br />
               <p>
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
-             
+
              <div>
                 <FontAwesomeIcon className='view-more-icon'
-                    icon={faInfoCircle} 
-                    onClick={() => handleViewMoreClick(selectedLocation)} 
+                    icon={faInfoCircle}
+                    onClick={() => handleViewMoreClick(selectedLocation)}
                     style={{ cursor: 'pointer', fontSize: '1.5em', color: '#007bff' }}
                 />
 
@@ -450,22 +646,38 @@ const isBar = (location) => {
                   color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
                 />
               </div>
+
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+              <input
+                  type="time"
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+              />
+              <button onClick={() => handlePlanButtonClick(selectedLocation)}>
+                Add to Plan
+              </button>
+
             </div>
           </InfoWindow>
-          
+
         )}
       </GoogleMap>
   {/* Expandable Card */}
-  {selectedRestaurant && ( 
+  {selectedRestaurant && (
   <ExpandableCard
     restaurant={selectedRestaurant}
     position={cardPosition}
     onClose={() => setSelectedRestaurant(null)}
     handleDragStart={handleDragStart}
-    reviews={selectedRestaurant.reviews} 
-    
+    reviews={selectedRestaurant.reviews}
+
+
   />
-  
+
 )}
     </div>
   );
