@@ -1,7 +1,7 @@
 const express = require('express');
 const { addFavoritePlace, getFavoritePlaces, deleteFavoritePlace, fetchPlaceDetails } = require('../controllers/favoriteController');
 const { authentication } = require('../controllers/authController');
-
+const catchAsync = require('../utils/asyncError');
 const router = express.Router();
 
 
