@@ -74,6 +74,10 @@ h1 {
     color: #555;
 }
 
+.no-events-message {
+    color: var(--base-color);
+}
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -101,4 +105,3 @@ h1 {
     background-color: var(--accent-color);
     color: white;
 }
-  
