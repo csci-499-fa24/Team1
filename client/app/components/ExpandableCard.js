@@ -12,6 +12,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
   const toggleHours = () => setShowHours(!showHours);
   const toggleReviews = () => setShowReviews(!showReviews);
 
+  // Return the correct number of filled stars out of 5 rating
   const populateStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating); 
@@ -31,6 +32,16 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
 
     return stars;
   };
+
+  const formatPhoneNumber = (phoneNumberString) => {
+    const cleaned = ('' + phoneNumberString).replace(/\D/g, ''); // Remove all non-digit characters
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phoneNumberString; // Return the original string if it can't be formatted
+  };
+  
 
   return (
     <div
@@ -89,7 +100,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
         <p>
         <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color' }}/>
           <span style={{ marginLeft: '9px' }}>
-            {restaurant.Restaurant.phone}
+            {formatPhoneNumber(restaurant.Restaurant.phone)}
           </span>
         </p>
       )}

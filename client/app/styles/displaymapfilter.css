@@ -330,8 +330,29 @@
   color: var(--accent-color);
 }
 
- .heart-icon, .view-more-icon {
+ .heart-icon, .view-more-icon, .add-to-plan-icon {
     font-size: 20px;
     cursor: pointer;
 }
 
+.date-time-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.date-time-container input {
+  margin-right: 10px;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 0.5px solid var(--accent-color);
+  outline: none;
+  width: 130px;
+  height: 30px;
+}
+
+.date-time-container input:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 4px var(--secondary-color);
+}
