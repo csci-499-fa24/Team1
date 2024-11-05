@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             unique: {
-                msg: 'Location already exists'  
+                msg: 'Location already exists'
               },
             references: {
                 model: 'Restaurants', // References the Restaurants model
@@ -30,4 +30,3 @@ module.exports = (sequelize, DataTypes) => {
 
     return FavoritePlaces;
 };
-

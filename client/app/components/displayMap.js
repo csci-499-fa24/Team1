@@ -10,7 +10,7 @@ import { fetchReviewsByPlaceId } from './fetchReviews';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 
@@ -69,6 +69,8 @@ const GoogleMapComponent = () => {
   const [error, setError] = useState('');
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const [coordinates, setCoordinates] = useState({ latitude: null, longitude: null });
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
@@ -87,7 +89,7 @@ const GoogleMapComponent = () => {
     libraries: ["places"],
   });
 
-  
+
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -154,13 +156,13 @@ const GoogleMapComponent = () => {
       setGeolocationError(true);
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
-  }, []);   
+  }, []);
 
   const fetchPreciseCoordinates = async (location) => {
     const address = `${location.Restaurant.building} ${location.Restaurant.street}, ${location.Restaurant.boro}, NY ${location.Restaurant.zipcode}`;
-    
+
     const geocoder = new window.google.maps.Geocoder();
-    
+
     return new Promise((resolve, reject) => {
       geocoder.geocode({ address }, (results, status) => {
         if (status === "OK" && results[0]) {
@@ -178,7 +180,7 @@ const GoogleMapComponent = () => {
     //fetch favorites
     const [favorites, setFavorites] = useState([]);
     useEffect(() => {
-      
+
       const fetchFavorites = async () => {
             const token = Cookies.get('token');  // Get the token for authenticated requests
           try {
@@ -186,21 +188,21 @@ const GoogleMapComponent = () => {
                   `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
                   { headers: { Authorization: `Bearer ${token}` } }
               );
-            
+
               if (response.status === 200) {
                   setFavorites(response.data.data.favoritePlaces);
-                
+
               }
           } catch (error) {
               console.error('Error fetching favorites:', error);
-             
+
           }
       };
-    
+
       fetchFavorites();
   }, []);
 
- 
+
   //handle marker click
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
@@ -213,17 +215,17 @@ const GoogleMapComponent = () => {
       const inspectionRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
-  
+
      /*   const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
       );  */
-  
+
 
       // Call the new backend route for reviews
       const reviewsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
-      
+
        // Fetch additional place details
        const placeDetailsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`,
@@ -234,23 +236,23 @@ const GoogleMapComponent = () => {
       setSelectedRestaurant({
         ...location,
         inspectionDetails: inspectionRes.data,
-        //  restaurantHours: hoursRes.data.hours, 
-        //  isOpenNow: hoursRes.data.hours.open_now, 
-        reviews: reviewsRes.data, 
-        placeDetails: {     
+        //  restaurantHours: hoursRes.data.hours,
+        //  isOpenNow: hoursRes.data.hours.open_now,
+        reviews: reviewsRes.data,
+        placeDetails: {
           photoUrl: placeDetailsRes.data.data.photoUrl,
           website: placeDetailsRes.data.data.website,
           rating: placeDetailsRes.data.data.rating,
-          hours: placeDetailsRes.data.data.hours,  
-          isOpenNow: placeDetailsRes.data.data.hours.open_now,  
+          hours: placeDetailsRes.data.data.hours,
+          isOpenNow: placeDetailsRes.data.data.hours.open_now,
       },
 
       });
     } catch (error) {
       console.error("Error fetching restaurant details:", error);
     }
-  }; 
-  
+  };
+
 
 
 // handle add to favorites
@@ -264,9 +266,9 @@ const GoogleMapComponent = () => {
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/remove/${location.camis}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
+
         if (response.status === 204) {
-         
+
           setFavorites(favorites.filter(favorite => favorite.camis !== location.camis));
           console.log(favorites)
 
@@ -278,7 +280,7 @@ const GoogleMapComponent = () => {
           { camis: location.camis },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
+
         if (response.status === 201) {
          setFavorites([...favorites, { camis: location.camis }]);
         }
@@ -289,8 +291,64 @@ const GoogleMapComponent = () => {
     }
   };
 
+  const addToPlan = async (location, date, time) => {
+    const token = Cookies.get('token');
+     // Prepare the parameters to log
+     const camis = location.camis;
+     const longitude = location.longitude;
+     const latitude = location.latitude;
 
-  
+
+     console.log('camis:', camis);
+     console.log('longitude:', longitude);
+     console.log('latitude:', latitude);
+     console.log('date:', date);
+     console.log('time:', time);
+    try {
+        const response = await axios.post(
+            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
+            {
+                camis: location.camis,
+                longitude: location.longitude,
+                latitude: location.latitude,
+                date,
+                time,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+
+        if (response.status === 201) {
+            alert('Location added to your plan!');
+        }
+
+
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message);
+        } else {
+            alert('Failed to add location to your plan.');
+        }
+
+
+        console.error('Error adding location to plan:', error);
+    }
+ };
+
+
+  const handlePlanButtonClick = (location) => {
+    if (!selectedDate || !selectedTime) {
+        alert('Please select both date and time before adding to your plan.');
+    } else {
+        addToPlan(location, selectedDate, selectedTime);
+    }
+  };
+
+
 const isBar = (location) => {
   const name = location.Restaurant.dba.toLowerCase();
   const cuisine = location.Restaurant.cuisine_description
@@ -553,7 +611,7 @@ const isBar = (location) => {
           ))}
 
         {selectedLocation && (
-          
+
           <InfoWindow
             position={{
               lat: parseFloat(selectedLocation.latitude),
@@ -561,7 +619,7 @@ const isBar = (location) => {
             }}
             onCloseClick={() => setSelectedLocation(null)}
           >
-                   
+
             <div style={{ color: 'black', backgroundColor: 'white', padding: '15px', borderRadius: '1px', width: '215px' }}>
 
               <h3>{selectedLocation.Restaurant.dba ? selectedLocation.Restaurant.dba : 'No Name'}</h3>
@@ -574,11 +632,11 @@ const isBar = (location) => {
                 <strong>Phone: </strong>
                 {formatPhoneNumber(selectedLocation.Restaurant.phone)}
               </p>
-             
+
              <div>
                 <FontAwesomeIcon className='view-more-icon'
-                    icon={faInfoCircle} 
-                    onClick={() => handleViewMoreClick(selectedLocation)} 
+                    icon={faInfoCircle}
+                    onClick={() => handleViewMoreClick(selectedLocation)}
                     style={{ cursor: 'pointer', fontSize: '1.5em', color: '#007bff' }}
                 />
 
@@ -588,23 +646,38 @@ const isBar = (location) => {
                   color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
                 />
               </div>
+
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+              <input
+                  type="time"
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+              />
+              <button onClick={() => handlePlanButtonClick(selectedLocation)}>
+                Add to Plan
+              </button>
+
             </div>
           </InfoWindow>
-          
+
         )}
       </GoogleMap>
   {/* Expandable Card */}
-  {selectedRestaurant && ( 
+  {selectedRestaurant && (
   <ExpandableCard
     restaurant={selectedRestaurant}
     position={cardPosition}
     onClose={() => setSelectedRestaurant(null)}
     handleDragStart={handleDragStart}
-    reviews={selectedRestaurant.reviews} 
-    
+    reviews={selectedRestaurant.reviews}
+
 
   />
-  
+
 )}
     </div>
   );
