@@ -11,6 +11,7 @@ html {
 
 body {
   font-size: 1.6rem;
+  font-family: var(--font-family);
 }
 
 li {
@@ -28,11 +29,14 @@ a {
   align-items: center;
   justify-content: space-around;
   height: 8vh;
-  background: rgb(0, 33, 65);
-  position: fixed; /* Fix the navbar to the top */
+  background: var(--accent-color);
+  position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1000; /* Make sure it stays on top of other elements */
+  z-index: 1000;
+  font-family: var(--font-family);
+  font-size: 24;
+  color: rgb(204, 204, 204);
 }
 
 .nav__brand {
@@ -70,7 +74,7 @@ a {
     right: 0;
     height: 93vh;
     width: 100vw; /* Reduced from 50vw to 30vw */
-    background: rgb(0, 33, 65);
+    background: var(--accent-color);
     flex-direction: column;
     transform: translateX(100%);
     transition: 0.5s ease-in;

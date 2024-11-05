@@ -1,5 +1,8 @@
-
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot, faUtensils, faPhone, faStar, faStarHalfAlt, faArrowPointer } from '@fortawesome/free-solid-svg-icons';
+
+import '../globals.css';
 
 const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, reviews }) => {
   const [showHours, setShowHours] = useState(false);
@@ -8,6 +11,37 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
   // Toggle handlers
   const toggleHours = () => setShowHours(!showHours);
   const toggleReviews = () => setShowReviews(!showReviews);
+
+  // Return the correct number of filled stars out of 5 rating
+  const populateStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating); 
+    const hasHalfStar = rating % 1 >= 0.5;
+    for (let i = 0; i < fullStars; i++) {
+        stars.push(<FontAwesomeIcon key={i} icon={faStar} style={{ color: 'gold' }} />);
+    }
+
+    // For half ratings
+    if (hasHalfStar) {
+        stars.push(<FontAwesomeIcon key={fullStars} icon={faStarHalfAlt} style={{ color: 'gold' }} />);
+    }
+
+    for (let i = fullStars + (hasHalfStar ? 1 : 0); i < 5; i++) {
+        stars.push(<FontAwesomeIcon key={i} icon={faStar} style={{ color: '#ccc' }} />);
+    }
+
+    return stars;
+  };
+
+  const formatPhoneNumber = (phoneNumberString) => {
+    const cleaned = ('' + phoneNumberString).replace(/\D/g, ''); // Remove all non-digit characters
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `(${match[1]}) ${match[2]}-${match[3]}`;
+    }
+    return phoneNumberString; // Return the original string if it can't be formatted
+  };
+  
 
   return (
     <div
@@ -31,19 +65,76 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
         />
       )}
       
-      {/* Display Open Status */}
-      <p style={{ fontSize: '20px', fontWeight: 'bold', color: restaurant.placeDetails.isOpenNow ? 'green' : 'red' }}>
-        {restaurant.placeDetails.isOpenNow ? 'Currently Open' : 'Currently Closed'}
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <p style={{ fontSize: '20px', fontWeight: 'bold', color: restaurant.placeDetails.isOpenNow ? 'green' : 'red' }}>
+          {restaurant.placeDetails.isOpenNow ? 'Currently Open' : 'Currently Closed'}
+        </p>
+
+        {/* Display Rating with Stars */}
+        {restaurant.placeDetails.rating && (
+          <span style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ marginLeft: '9px' }}>
+              {restaurant.placeDetails.rating}&nbsp;
+            </span>
+            {populateStars(restaurant.placeDetails.rating)}
+          </span>
+        )}
+      </div>
       
       {/* Display Address and Cuisine */}
-      <p><strong>Address:</strong> {restaurant.Restaurant.building} {restaurant.Restaurant.street}, {restaurant.Restaurant.boro}</p>
-      <p><strong>Cuisine:</strong> {restaurant.Restaurant.cuisine_description}</p>
+      <p>
+      <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color' }}/>
+        <span style={{ marginLeft: '9px' }}>
+          {`${restaurant.Restaurant.building} ${restaurant.Restaurant.street}, ${restaurant.Restaurant.boro}`}
+         </span>
+      </p>
+      <p>
+      <FontAwesomeIcon icon={faUtensils} style={{ color: 'var(--accent-color' }}/>
+        <span style={{ marginLeft: '9px' }}>
+          {restaurant.Restaurant.cuisine_description}
+        </span>
+      </p>
       
       {/* Display Phone Number if available */}
       {restaurant.Restaurant.phone && (
-        <p><strong>Phone:</strong> {restaurant.Restaurant.phone}</p>
+        <p>
+        <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color' }}/>
+          <span style={{ marginLeft: '9px' }}>
+            {formatPhoneNumber(restaurant.Restaurant.phone)}
+          </span>
+        </p>
       )}
+
+      {/* Display Website if available */}
+      {restaurant.placeDetails.website && (
+        <p style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ display: 'inline-block', transform: 'translateX(4px)' }}>
+            <FontAwesomeIcon 
+              icon={faArrowPointer} 
+              style={{ color: 'var(--accent-color)', fontSize: '1.2em' }} 
+            />
+          </span>
+          <span style={{ marginLeft: '13px' }}>
+            <a 
+              href={restaurant.placeDetails.website} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#007bff', textDecoration: 'none', transition: 'color 0.3s, text-decoration 0.3s' }} 
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#0056b3';
+                e.currentTarget.style.textDecoration = 'underline'; // Underline on hover
+              }} 
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#007bff';
+                e.currentTarget.style.textDecoration = 'none'; // Remove underline when not hovering
+              }}
+            >
+              {restaurant.placeDetails.website}
+            </a>
+          </span>
+        </p>
+      )}
+
 
       {/* Toggle for Opening Hours */}
       <h4 onClick={toggleHours} style={{ cursor: 'pointer' }}>
@@ -55,7 +146,7 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
                   const [dayName, hours] = day.split(': '); // Split day name from hours
                   return (
                       <li key={index} className="opening-hours-item">
-                          <span className="opening-hours-day">{dayName}:</span>
+                          <span className="opening-hours-day">{dayName}: </span>
                           <span className="opening-hours-time">{hours || 'Closed'}</span>
                       </li>
                   );
@@ -63,17 +154,6 @@ const ExpandableCard = ({ restaurant, position, onClose, handleDragStart, review
           </ul>
       ) : (
           showHours && <p>N/A</p>
-      )}
-
-
-      {/* Display Rating if available */}
-      {restaurant.placeDetails.rating && (
-        <p><strong>Rating:</strong> {restaurant.placeDetails.rating} / 5</p>
-      )}
-
-      {/* Display Website if available */}
-      {restaurant.placeDetails.website && (
-        <p><strong>Website:</strong> <a href={restaurant.placeDetails.website} target="_blank" rel="noopener noreferrer">{restaurant.placeDetails.website}</a></p>
       )}
 
       {/* Toggle for Reviews */}

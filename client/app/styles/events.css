@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: var(--font-family);
     background-color: #f7f9fc;
     margin: 0;
     padding: 0;
@@ -34,10 +34,9 @@ h1 {
     display: block;
     font-size: 14px;
     margin-bottom: 5px;
-    color: gold;
+    color: var(--secondary-text-color);
     font-weight: bold;
     text-align: left;
-    background-color: #001A38;
 }
 
 .filter-form select,
@@ -46,6 +45,7 @@ h1 {
     border-radius: 4px;
     border: 1px solid #ccc;
     width: 150px;
+    font-family: var(--font-family);
 }
 
 .events-list {
@@ -74,6 +74,10 @@ h1 {
     color: #555;
 }
 
+.no-events-message {
+    color: var(--base-color);
+}
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -81,23 +85,23 @@ h1 {
 }
 
 .pagination button {
-    border: 1px solid #007bff;
-    color: #007bff;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
     background-color: white;
     padding: 8px 12px;
     margin: 0 5px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-family: var(--font-family);
 }
 
 .pagination button:hover {
-    background-color: #007bff;
+    background-color: var(--accent-color);
     color: white;
 }
 
 .pagination button.active {
-    background-color: #007bff;
+    background-color: var(--accent-color);
     color: white;
 }
-  

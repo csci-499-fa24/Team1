@@ -23,7 +23,7 @@ const Home = () => {
         </div>
         <div className="home-text-section">
           <h1 className="primary-heading">
-            Your Favourite locations in Manhattan at your hand.
+            Your favourite locations in New York City at your hand.
           </h1>
           <p className="primary-text">
             All restaurant and bar granted with grade A after inspection by the NYC authority.

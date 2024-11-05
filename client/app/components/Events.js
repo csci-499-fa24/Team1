@@ -199,7 +199,7 @@ const Events = () => {
             </li>
           ))
         ) : (
-          <p>No events found.</p>
+          <p className="no-events-message">No events found.</p>
         )}
       </ul>
 

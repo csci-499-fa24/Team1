@@ -81,21 +81,19 @@ export default function Personal() {
         <div className="profile-container">
             {/* Top Section */}
             <div className="profile-top-section">
-                 <Navbar />
+                <Navbar />
             </div>
-
+    
             {/* Main Content */}
             <div className="profile-main-content">
-
                 <div className="profile-left-section">
-                    <div className="profile-avatar-welcome-section">
-                    <FontAwesomeIcon icon="user-circle" />  
-                        <div>                     
-                            <h2>Welcome,</h2>                 
-                            <h2> {user.userName}</h2>
-                        </div>
+                    {/* Welcome Section */}
+                    <div className="profile-welcome-section">
+                        <FontAwesomeIcon icon="user-circle" className="avatar-icon" />
+                        <h2 className="welcome-message">Welcome, {user.userName}</h2>
                     </div>
-
+    
+                    {/* Favorites Section */}
                     <div className="favorite-section">
                         <h1 className="favorites-title"> <FontAwesomeIcon icon="star" /> Favorites</h1>
                         <div className="favorites-container">
@@ -104,8 +102,8 @@ export default function Personal() {
                     </div>
                 </div> 
                 <div className="profile-right-section"> </div>
-
             </div>
+    
             {selectedPlace && (
                 <PlaceDetails
                     camis={selectedPlace.camis}
@@ -113,7 +111,6 @@ export default function Personal() {
                 />
             )}    
         </div>
-
     );
 
 
