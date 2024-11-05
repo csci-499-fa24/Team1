@@ -1,10 +1,13 @@
 # Restaurant and Bar Tracker
-### Team 1: 
+### Team 1: Benjamin Zhang, Jose Rojas, Hector Zhengliang, Guozhong Weng, Mohammad Ikbal
 
 ## Setting up postgreSQL 
 ### _(You can also reference config.json in the configuration folder, specifically in development)_
 1. Download PostgreSQL and complete the installation process
-2. In Pgadmin, create a new user under Login/Group Role
+   - Make sure you remember the password you created when installing postgresql
+2. Open the default PostgreSQL server that is shown when opening pgadmin
+   - Pgadmin will then tell you to input a password to open the server and this is where you put in the password you remembered during the installation process
+3. Create a new user under Login/Group Role
 
    - In General, set the Name as *fall24user*
    - In Definition, set the Password as *fall24pass*
@@ -14,11 +17,11 @@
         - Create roles? 
         - Create databases? 
         - Inherit rights from the parent roles?
-3. Under Databases, create a new database
+4. Under Databases, create a new database
     - Under General, set Database to *bar_and_restaurant_tracker* 
 
 
-4. And now that you have that set up, after you run *npm run dev* in server, it will automatically create the tables for the respected model listed in the project
+5. And now that you have that set up, after you run *npm run dev* in server, it will automatically create the tables for the respected model listed in the project
 
 -----
     
