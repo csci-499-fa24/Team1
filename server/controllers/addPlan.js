@@ -42,4 +42,30 @@ const addUserPlan = catchAsync(async (req, res, next) => {
     }
 });
 
-module.exports = { addUserPlan };
+const getAllUserPlans = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+
+    try {
+        const userPlans = await UserPlan.findAll({
+            where: { userId },
+            attributes: ['userId', 'camis', 'longitude', 'latitude', 'date', 'time'],
+            include: {
+                model: Restaurants,
+                attributes: ['dba'],
+                required: true,
+            },
+        });
+
+        return res.status(200).json({
+            status: 'success',
+            data: {
+                userPlans,
+            },
+        });
+    } catch (error) {
+        console.error('Error retrieving user plans:', error);
+        return next(new AppError('Failed to retrieve user plans', 500));
+    }
+});
+
+module.exports = { addUserPlan, getAllUserPlans }
