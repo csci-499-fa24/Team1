@@ -280,6 +280,7 @@ const GoogleMapComponent = () => {
                 latitude: location.latitude,
                 date,
                 time,
+                eventType: 'Self Event',
             },
             {
                 headers: {

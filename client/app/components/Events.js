@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Cookies from "js-cookie";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 import '../styles/events.css';
 
 const Events = () => {
@@ -78,6 +81,19 @@ const Events = () => {
 
     handleFilterEvents();
   }, [borough, eventType, specificHour, specificAmPm, startDate, endDate, events]);
+
+  const addToPlan = (name, start, end) => {
+    const token = Cookies.get('token');
+    console.log(name, start, end);
+  };
+
+  const handlePlanButtonClick = (event) => {
+    if (!event.start_date_time || !event.end_date_time || !event.event_name) {
+      alert('event is missing start time, end time, or name');
+    } else {
+        addToPlan(event.event_name, event.start_date_time, event.end_date_time);
+    }
+  };
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
@@ -190,7 +206,15 @@ const Events = () => {
         {currentEvents.length > 0 ? (
           currentEvents.map(event => (
             <li key={`${event.event_id}-${event.start_date_time}`} className="event-card">
-              <h2>{event.event_name}</h2>
+              <div className='align-name-plus'>
+                <h2>{event.event_name}</h2>
+                <FontAwesomeIcon
+                  icon={faSquarePlus}
+                  className='add-to-plan-icon'
+                  style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
+                  onClick={() => handlePlanButtonClick(event)}
+                />
+              </div>
               <p>{`Location: ${event.event_location}`}</p>
               <p>{`Start: ${new Date(event.start_date_time).toLocaleString()}`}</p>
               <p>{`End: ${new Date(event.end_date_time).toLocaleString()}`}</p>

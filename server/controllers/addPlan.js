@@ -42,13 +42,38 @@ const addUserPlan = catchAsync(async (req, res, next) => {
     }
 });
 
+const deleteUserPlan = catchAsync(async (req, res, next ) => {
+    const { id } = req.query;
+    if (!id) {
+        return next(new AppError('No plan ID', 400));
+    }
+
+    const deletedUserPlan = await UserPlan.findByPk(id);
+    if (!deletedUserPlan) {
+        return next(new AppError('No plan with ID', 400));
+    }
+
+    try {
+        await deletedUserPlan.destroy();
+
+        return res.status(201).json({
+            status: 'success',
+            data: null,
+        });
+    } catch (error) {
+        console.error('Error deleteing user plan:', error);
+        return next(new AppError('Failed to add user plan', 500));
+    }
+
+});
+
 const getAllUserPlans = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
 
     try {
         const userPlans = await UserPlan.findAll({
             where: { userId },
-            attributes: ['userId', 'camis', 'longitude', 'latitude', 'date', 'time'],
+            attributes: ['id', 'userId', 'camis', 'longitude', 'latitude', 'date', 'time'],
             include: {
                 model: Restaurants,
                 attributes: ['dba'],
@@ -68,4 +93,4 @@ const getAllUserPlans = catchAsync(async (req, res, next) => {
     }
 });
 
-module.exports = { addUserPlan, getAllUserPlans }
+module.exports = { addUserPlan, getAllUserPlans, deleteUserPlan }

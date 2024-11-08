@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useDraggableCard } from './useDraggableCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function PlaceDetails({ camis, onClose }) {
+export default function PlaceDetails({ camis, onClose , start, end, id}) {
     const [placeDetails, setPlaceDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -44,8 +45,9 @@ export default function PlaceDetails({ camis, onClose }) {
         const fetchPlaceDetails = async () => {
             try {
                 const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`,
-                    { params: { camis } }
+                    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`, {
+                        params: { camis },
+                    }
                 );
 
                 if (response.data.status === "success") {
@@ -73,8 +75,59 @@ export default function PlaceDetails({ camis, onClose }) {
         fetchPlaceDetails();
     }, [camis]);
 
+    useEffect(() => { // close upon 'esc' key press
+        const handleEscKey = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleEscKey);
+
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, [onClose]);
+
+    const deleteFromPlan = async (id) => {
+        const token = Cookies.get("token");
+
+        axios
+            .delete(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/user-plans/remove/`, {
+                params: { id },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then((response) => {
+                if(response.data.status === 'success'){
+                    alert('successfully removed event from plan');
+                }
+            })
+            .catch((err) => {
+                console.error("Error during authentication", err);
+                setError("Failed to authenticate. Please log in again.");
+            });
+    };
+
+    const handleRemovePlanClick = (id) => {
+        if (!id) {
+            alert('No ID for plan selected to remove');
+        } else {
+            deleteFromPlan(id);
+        }
+    };
+
     if (loading) return <div>Loading place details...</div>;
     if (error) return <div>{error}</div>;
+
+    const formattedStart = start
+        ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+    const formattedEnd = end
+        ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+
     return (
         <div
             className="place-details"
@@ -83,7 +136,16 @@ export default function PlaceDetails({ camis, onClose }) {
             onTouchStart={handleDragStart}
         >
             <button className="close-button" onClick={onClose}>X</button>
-            <h2>{placeDetails.name}</h2>
+            <div className="icon-name-container">
+                <FontAwesomeIcon
+                    icon={faTrash}
+                    className='remove-from-plan-icon'
+                    style={{ cursor: 'pointer', color: '#db0909', height:'30px' }} 
+                    onClick={() => handleRemovePlanClick(id)}
+                />
+                <h2>{placeDetails.name}</h2>
+            </div>
+            {formattedStart!='' && formattedEnd!='' && <h2>{formattedStart} - {formattedEnd}</h2>}  {/* render the time interval if given */}
             <p>
                 <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color' }}/>
                     <span style={{ marginLeft: '9px' }}>
