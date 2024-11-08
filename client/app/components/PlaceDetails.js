@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function PlaceDetails({ camis, onClose }) {
+export default function PlaceDetails({ camis, onClose , start, end}) {
     const [placeDetails, setPlaceDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -76,6 +76,13 @@ export default function PlaceDetails({ camis, onClose }) {
     if (loading) return <div>Loading place details...</div>;
     if (error) return <div>{error}</div>;
 
+    const formattedStart = start
+        ? start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+    const formattedEnd = end
+        ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '';
+
     return (
         <div
             className="place-details"
@@ -86,6 +93,7 @@ export default function PlaceDetails({ camis, onClose }) {
             <button className="close-button" onClick={onClose}>X</button>
             <h2>{placeDetails.name}</h2>
             <p>
+                {formattedStart!='' && formattedEnd!='' && <h2>{formattedStart} - {formattedEnd}</h2>}
                 <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color' }}/>
                     <span style={{ marginLeft: '9px' }}>
                     {placeDetails.address}
