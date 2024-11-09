@@ -33,7 +33,7 @@ const MyCalendar = () => {
             })
             .then((response) => {
                 setPlans(response.data.data.userPlans);
-                // console.log(response.data.data.userPlans);
+                console.log(response.data.data.userPlans);
             })
             .catch((err) => {
                 console.error("Error during authentication", err);
@@ -43,19 +43,37 @@ const MyCalendar = () => {
     }, [router]);
 
     const events = plans.map(plan => {
+        // console.log(plan);
         const [year, month, day] = plan.date.split('-');
         const [hour, minute] = plan.time.split(':');
         const startDate = new Date(year, month - 1, day, hour, minute);
-        const endDate = new Date(startDate);
-        endDate.setHours(endDate.getHours() + 1);
+        if(plan.eventType ==='Self Event'){
+            const endDate = new Date(startDate);
+            endDate.setHours(endDate.getHours() + 1);
 
-        return {
-            title: plan.Restaurant.dba,
-            start: startDate,
-            end: endDate,
-            allDay: false,
-            camis: plan.camis,
-            id: plan.id,
+            return {
+                title: plan.Restaurant.dba,
+                start: startDate,
+                end: endDate,
+                allDay: false,
+                camis: plan.camis,
+                id: plan.id,
+                eventType: plan.eventType,
+            }
+        }
+        else {
+            const [e_year, e_month, e_day] = plan.endDate.split('-');
+            const [e_hour, e_minute] = plan.endTime.split(':');
+            const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
+
+            return {
+                title: plan.eventName,
+                start: startDate,
+                end: endDate,
+                allDay: false,
+                id: plan.id,
+                eventType: plan.eventType,
+            }
         }
     })
 
@@ -71,7 +89,9 @@ const MyCalendar = () => {
         const start = event.start;
         const end = event.end;
         const id = event.id;
-        setSelectedPlan({camis, start, end, id});
+        if(camis && start && end && id) {
+            setSelectedPlan({camis, start, end, id});
+        }
     };
     const closePlanDetails = () => {
         setSelectedPlan(null);
@@ -96,6 +116,17 @@ const MyCalendar = () => {
             return {
                 style: {
                     backgroundColor: '#c7c7c7', // Highlight color for today
+                    color: 'white',
+                    borderRadius: '5px',
+                    border: 'none',
+                    padding: '2px 5px'
+                }
+            };
+        }
+        else if(event.eventType ==='NYC Event' && view !== 'agenda') {
+            return {
+                style: {
+                    backgroundColor: '#db8000', // Highlight color for today
                     color: 'white',
                     borderRadius: '5px',
                     border: 'none',
