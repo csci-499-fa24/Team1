@@ -33,7 +33,7 @@ const MyCalendar = () => {
             })
             .then((response) => {
                 setPlans(response.data.data.userPlans);
-                console.log(response.data.data.userPlans);
+                // console.log(response.data.data.userPlans);
             })
             .catch((err) => {
                 console.error("Error during authentication", err);
@@ -111,32 +111,34 @@ const MyCalendar = () => {
         //         }
         //     };
         // }
-        if(isPast && view !== 'agenda') {
-            return {
-                style: {
-                    backgroundColor: '#c7c7c7', // Highlight color for today
-                    color: 'white',
-                    borderRadius: '5px',
-                    border: 'none',
-                    padding: '2px 5px'
-                }
-            };
-        }
-        else if(event.eventType ==='NYC Event' && view !== 'agenda') {
-            return {
-                style: {
-                    backgroundColor: '#db8000', // Highlight color for NYC events
-                    color: 'white',
-                    borderRadius: '5px',
-                    border: 'none',
-                    padding: '2px 5px'
-                }
-            };
+        if(view !== 'agenda'){
+            if(isPast) {
+                return {
+                    style: {
+                        backgroundColor: '#c7c7c7', // Highlight color for past
+                        color: 'white',
+                        borderRadius: '5px',
+                        border: 'none',
+                        padding: '2px 5px'
+                    }
+                };
+            }
+            else if(event.eventType ==='NYC Event') {
+                return {
+                    style: {
+                        backgroundColor: '#db8000', // Highlight color for NYC events
+                        color: 'white',
+                        borderRadius: '5px',
+                        border: 'none',
+                        padding: '2px 5px'
+                    }
+                };
+            }
         }
     };
 
     return (
-        <div>
+        <div className='whole-calendar-container'>
             <div className="key-div">
                 <h2>Key</h2>
                 <span className="key-element"> 
