@@ -5,6 +5,9 @@ import Cookies from "js-cookie";
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
+import { createEvents } from 'ics';
+import { saveAs } from 'file-saver';
+
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
@@ -16,6 +19,7 @@ const MyCalendar = () => {
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
+    
 
     useEffect (() => {
         const token = Cookies.get("token");
@@ -66,6 +70,7 @@ const MyCalendar = () => {
         setView(view);
     };
 
+
     const handleEventClick = (event) => {
         const camis = event.camis;
         const start = event.start;
@@ -105,9 +110,42 @@ const MyCalendar = () => {
         }
     };
 
+    // ICS = standardized file that stores calendar information; opens with Calendar
+    const exportToICS = () => {
+        const formattedEvents = plans.map(plan => {
+            const [year, month, day] = plan.date.split('-');
+            const [hour, minute] = plan.time.split(':');
+            /*
+            title: plan.Restaurant.dba,
+            start: startDate,
+            end: endDate,
+            allDay: false,
+            camis: plan.camis,
+            id: plan.id,
+            */
+            return {
+                title: plan.Restaurant.dba,
+                start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)], //Strings to numbers
+                end: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour) + 1, parseInt(minute)], //Strings to numbers
+                description: `Planned event at ${plan.Restaurant.dba}`,
+                location: plan.Restaurant.location,
+            };
+        });
+
+        createEvents(formattedEvents, (error, value) => {
+            if (!error) {
+                const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+                saveAs(blob, 'my_calendar.ics');
+            } else {
+                console.error("ICS Generation Error:", error);
+            }
+        });
+    };
+
     return (
         <div className="calendar-container">
             <h2>My Planner</h2>
+            <button onClick={exportToICS}>Export to .ics</button>
             <Calendar
                 style={{ height: 700, width: 1000}}
                 localizer={localizer}
