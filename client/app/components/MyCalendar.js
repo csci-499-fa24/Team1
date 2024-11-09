@@ -126,7 +126,7 @@ const MyCalendar = () => {
         else if(event.eventType ==='NYC Event' && view !== 'agenda') {
             return {
                 style: {
-                    backgroundColor: '#db8000', // Highlight color for today
+                    backgroundColor: '#db8000', // Highlight color for NYC events
                     color: 'white',
                     borderRadius: '5px',
                     border: 'none',
@@ -137,30 +137,45 @@ const MyCalendar = () => {
     };
 
     return (
-        <div className="calendar-container">
-            <h2>My Planner</h2>
-            <Calendar
-                style={{ height: 700, width: 1000}}
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                date={date}
-                view={view}
-                onNavigate={handleDate}
-                onView={handleView}
-                onSelectEvent={handleEventClick}
-                eventPropGetter={eventPropGetter} // Apply custom styles to events
-                />
-            {selectedPlan && (
-                <PlaceDetails
-                    camis={selectedPlan.camis}
-                    onClose={closePlanDetails}
-                    start={selectedPlan.start}
-                    end={selectedPlan.end}
-                    id={selectedPlan.id}
-                />
-            )}    
+        <div>
+            <div className="key-div">
+                <h2>Key</h2>
+                <span className="key-element"> 
+                    <div className="box"  style={{backgroundColor: '#db8000'}}> </div>
+                    <p className="event">NYC Events</p>
+                </span>
+                <span className="key-element"> 
+                    <div className="box"  style={{backgroundColor: 'var(--accent-color)'}}> </div>
+                    <p className="event">Restaurants</p>
+                </span>
+            </div>
+            <div className="calendar-container">
+                <h2>My Planner</h2>
+                <div>
+                    <Calendar
+                        style={{ height: 700, width: 1000}}
+                        localizer={localizer}
+                        events={events}
+                        startAccessor="start"
+                        endAccessor="end"
+                        date={date}
+                        view={view}
+                        onNavigate={handleDate}
+                        onView={handleView}
+                        onSelectEvent={handleEventClick}
+                        eventPropGetter={eventPropGetter} // Apply custom styles to events
+                        />
+                </div>
+                {selectedPlan && (
+                    <PlaceDetails
+                        camis={selectedPlan.camis}
+                        onClose={closePlanDetails}
+                        start={selectedPlan.start}
+                        end={selectedPlan.end}
+                        id={selectedPlan.id}
+                    />
+                )}    
+            </div>
         </div>
     );
 

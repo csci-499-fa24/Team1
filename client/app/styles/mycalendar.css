@@ -17,7 +17,7 @@ body, html {
 }
 
 .rbc-event {
-    background-color: var(--accent-color);;
+    background-color: var(--accent-color);
     color: #fff;
     font-family: var(--font-family);
     border-radius: 4px;
@@ -118,4 +118,39 @@ body, html {
 
 h2 {
     margin: 0;
+}
+
+.align-key-calendar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.key-div{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-left: 30px;
+    margin-top: 20vh;
+    border: black solid 1px;
+    border-radius: 5px;
+    padding: 10px 70px 10px 10px;
+}
+
+.event{
+    margin-left: 5px;
+}
+
+.box{
+    height: 15px;
+    width: 15px;
+    border: black solid 1px;
+    border-radius: 1px;
+}
+
+.key-element{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
