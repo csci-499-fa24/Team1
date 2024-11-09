@@ -126,7 +126,7 @@ const MyCalendar = () => {
             return {
                 title: plan.Restaurant.dba,
                 start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)], //Strings to numbers
-                end: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour) + 1, parseInt(minute)], //Strings to numbers
+                end: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour) + 1, parseInt(minute)], //Strings to numbers; calendar reflects the intended behavior of plans automatically set to a length of 1 hour
                 description: `Planned event at ${plan.Restaurant.dba}`,
                 location: plan.Restaurant.location,
             };
@@ -145,7 +145,7 @@ const MyCalendar = () => {
     return (
         <div className="calendar-container">
             <h2>My Planner</h2>
-            <button onClick={exportToICS}>Export to .ics</button>
+            <button onClick={exportToICS} className="export-button">Export to .ics</button>
             <Calendar
                 style={{ height: 700, width: 1000}}
                 localizer={localizer}
