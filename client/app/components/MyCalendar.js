@@ -43,7 +43,6 @@ const MyCalendar = () => {
     }, [router]);
 
     const events = plans.map(plan => {
-        // console.log(plan);
         const [year, month, day] = plan.date.split('-');
         const [hour, minute] = plan.time.split(':');
         const startDate = new Date(year, month - 1, day, hour, minute);
@@ -101,18 +100,18 @@ const MyCalendar = () => {
     const eventPropGetter = (event) => {
         const isToday = moment(event.start).isSame(moment(), 'day');
         const isPast = moment(event.start).isBefore(moment(), 'day');
-        if(isToday && view !== 'agenda') {
-            return {
-                style: {
-                    backgroundColor: '#2e7a40', // Highlight color for today
-                    color: 'white',
-                    borderRadius: '5px',
-                    border: 'none',
-                    padding: '2px 5px'
-                }
-            };
-        }
-        else if(isPast && view !== 'agenda') {
+        // if(isToday && view !== 'agenda') {
+        //     return {
+        //         style: {
+        //             backgroundColor: '#2e7a40', // Highlight color for today
+        //             color: 'white',
+        //             borderRadius: '5px',
+        //             border: 'none',
+        //             padding: '2px 5px'
+        //         }
+        //     };
+        // }
+        if(isPast && view !== 'agenda') {
             return {
                 style: {
                     backgroundColor: '#c7c7c7', // Highlight color for today
@@ -146,7 +145,7 @@ const MyCalendar = () => {
                 </span>
                 <span className="key-element"> 
                     <div className="box"  style={{backgroundColor: 'var(--accent-color)'}}> </div>
-                    <p className="event">Restaurants</p>
+                    <p className="event">Restaurants & Bars</p>
                 </span>
             </div>
             <div className="calendar-container">
