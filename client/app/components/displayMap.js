@@ -1,23 +1,36 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { GoogleMap, useLoadScript, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import axios from 'axios'; // To make API requests
-import Cookies from 'js-cookie'; // For authorization
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useRef, useMemo } from "react";
+import {
+  GoogleMap,
+  useLoadScript,
+  LoadScript,
+  Marker,
+  InfoWindow,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
+import axios from "axios"; // To make API requests
+import Cookies from "js-cookie"; // For authorization
+import { useRouter } from "next/navigation";
 import "../styles/displaymapfilter.css";
-import '../globals.css';
-import { useDraggableCard } from './useDraggableCard';
-import ExpandableCard from './ExpandableCard';
-import { fetchReviewsByPlaceId } from './fetchReviews';
+import "../globals.css";
+import { useDraggableCard } from "./useDraggableCard";
+import ExpandableCard from "./ExpandableCard";
+import { fetchReviewsByPlaceId } from "./fetchReviews";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
-import { faCircleInfo, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { faMagnifyingGlass, faLocationDot, faPhone, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMagnifyingGlass,
+  faLocationDot,
+  faPhone,
+  faSquarePlus,
+  faCar,
+} from "@fortawesome/free-solid-svg-icons";
 
 const containerStyle = {
-  width: '100%',
-  height: '700px',
+  width: "100%",
+  height: "700px",
 };
 
 const toRad = (value) => {
@@ -30,15 +43,17 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in miles
 };
 
 // Helper function to format phone number
 const formatPhoneNumber = (phoneNumberString) => {
-  const cleaned = ('' + phoneNumberString).replace(/\D/g, ''); // Remove all non-digit characters
+  const cleaned = ("" + phoneNumberString).replace(/\D/g, ""); // Remove all non-digit characters
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
   if (match) {
     return `(${match[1]}) ${match[2]}-${match[3]}`;
@@ -52,11 +67,11 @@ const GoogleMapComponent = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [geolocationError, setGeolocationError] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
-  const [filter, setFilter] = useState(''); // Filter for cuisine_description
+  const [filter, setFilter] = useState(""); // Filter for cuisine_description
   const [distanceFilter, setDistanceFilter] = useState(1); // Filter for distance in miles, default to 1 mile
   const [cuisineOptions, setCuisineOptions] = useState([]); // Holds unique cuisine types
-  const [typeFilter, setTypeFilter] = useState(''); // Filter for Restaurant or Bar
-  const [errorMessage, setErrorMessage] = useState('');
+  const [typeFilter, setTypeFilter] = useState(""); // Filter for Restaurant or Bar
+  const [errorMessage, setErrorMessage] = useState("");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
   const cardRef = useRef(null); // Reference for the expandable card
   const { cardPosition, setCardPosition, handleDragStart } = useDraggableCard({
@@ -64,25 +79,86 @@ const GoogleMapComponent = () => {
     y: window.innerHeight / 2 - 300,
   });
 
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(null);
-  const [coordinates, setCoordinates] = useState({ latitude: null, longitude: null });
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [coordinates, setCoordinates] = useState({
+    latitude: null,
+    longitude: null,
+  });
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+
+  // Create state directionsDestination, function setDirectionsDestination
+  const [directionsDestination, setDirectionsDestination] = useState(null);
+  const [directions, setDirections] = useState(null);
+
+  //Route directions from current location to selected marker on map
+  useEffect(() => {
+    if (!directionsDestination) {
+      setDirections(null);
+    }
+
+    if (currentLocation && directionsDestination) {
+      const locationA = {
+        latitude: currentLocation.lat,
+        longitude: currentLocation.lng,
+      };
+      const locationB = directionsDestination;
+
+      const directionsService = new google.maps.DirectionsService();
+
+      const origin = {
+        lat: Number(locationA.latitude),
+        lng: Number(locationA.longitude),
+      };
+      const destination = {
+        lat: Number(locationB.latitude),
+        lng: Number(locationB.longitude),
+      };
+
+      directionsService.route(
+        {
+          origin: origin,
+          destination: destination,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setDirections(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    }
+  }, [currentLocation, directionsDestination]);
 
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
-  const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"];
+  const excludedKeywords = [
+    "juice",
+    "coffee",
+    "pizza",
+    "smoothie",
+    "tea",
+    "bakery",
+    "deli",
+    "barbeque",
+    "bbq",
+    "BAR-B-QUE",
+    "republic",
+    "burrito",
+    "sushi",
+  ];
 
   const router = useRouter();
 
   //Agregado para filtrar por nombre
-  const [filterName, setNameFilter] = useState(''); //Filter for name dba
+  const [filterName, setNameFilter] = useState(""); //Filter for name dba
   const [nameOptions, setNameOptions] = useState([]); //Holds name
-
 
   // Load Google Maps script only once
   const { isLoaded, loadError } = useLoadScript({
@@ -90,36 +166,41 @@ const GoogleMapComponent = () => {
     libraries: ["places"],
   });
 
-
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await fetch(process.env.NEXT_PUBLIC_SERVER_URL + '/api/locations');
+        const response = await fetch(
+          process.env.NEXT_PUBLIC_SERVER_URL + "/api/locations"
+        );
         const data = await response.json();
 
-
-        setLocations(data)
+        setLocations(data);
 
         // Extract unique cuisine descriptions
-        const uniqueCuisines = [...new Set(
-          data
-            .map((location) => location.Restaurant.cuisine_description)
-            .filter(cuisine => cuisine && cuisine.trim() !== '')
-        )];
+        const uniqueCuisines = [
+          ...new Set(
+            data
+              .map((location) => location.Restaurant.cuisine_description)
+              .filter((cuisine) => cuisine && cuisine.trim() !== "")
+          ),
+        ];
         setCuisineOptions(uniqueCuisines);
-
 
         //Extract unique Names descriptions
 
-        const uniqueNames = [...new Set(
-          data
-            .map((location) => location.Restaurant.dba)
-            .filter(namerestaurant => namerestaurant && namerestaurant.trim() !== '')
-        )];
+        const uniqueNames = [
+          ...new Set(
+            data
+              .map((location) => location.Restaurant.dba)
+              .filter(
+                (namerestaurant) =>
+                  namerestaurant && namerestaurant.trim() !== ""
+              )
+          ),
+        ];
         setNameOptions(uniqueNames);
-
       } catch (error) {
-        console.error('Error fetching locations:', error);
+        console.error("Error fetching locations:", error);
       }
     };
 
@@ -144,37 +225,32 @@ const GoogleMapComponent = () => {
     }
   }, []);
 
-    //fetch favorites
-    const [favorites, setFavorites] = useState([]);
-    useEffect(() => {
+  //fetch favorites
+  const [favorites, setFavorites] = useState([]);
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const token = Cookies.get("token"); // Get the token for authenticated requests
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-      const fetchFavorites = async () => {
-            const token = Cookies.get('token');  // Get the token for authenticated requests
-          try {
-              const response = await axios.get(
-                  `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
-                  { headers: { Authorization: `Bearer ${token}` } }
-              );
+        if (response.status === 200) {
+          setFavorites(response.data.data.favoritePlaces);
+        }
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
 
-              if (response.status === 200) {
-                  setFavorites(response.data.data.favoritePlaces);
-
-              }
-          } catch (error) {
-              console.error('Error fetching favorites:', error);
-
-          }
-      };
-
-      fetchFavorites();
+    fetchFavorites();
   }, []);
-
 
   //handle marker click
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
   };
-
 
   //handle view more
   const handleViewMoreClick = async (location) => {
@@ -183,22 +259,20 @@ const GoogleMapComponent = () => {
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
       );
 
-     /*   const hoursRes = await axios.get(
+      /*   const hoursRes = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/restaurant-hours?camis=${location.Restaurant.camis}`
       );  */
-
 
       // Call the new backend route for reviews
       const reviewsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/restaurant-reviews?camis=${location.Restaurant.camis}`
       );
 
-       // Fetch additional place details
-       const placeDetailsRes = await axios.get(
+      // Fetch additional place details
+      const placeDetailsRes = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites/place-details`,
         { params: { camis: location.Restaurant.camis } }
-       );
-
+      );
 
       setSelectedRestaurant({
         ...location,
@@ -212,20 +286,19 @@ const GoogleMapComponent = () => {
           rating: placeDetailsRes.data.data.rating,
           hours: placeDetailsRes.data.data.hours,
           isOpenNow: placeDetailsRes.data.data.hours.open_now,
-      },
-
+        },
       });
     } catch (error) {
       console.error("Error fetching restaurant details:", error);
     }
   };
 
-
-
-// handle add to favorites
+  // handle add to favorites
   const handleAddToFavorites = async (location) => {
-    const token = Cookies.get('token');
-    const isFavorite = favorites.some(favorite => favorite.camis === location.camis);
+    const token = Cookies.get("token");
+    const isFavorite = favorites.some(
+      (favorite) => favorite.camis === location.camis
+    );
     try {
       if (isFavorite) {
         // Remove favorite
@@ -235,10 +308,10 @@ const GoogleMapComponent = () => {
         );
 
         if (response.status === 204) {
-
-          setFavorites(favorites.filter(favorite => favorite.camis !== location.camis));
-          console.log(favorites)
-
+          setFavorites(
+            favorites.filter((favorite) => favorite.camis !== location.camis)
+          );
+          console.log(favorites);
         }
       } else {
         // Add favorite
@@ -249,7 +322,7 @@ const GoogleMapComponent = () => {
         );
 
         if (response.status === 201) {
-         setFavorites([...favorites, { camis: location.camis }]);
+          setFavorites([...favorites, { camis: location.camis }]);
         }
       }
     } catch (error) {
@@ -259,74 +332,75 @@ const GoogleMapComponent = () => {
   };
 
   const addToPlan = async (location, date, time) => {
-    const token = Cookies.get('token');
-     // Prepare the parameters to log
-     const camis = location.camis;
-     const longitude = location.longitude;
-     const latitude = location.latitude;
+    const token = Cookies.get("token");
+    // Prepare the parameters to log
+    const camis = location.camis;
+    const longitude = location.longitude;
+    const latitude = location.latitude;
 
-
-     console.log('camis:', camis);
-     console.log('longitude:', longitude);
-     console.log('latitude:', latitude);
-     console.log('date:', date);
-     console.log('time:', time);
+    console.log("camis:", camis);
+    console.log("longitude:", longitude);
+    console.log("latitude:", latitude);
+    console.log("date:", date);
+    console.log("time:", time);
     try {
-        const response = await axios.post(
-            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
-            {
-                camis: location.camis,
-                longitude: location.longitude,
-                latitude: location.latitude,
-                date,
-                time,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
-
-        if (response.status === 201) {
-            alert('Location added to your plan!');
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/user-plans/add",
+        {
+          camis: location.camis,
+          longitude: location.longitude,
+          latitude: location.latitude,
+          date,
+          time,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-
+      if (response.status === 201) {
+        alert("Location added to your plan!");
+      }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) {
-            alert(error.response.data.message);
-        } else {
-            alert('Failed to add location to your plan.');
-        }
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        alert(error.response.data.message);
+      } else {
+        alert("Failed to add location to your plan.");
+      }
 
-
-        console.error('Error adding location to plan:', error);
-    }
- };
-
-
-  const handlePlanButtonClick = (location) => {
-    if (!selectedDate || !selectedTime) {
-        alert('Please select both date and time before adding to your plan.');
-    } else {
-        addToPlan(location, selectedDate, selectedTime);
+      console.error("Error adding location to plan:", error);
     }
   };
 
+  const handlePlanButtonClick = (location) => {
+    if (!selectedDate || !selectedTime) {
+      alert("Please select both date and time before adding to your plan.");
+    } else {
+      addToPlan(location, selectedDate, selectedTime);
+    }
+  };
 
-const isBar = (location) => {
-  const name = location.Restaurant.dba.toLowerCase();
-  const cuisine = location.Restaurant.cuisine_description
-    ? location.Restaurant.cuisine_description.toLowerCase()
-    : "";
+  const isBar = (location) => {
+    const name = location.Restaurant.dba.toLowerCase();
+    const cuisine = location.Restaurant.cuisine_description
+      ? location.Restaurant.cuisine_description.toLowerCase()
+      : "";
 
-  const isLikelyBar = barKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
-  const isExcluded = excludedKeywords.some(keyword => name.includes(keyword) || cuisine.includes(keyword));
+    const isLikelyBar = barKeywords.some(
+      (keyword) => name.includes(keyword) || cuisine.includes(keyword)
+    );
+    const isExcluded = excludedKeywords.some(
+      (keyword) => name.includes(keyword) || cuisine.includes(keyword)
+    );
 
-  return isLikelyBar && !isExcluded;
-};
+    return isLikelyBar && !isExcluded;
+  };
 
   // // Filter locations if the user allows location access
   // const filteredLocations = currentLocation
@@ -344,12 +418,14 @@ const isBar = (location) => {
       : 0;
 
     return (
-      (filter === '' || location.Restaurant.cuisine_description === filter) || // cuisine_description filter
-      (filter === ''|| location.Restaurant.dba === filter)) &&
+      (filter === "" ||
+        location.Restaurant.cuisine_description === filter || // cuisine_description filter
+        filter === "" ||
+        location.Restaurant.dba === filter) &&
       (currentLocation ? distance <= distanceFilter : true) && // distance filter
-      (typeFilter === '' ||
-        (typeFilter === 'Bar' && isBar(location)) ||
-        (typeFilter === 'Restaurant' && !isBar(location))
+      (typeFilter === "" ||
+        (typeFilter === "Bar" && isBar(location)) ||
+        (typeFilter === "Restaurant" && !isBar(location)))
     );
   });
 
@@ -357,11 +433,9 @@ const isBar = (location) => {
     const value = event.target.value;
     setSearchInput(value);
 
-
     if (debounceTimeout) {
       clearTimeout(debounceTimeout);
     }
-
 
     setDebounceTimeout(
       setTimeout(() => {
@@ -374,12 +448,12 @@ const isBar = (location) => {
     );
   };
 
-
   const fetchSuggestions = async (input) => {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(input)}&format=json&addressdetails=1&limit=5&viewbox=-74.2591,40.9176,-73.7004,40.4774&bounded=1`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      input
+    )}&format=json&addressdetails=1&limit=5&viewbox=-74.2591,40.9176,-73.7004,40.4774&bounded=1`;
     setIsLoading(true);
-    setError('');
-
+    setError("");
 
     try {
       const response = await axios.get(url);
@@ -392,17 +466,16 @@ const isBar = (location) => {
     }
   };
 
-
   const handleSuggestionClick = (place) => {
     setSearchInput(place.display_name);
     setSuggestions([]);
     fetchCoordinates(place.display_name);
   };
 
-
   const fetchCoordinates = async (location) => {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`;
-
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+      location
+    )}&format=json&limit=1`;
 
     try {
       const response = await axios.get(url);
@@ -420,7 +493,6 @@ const isBar = (location) => {
     }
   };
 
-
   useEffect(() => {
     return () => {
       if (debounceTimeout) {
@@ -429,8 +501,7 @@ const isBar = (location) => {
     };
   }, [debounceTimeout]);
 
-
-    // Handle load error and loading state for the map
+  // Handle load error and loading state for the map
   if (loadError) {
     return <div>Error loading maps</div>;
   }
@@ -438,7 +509,6 @@ const isBar = (location) => {
   if (!isLoaded) {
     return <div>Loading maps...</div>;
   }
-
 
   return (
     <div className="map-container">
@@ -449,35 +519,47 @@ const isBar = (location) => {
         <div className="starting-location">
           {isLoading ? (
             <div className="loading">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="xMidYMid"
-              style={{ shapeRendering: 'auto', display: 'block', background: 'transparent' }}
-            >
-              <g>
-                {/* Loading spinner when locations are being fetched */}
-                {[...Array(12).keys()].map((i) => (
-                  <g key={i} transform={`rotate(${i * 30} 50 50)`}>
-                    <rect fill="#494986" height="12" width="6" ry="6" rx="3" y="24" x="47">
-                      <animate
-                        repeatCount="indefinite"
-                        begin={`-${(12 - i) / 12}s`} // stagger the animations
-                        dur="1.0309278350515465s"
-                        keyTimes="0;1"
-                        values="1;0"
-                        attributeName="opacity"
-                      />
-                    </rect>
-                  </g>
-                ))}
-              </g>
-            </svg>
-          </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="xMidYMid"
+                style={{
+                  shapeRendering: "auto",
+                  display: "block",
+                  background: "transparent",
+                }}
+              >
+                <g>
+                  {/* Loading spinner when locations are being fetched */}
+                  {[...Array(12).keys()].map((i) => (
+                    <g key={i} transform={`rotate(${i * 30} 50 50)`}>
+                      <rect
+                        fill="#494986"
+                        height="12"
+                        width="6"
+                        ry="6"
+                        rx="3"
+                        y="24"
+                        x="47"
+                      >
+                        <animate
+                          repeatCount="indefinite"
+                          begin={`-${(12 - i) / 12}s`} // stagger the animations
+                          dur="1.0309278350515465s"
+                          keyTimes="0;1"
+                          values="1;0"
+                          attributeName="opacity"
+                        />
+                      </rect>
+                    </g>
+                  ))}
+                </g>
+              </svg>
+            </div>
           ) : (
-            <FontAwesomeIcon 
-              icon={faMagnifyingGlass} 
-              className={`search-icon ${searchInput ? 'active' : ''}`} 
+            <FontAwesomeIcon
+              icon={faMagnifyingGlass}
+              className={`search-icon ${searchInput ? "active" : ""}`}
             />
           )}
           <input
@@ -492,33 +574,42 @@ const isBar = (location) => {
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
               {suggestions.map((suggestion) => (
-                <li key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
+                <li
+                  key={suggestion.place_id}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
                   {suggestion.display_name}
                 </li>
               ))}
             </ul>
           )}
-        </div> {/*End of changing starting location search bar */}
-
+        </div>{" "}
+        {/*End of changing starting location search bar */}
         {/* Filter section when toggled */}
         <div className="filter-section">
           <button
             onClick={() => setFilterVisible(!filterVisible)}
             className="filter-toggle-icon"
-            aria-label={filterVisible ? 'Hide Filters' : 'Show Filters'}
+            aria-label={filterVisible ? "Hide Filters" : "Show Filters"}
           >
-            <FontAwesomeIcon icon={faFilter} className={filterVisible ? 'active' : ''} /> 
+            <FontAwesomeIcon
+              icon={faFilter}
+              className={filterVisible ? "active" : ""}
+            />
           </button>
 
           {filterVisible && (
             <div className="filter-list">
               {/* Cuisine Filter */}
-              <div className="filter-item"> {/*div a */}
+              <div className="filter-item">
+                {" "}
+                {/*div a */}
                 <label htmlFor="filterCuisine">Cuisine: </label>
-                <select 
-                  id="filterCuisine" 
-                  value={filter} 
-                  onChange={(e) => setFilter(e.target.value)}>
+                <select
+                  id="filterCuisine"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
                   <option value="">All</option>
                   {cuisineOptions.map((cuisine, index) => (
                     <option key={index} value={cuisine}>
@@ -526,15 +617,18 @@ const isBar = (location) => {
                     </option>
                   ))}
                 </select>
-              </div> {/*div a */}
-  
+              </div>{" "}
+              {/*div a */}
               {/* Name Restaurant Filter */}
-              <div className="filter-item"> {/*div b */}
+              <div className="filter-item">
+                {" "}
+                {/*div b */}
                 <label htmlFor="filterRestaurantName">Name: </label>
-                <select 
-                  id="filterRestaurantName" 
-                  value={filter} 
-                  onChange={(e) => setFilter(e.target.value)}>
+                <select
+                  id="filterRestaurantName"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
                   <option value="">All - Hold shift key while searching</option>
                   {nameOptions.map((namerestaurant, index) => (
                     <option key={index} value={namerestaurant}>
@@ -542,49 +636,64 @@ const isBar = (location) => {
                     </option>
                   ))}
                 </select>
-              </div> {/*div b */}
-  
+              </div>{" "}
+              {/*div b */}
               {/* Distance Filter */}
-              <div className="filter-item"> {/*div a */}
+              <div className="filter-item">
+                {" "}
+                {/*div a */}
                 <label htmlFor="filterDistance">Distance (miles): </label>
-                <select 
-                  id="filterDistance" 
-                  value={distanceFilter} 
-                  onChange={(e) => setDistanceFilter(parseInt(e.target.value))}>
+                <select
+                  id="filterDistance"
+                  value={distanceFilter}
+                  onChange={(e) => setDistanceFilter(parseInt(e.target.value))}
+                >
                   <option value={1}>1</option>
                   <option value={2}>2</option>
                   <option value={5}>5</option>
                 </select>
-              </div> {/*div a */}
-  
+              </div>{" "}
+              {/*div a */}
               {/* Bar or Restaurant Filter */}
-              <div className="filter-item"> {/*div b */}
+              <div className="filter-item">
+                {" "}
+                {/*div b */}
                 <label htmlFor="filterType">Type: </label>
-                <select 
-                  id="filterType" 
-                  value={typeFilter} 
-                  onChange={(e) => setTypeFilter(e.target.value)}>
+                <select
+                  id="filterType"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                >
                   <option value="">All</option>
                   <option value="Restaurant">Restaurant</option>
                   <option value="Bar">Bar</option>
                 </select>
-              </div> {/*div b */}
+              </div>{" "}
+              {/*div b */}
             </div>
           )}
-        </div> {/*End of filter section */}
+        </div>{" "}
+        {/*End of filter section */}
       </div>
 
-  
       {/* Map Section */}
       <div className="google-map">
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={currentLocation || { lat: 40.7128, lng: -74.0060 }}
+          center={currentLocation || { lat: 40.7128, lng: -74.006 }}
           zoom={currentLocation ? 15 : 12}
           options={{
             styles: "f9f8fc87a66fc282",
           }}
         >
+          {/*Directions renderer to get driving routes  */}
+          {directions && (
+            <DirectionsRenderer
+              directions={directions}
+              options={{ markerOptions: { visible: false } }}
+            />
+          )}
+
           {currentLocation && (
             <Marker
               position={currentLocation}
@@ -594,16 +703,21 @@ const isBar = (location) => {
               }}
             />
           )}
-  
+
           {filteredLocations.map((location, index) => (
             <Marker
               key={index}
-              position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
+              position={{
+                lat: parseFloat(location.latitude),
+                lng: parseFloat(location.longitude),
+              }}
               title={location.Restaurant.dba}
               icon={{
                 url: (() => {
                   const isLocationBar = isBar(location);
-                  const shouldShowBar = typeFilter === 'Bar' || (typeFilter === '' && isLocationBar);
+                  const shouldShowBar =
+                    typeFilter === "Bar" ||
+                    (typeFilter === "" && isLocationBar);
                   return shouldShowBar
                     ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
                     : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
@@ -614,7 +728,7 @@ const isBar = (location) => {
               onClick={() => handleMarkerClick(location)}
             />
           ))}
-  
+
           {selectedLocation && (
             <InfoWindow
               position={{
@@ -623,72 +737,116 @@ const isBar = (location) => {
               }}
               onCloseClick={() => setSelectedLocation(null)}
             >
-        
               <div className="info-window-content">
-                <h3>{selectedLocation.Restaurant.dba || 'No Name'}</h3>
+                <h3>{selectedLocation.Restaurant.dba || "No Name"}</h3>
                 {/* Address */}
-                <p style={{ display: 'flex', alignItems: 'center' }}>
-                  <FontAwesomeIcon icon={faLocationDot} style={{ color: 'var(--accent-color)', marginRight: '9px' }} />
-                  <span style={{ display: 'flex', flexDirection: 'column' }}>
+                <p style={{ display: "flex", alignItems: "center" }}>
+                  <FontAwesomeIcon
+                    icon={faLocationDot}
+                    style={{ color: "var(--accent-color)", marginRight: "9px" }}
+                  />
+                  <span style={{ display: "flex", flexDirection: "column" }}>
                     <span>
-                      {`${selectedLocation.Restaurant.building || ''} ${selectedLocation.Restaurant.street || ''}`.trim() || 'No Address'}
+                      {`${selectedLocation.Restaurant.building || ""} ${
+                        selectedLocation.Restaurant.street || ""
+                      }`.trim() || "No Address"}
                     </span>
-                    <span style={{ marginLeft: '1px' }}>
-                      {`${selectedLocation.Restaurant.boro || ''}, NY ${selectedLocation.Restaurant.zipcode || ''}`.trim()}
+                    <span style={{ marginLeft: "1px" }}>
+                      {`${selectedLocation.Restaurant.boro || ""}, NY ${
+                        selectedLocation.Restaurant.zipcode || ""
+                      }`.trim()}
                     </span>
                   </span>
                 </p>
 
                 {/* Phone number */}
                 <p>
-                  <FontAwesomeIcon icon={faPhone} style={{ color: 'var(--accent-color' }}/>
-                    <span style={{ marginLeft: '9px' }}>
+                  <FontAwesomeIcon
+                    icon={faPhone}
+                    style={{ color: "var(--accent-color" }}
+                  />
+                  <span style={{ marginLeft: "9px" }}>
                     {formatPhoneNumber(selectedLocation.Restaurant.phone)}
-                    </span>
-                  </p>
-                <br/>
+                  </span>
+                </p>
+                <br />
 
                 {/* Date and time */}
                 <div className="date-time-container">
                   <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
                   />
                   <input
-                      type="time"
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
                   />
                   <FontAwesomeIcon
-                      icon={faSquarePlus}
-                      className='add-to-plan-icon'
-                      style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)' }} 
-                      onClick={() => handlePlanButtonClick(selectedLocation)}
+                    icon={faSquarePlus}
+                    className="add-to-plan-icon"
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: "10px",
+                      color: "var(--accent-color)",
+                    }}
+                    onClick={() => handlePlanButtonClick(selectedLocation)}
                   />
                 </div>
 
-                <br/>
+                <br />
                 {/* More info and favorite buttons */}
                 <div className="info-window-icons">
                   <FontAwesomeIcon
-                    className='view-more-icon'
+                    className="view-more-icon"
                     icon={faCircleInfo}
                     onClick={() => handleViewMoreClick(selectedLocation)}
                   />
                   <FontAwesomeIcon
-                    className='heart-icon'
-                    icon={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? solidHeart : regularHeart}
-                    color={favorites.some(favorite => favorite.camis === selectedLocation.camis) ? 'red' : 'gray'}
+                    className="heart-icon"
+                    icon={
+                      favorites.some(
+                        (favorite) => favorite.camis === selectedLocation.camis
+                      )
+                        ? solidHeart
+                        : regularHeart
+                    }
+                    color={
+                      favorites.some(
+                        (favorite) => favorite.camis === selectedLocation.camis
+                      )
+                        ? "red"
+                        : "gray"
+                    }
                     onClick={() => handleAddToFavorites(selectedLocation)}
                   />
                 </div>
 
+                {/*Getting routes directions car button */}
+                <button
+                  onClick={() => {
+                    if (selectedLocation != directionsDestination) {
+                      setDirectionsDestination(selectedLocation);
+                    } else {
+                      setDirectionsDestination(null);
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={faCar}
+                    style={
+                      selectedLocation?.camis == directionsDestination?.camis
+                        ? { color: "#61aaf3" }
+                        : {}
+                    }
+                  />
+                </button>
               </div>
             </InfoWindow>
           )}
         </GoogleMap>
-  
+
         {/* Expandable Card */}
         {selectedRestaurant && (
           <ExpandableCard
@@ -702,8 +860,6 @@ const isBar = (location) => {
       </div>
     </div>
   );
-  
-  
 };
 
 export default GoogleMapComponent;
