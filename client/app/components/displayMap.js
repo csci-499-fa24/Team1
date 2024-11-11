@@ -344,24 +344,28 @@ const GoogleMapComponent = () => {
     console.log("date:", date);
     console.log("time:", time);
     try {
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/user-plans/add",
-        {
-          camis: location.camis,
-          longitude: location.longitude,
-          latitude: location.latitude,
-          date,
-          time,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
-      if (response.status === 201) {
-        alert("Location added to your plan!");
+        const response = await axios.post(
+            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
+            {
+                camis: location.camis,
+                longitude: location.longitude,
+                latitude: location.latitude,
+                date,
+                time,
+                eventType: 'Self Event',
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+
+        if (response.status === 201) {
+            alert('Location added to your plan!');
+
       }
     } catch (error) {
       if (

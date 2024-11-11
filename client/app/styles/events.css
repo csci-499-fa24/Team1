@@ -105,3 +105,19 @@ h1 {
     background-color: var(--accent-color);
     color: white;
 }
+
+.align-name-plus {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.add-to-plan-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    margin-left: 10px;
+    color: var(--accent-color);
+}
