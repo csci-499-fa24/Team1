@@ -9,6 +9,7 @@ import { createEvents } from 'ics';
 import { saveAs } from 'file-saver';
 
 
+
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
 
@@ -18,6 +19,7 @@ const MyCalendar = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
+    const [error, setError] = useState('');
     const router = useRouter();
     
 
@@ -110,11 +112,17 @@ const MyCalendar = () => {
         }
     };
 
+
     // ICS = standardized file that stores calendar information; opens with Calendar
     const exportToICS = () => {
         const formattedEvents = plans.map(plan => {
             const [year, month, day] = plan.date.split('-');
             const [hour, minute] = plan.time.split(':');
+            const startDate = new Date(year, month - 1, day, hour, minute);
+
+            const duration = plan.duration || 1;
+            const endDate = new Date(startDate);
+            endDate.setHours(startDate.getHours() + duration);
             /*
             title: plan.Restaurant.dba,
             start: startDate,
@@ -123,23 +131,29 @@ const MyCalendar = () => {
             camis: plan.camis,
             id: plan.id,
             */
-            return {
-                title: plan.Restaurant.dba,
-                start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)], //Strings to numbers
-                end: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour) + 1, parseInt(minute)], //Strings to numbers; calendar reflects the intended behavior of plans automatically set to a length of 1 hour
-                description: `Planned event at ${plan.Restaurant.dba}`,
-                location: plan.Restaurant.location,
-            };
-        });
+            const endYear = endDate.getFullYear();
+            const endMonth = endDate.getMonth() + 1; 
+            const endDay = endDate.getDate();
+            const endHour = endDate.getHours();
+            const endMinute = endDate.getMinutes();
 
-        createEvents(formattedEvents, (error, value) => {
-            if (!error) {
-                const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
-                saveAs(blob, 'my_calendar.ics');
-            } else {
-                console.error("ICS Generation Error:", error);
-            }
-        });
+        return {
+            title: plan.Restaurant.dba,
+            start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)],
+            end: [endYear, endMonth, endDay, endHour, endMinute],
+            description: `Planned event at ${plan.Restaurant.dba}`,
+            location: plan.Restaurant.location,
+        };
+    });
+
+    createEvents(formattedEvents, (error, value) => {
+        if (!error) {
+            const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+            saveAs(blob, 'my_calendar.ics');
+        } else {
+            console.error("ICS Generation Error:", error);
+        }
+    });
     };
 
     return (
