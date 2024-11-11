@@ -8,6 +8,7 @@ import '../globals.css';
 import { useDraggableCard } from './useDraggableCard';
 import ExpandableCard from './ExpandableCard';
 import { fetchReviewsByPlaceId } from './fetchReviews';
+import Sidebar from './Sidebar';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
@@ -73,6 +74,7 @@ const GoogleMapComponent = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
 
+  
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
   const excludedKeywords = ["juice", "coffee", "pizza", "smoothie", "tea", "bakery", "deli", "barbeque", "bbq", "BAR-B-QUE", "republic", "burrito", "sushi"];
@@ -691,12 +693,10 @@ const isBar = (location) => {
   
         {/* Expandable Card */}
         {selectedRestaurant && (
-          <ExpandableCard
-            restaurant={selectedRestaurant}
-            position={cardPosition}
-            onClose={() => setSelectedRestaurant(null)}
-            handleDragStart={handleDragStart}
-            reviews={selectedRestaurant.reviews}
+          <Sidebar
+          restaurant={selectedRestaurant}
+          onClose={() => setSelectedRestaurant(null)}
+          reviews={selectedRestaurant.reviews}
           />
         )}
       </div>
