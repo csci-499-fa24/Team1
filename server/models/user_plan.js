@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         camis: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: 'Restaurants',
                 key: 'camis',
@@ -19,11 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         latitude: {
             type: DataTypes.FLOAT,
-            allowNull: false,
+            allowNull: true,
         },
         longitude: {
             type: DataTypes.FLOAT,
-            allowNull: false,
+            allowNull: true,
         },
         date: {
             type: DataTypes.STRING,
@@ -31,6 +31,22 @@ module.exports = (sequelize, DataTypes) => {
         },
         time: {
             type: DataTypes.STRING,
+            allowNull: false,
+        },
+        eventName: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        endDate: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        endTime: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        eventType: {
+            type: DataTypes.ENUM('NYC Event', 'Self Event'),
             allowNull: false,
         },
     });

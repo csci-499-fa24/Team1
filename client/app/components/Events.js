@@ -82,9 +82,42 @@ const Events = () => {
     handleFilterEvents();
   }, [borough, eventType, specificHour, specificAmPm, startDate, endDate, events]);
 
-  const addToPlan = (name, start, end) => {
+  const addToPlan = async(name, start, end) => {
     const token = Cookies.get('token');
     console.log(name, start, end);
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const start_date = startDate.toISOString().split('T')[0];
+    const start_time = startDate.toTimeString().split(' ')[0].slice(0, 5);
+    const end_date = endDate.toISOString().split('T')[0];
+    const end_time = endDate.toTimeString().split(' ')[0].slice(0, 5);
+
+    try {
+      const response = await axios.post(
+          process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
+          {
+            date: start_date,
+            time: start_time,
+            endDate: end_date,
+            endTime: end_time,
+            eventName: name,
+            eventType: 'NYC Event',
+          },
+          {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+          }
+      );
+
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message);
+        } else {
+            alert('Failed to add location to your plan.');
+        }
+        console.error('Error adding location to plan:', error);
+    }
   };
 
   const handlePlanButtonClick = (event) => {

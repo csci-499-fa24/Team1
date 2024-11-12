@@ -3,18 +3,18 @@ const catchAsync = require('../utils/asyncError');
 const AppError = require('../utils/appError');
 
 const addUserPlan = catchAsync(async (req, res, next) => {
-    const { camis, longitude, latitude, date, time } = req.body;
+    const { camis, longitude, latitude, date, time, eventName, endDate, endTime, eventType } = req.body;
     const userId = req.user.id;
-
-    if (!camis || !longitude || !latitude || !date || !time) {
-        return next(new AppError('All fields are required', 400));
+    if(eventType === 'Self Event') {
+        if (!camis || !longitude || !latitude || !date || !time) {
+            return next(new AppError('All fields are required', 400));
+        }
+        
+        const restaurant = await Restaurants.findOne({ where: { camis } });
+        if (!restaurant) {
+            return next(new AppError('Restaurant not found', 404));
+        }
     }
-
-    const restaurant = await Restaurants.findOne({ where: { camis } });
-    if (!restaurant) {
-        return next(new AppError('Restaurant not found', 404));
-    }
-
     try {
         const userPlan = await UserPlan.create({
             userId,
@@ -23,6 +23,10 @@ const addUserPlan = catchAsync(async (req, res, next) => {
             latitude,
             date,
             time,
+            eventName,
+            endDate,
+            endTime,
+            eventType,
         });
 
         return res.status(201).json({
@@ -73,11 +77,11 @@ const getAllUserPlans = catchAsync(async (req, res, next) => {
     try {
         const userPlans = await UserPlan.findAll({
             where: { userId },
-            attributes: ['id', 'userId', 'camis', 'longitude', 'latitude', 'date', 'time'],
+            attributes: ['id', 'userId', 'camis', 'longitude', 'latitude', 'date', 'time', 'endDate', 'endTime', 'eventName', 'eventType'],
             include: {
                 model: Restaurants,
                 attributes: ['dba'],
-                required: true,
+                required: false,
             },
         });
 

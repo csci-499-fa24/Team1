@@ -30,12 +30,17 @@ exports.getRestaurantReviews = async (req, res) => {
     const response = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json`, {
       params: {
         place_id: placeId,
-        fields: 'name,rating,reviews',
+        fields: 'name,rating,reviews,price_level,website',
         key: apiKey,
       },
     });
 
-    const reviews = response.data.result.reviews || [];
+    const reviews = response.data.result.reviews.map(review => ({
+      author_name: review.author_name, // Author of the review
+      rating: review.rating, // Rating given by the user
+      text: review.text, // The actual review text
+      date: new Date(review.time * 1000).toLocaleDateString(), // Formatted review date 
+    })) || [];
     res.status(200).json(reviews);
   } catch (error) {
     console.error('Error fetching restaurant reviews:', error);
