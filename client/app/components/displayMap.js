@@ -11,15 +11,17 @@ import axios from "axios"; // To make API requests
 import Cookies from "js-cookie"; // For authorization
 import { useRouter } from "next/navigation";
 import "../styles/displaymapfilter.css";
-import "../globals.css";
-import { useDraggableCard } from "./useDraggableCard";
-import ExpandableCard from "./ExpandableCard";
-import { fetchReviewsByPlaceId } from "./fetchReviews";
+import '../globals.css';
+import { useDraggableCard } from './useDraggableCard';
+import ExpandableCard from './ExpandableCard';
+import { fetchReviewsByPlaceId } from './fetchReviews';
+import Sidebar from './Sidebar';
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
+import { faCircleInfo, faFilter } from '@fortawesome/free-solid-svg-icons';
+
 import {
   faMagnifyingGlass,
   faLocationDot,
@@ -27,6 +29,7 @@ import {
   faSquarePlus,
   faCar,
 } from "@fortawesome/free-solid-svg-icons";
+
 
 const containerStyle = {
   width: "100%",
@@ -136,6 +139,7 @@ const GoogleMapComponent = () => {
     }
   }, [currentLocation, directionsDestination]);
 
+  
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
   const excludedKeywords = [
@@ -853,12 +857,10 @@ const GoogleMapComponent = () => {
 
         {/* Expandable Card */}
         {selectedRestaurant && (
-          <ExpandableCard
-            restaurant={selectedRestaurant}
-            position={cardPosition}
-            onClose={() => setSelectedRestaurant(null)}
-            handleDragStart={handleDragStart}
-            reviews={selectedRestaurant.reviews}
+          <Sidebar
+          restaurant={selectedRestaurant}
+          onClose={() => setSelectedRestaurant(null)}
+          reviews={selectedRestaurant.reviews}
           />
         )}
       </div>

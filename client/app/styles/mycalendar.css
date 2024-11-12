@@ -199,4 +199,9 @@ h2 {
 
 .conflicting-event {
     border: 2px solid red;
+
+  .export-button {
+    position: relative;
+    left: 453px;
+    color: green;
 }
