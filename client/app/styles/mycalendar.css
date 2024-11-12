@@ -11,10 +11,10 @@
     margin-top: 8vh;
 }
 
-/* body, html {
+body, html {
     overflow-y: hidden;
     height: 100%;
-} */
+}
 
 .calendar-container {
     display: flex;
