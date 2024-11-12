@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.6",
+    "react-chartjs-2": "^5.2.0"
   }
 }

@@ -356,3 +356,70 @@
   border-color: var(--secondary-color);
   box-shadow: 0 0 4px var(--secondary-color);
 }
+
+.sidebar {
+  position: fixed;
+  right: 0;
+  top: 78px;
+  width: 400px;
+  height: calc(100vh - 85px);;
+  background-color: white;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.sidebar-photo {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+.review-card {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.review-card p {
+  margin: 5px 0;
+}
+
+button.show-more-reviews {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%; 
+    top: 100px; 
+  }
+
+  .sidebar h3 {
+    font-size: 1.2em;
+  }
+}
+.inspection-card {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.inspection-card p {
+  margin: 5px 0;
+}
