@@ -3,6 +3,8 @@
     "jest": "^29.7.0"
   },
   "dependencies": {
+    "file-saver": "^2.0.5",
+    "ics": "^3.8.1"
     "chart.js": "^4.4.6",
     "react-chartjs-2": "^5.2.0"
   }
