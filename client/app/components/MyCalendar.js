@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
+import NYCEventDetails from '../components/NYCEventDetails';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
@@ -13,6 +14,8 @@ const MyCalendar = () => {
     const localizer = momentLocalizer(moment);
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [overlappingEvents, setOverlappingEvents] = useState([]);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
@@ -42,39 +45,62 @@ const MyCalendar = () => {
 
     }, [router]);
 
-    const events = plans.map(plan => {
-        const [year, month, day] = plan.date.split('-');
-        const [hour, minute] = plan.time.split(':');
-        const startDate = new Date(year, month - 1, day, hour, minute);
-        if(plan.eventType ==='Self Event'){
-            const endDate = new Date(startDate);
-            endDate.setHours(endDate.getHours() + 1);
+    const events = useMemo(() => {
+        return plans.map(plan => {
+            const [year, month, day] = plan.date.split('-');
+            const [hour, minute] = plan.time.split(':');
+            const startDate = new Date(year, month - 1, day, hour, minute);
+            if(plan.eventType ==='Self Event'){
+                const endDate = new Date(startDate);
+                endDate.setHours(endDate.getHours() + 1);
 
-            return {
-                title: plan.Restaurant.dba,
-                start: startDate,
-                end: endDate,
-                allDay: false,
-                camis: plan.camis,
-                id: plan.id,
-                eventType: plan.eventType,
+                return {
+                    title: plan.Restaurant.dba,
+                    start: startDate,
+                    end: endDate,
+                    allDay: false,
+                    camis: plan.camis,
+                    id: plan.id,
+                    eventType: plan.eventType,
+                }
+            }
+            else {
+                const [e_year, e_month, e_day] = plan.endDate.split('-');
+                const [e_hour, e_minute] = plan.endTime.split(':');
+                const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
+
+                return {
+                    title: plan.eventName,
+                    start: startDate,
+                    end: endDate,
+                    allDay: false,
+                    id: plan.id,
+                    eventType: plan.eventType,
+                };
+            }
+        });
+    }, [plans]);
+
+    useEffect (() => {
+        const findOverlap = (events) => {
+            events.sort((a, b) => new Date(a.start) - new Date(b.start));
+            const overlap = [];
+
+            let prevEvent = events[0];
+            for(let i = 1; i < events.length; i++){
+                const currEvent = events[i];
+                if (new Date(prevEvent.end) > new Date(currEvent.start)){
+                    overlap.push([prevEvent, currEvent]);
+                }
+
+                prevEvent = currEvent;
+            }
+            if(events.length > 1) {
+                setOverlappingEvents(overlap);
             }
         }
-        else {
-            const [e_year, e_month, e_day] = plan.endDate.split('-');
-            const [e_hour, e_minute] = plan.endTime.split(':');
-            const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
-
-            return {
-                title: plan.eventName,
-                start: startDate,
-                end: endDate,
-                allDay: false,
-                id: plan.id,
-                eventType: plan.eventType,
-            }
-        }
-    })
+        findOverlap(events);
+    }, [events]);
 
     const handleDate = (date) => {
         setDate(date);
@@ -84,56 +110,62 @@ const MyCalendar = () => {
     };
 
     const handleEventClick = (event) => {
-        const camis = event.camis;
         const start = event.start;
         const end = event.end;
         const id = event.id;
-        if(camis && start && end && id) {
+
+        // restaurant
+        const camis = event.camis;
+        // nyc event
+        const title = event.title;
+        console.log(name);
+
+        if(event.eventType === 'Self Event') {
+            setSelectedEvent(null);
             setSelectedPlan({camis, start, end, id});
+        }
+        else if (event.eventType === 'NYC Event'){
+            setSelectedPlan(null);
+            setSelectedEvent({title, start, end, id});
         }
     };
     const closePlanDetails = () => {
         setSelectedPlan(null);
     };
+    const closeEventDetails = () => {
+        setSelectedEvent(null);
+    };
 
     // Custom styling for events
     const eventPropGetter = (event) => {
-        const isToday = moment(event.start).isSame(moment(), 'day');
-        const isPast = moment(event.start).isBefore(moment(), 'day');
-        // if(isToday && view !== 'agenda') {
-        //     return {
-        //         style: {
-        //             backgroundColor: '#2e7a40', // Highlight color for today
-        //             color: 'white',
-        //             borderRadius: '5px',
-        //             border: 'none',
-        //             padding: '2px 5px'
-        //         }
-        //     };
-        // }
+        // const isToday = moment(event.start).isSame(moment(), 'day');
+        const isPast = moment(event.end).isBefore(moment(), 'day');
+        const isConflicting = overlappingEvents.some(([prevEvent, currEvent]) => 
+            prevEvent.id === event.id || currEvent.id === event.id
+        );
+
+        let className = '';
+
+        if(isConflicting && !isPast){
+            className += 'conflicting-event ';
+        }
+
         if(view !== 'agenda'){
+            if(isConflicting && !isPast){
+                className += 'conflicting-event ';
+            }
             if(isPast) {
-                return {
-                    style: {
-                        backgroundColor: '#c7c7c7', // Highlight color for past
-                        color: 'white',
-                        borderRadius: '5px',
-                        border: 'none',
-                        padding: '2px 5px'
-                    }
-                };
+                className += 'past-event ';
             }
             else if(event.eventType ==='NYC Event') {
-                return {
-                    style: {
-                        backgroundColor: '#db8000', // Highlight color for NYC events
-                        color: 'white',
-                        borderRadius: '5px',
-                        border: 'none',
-                        padding: '2px 5px'
-                    }
-                };
+                className += 'nyc-event ';
             }
+            else{
+                className += 'self-event ';
+            }
+        }
+        return {
+            className: className.trim(),
         }
     };
 
@@ -149,6 +181,19 @@ const MyCalendar = () => {
                     <div className="box"  style={{backgroundColor: 'var(--accent-color)'}}> </div>
                     <p className="event">Restaurants & Bars</p>
                 </span>
+                <span className="key-element"> 
+                    <div className="box"  style={{backgroundColor: '#c7c7c7'}}> </div>
+                    <p className="event">Past Plans</p>
+                </span>
+                { overlappingEvents.length > 0 &&
+                    <div>
+                        <hr style={{margin: '5px 0px 5px 0px'}}></hr>
+                        <span className="key-element"> 
+                            <div className="box"  style={{borderColor: 'red'}}> </div>
+                            <p className="event">Conflicting Plans</p>
+                        </span>
+                    </div>
+                }
             </div>
             <div className="calendar-container">
                 <h2>My Planner</h2>
@@ -175,7 +220,16 @@ const MyCalendar = () => {
                         end={selectedPlan.end}
                         id={selectedPlan.id}
                     />
-                )}    
+                )}
+                {selectedEvent && (
+                    <NYCEventDetails
+                        title={selectedEvent.title}
+                        onClose={closeEventDetails}
+                        start={selectedEvent.start}
+                        end={selectedEvent.end}
+                        id={selectedEvent.id}
+                    />
+                )}
             </div>
         </div>
     );
