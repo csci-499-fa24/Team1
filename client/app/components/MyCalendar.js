@@ -17,6 +17,12 @@ const MyCalendar = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [overlappingEvents, setOverlappingEvents] = useState([]);
     const [isUpdatePlan, setIsUpdatePlan] = useState(false);
+    const [updatePlanFrom, setUpdatePlanForm] = useState({
+        startDate: '',
+        startTime: '',
+        endDate: '',
+        endTime: '',
+    });
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
@@ -117,6 +123,14 @@ const MyCalendar = () => {
         }
         findOverlap(events);
     }, [events]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatePlanForm((prevForm) => ({
+          ...prevForm,
+          [name]: value,
+        }));
+      };
 
     const handleDate = (date) => {
         setDate(date);
@@ -256,13 +270,17 @@ const MyCalendar = () => {
                             <br />
                             <input
                                 type="date"
+                                name="startDate"
+                                id="startDate"
                                 // value={selectedDate}
-                                // onChange={(e) => setSelectedDate(e.target.value)}
+                                // onChange={(e) => handleChange(e.target.value)}
                             />
                             <input
                                 type="time"
+                                name="startTime"
+                                id="startTime"
                                 // value={selectedTime}
-                                // onChange={(e) => setSelectedTime(e.target.value)}
+                                // onChange={(e) => handleChange(e.target.value)}
                             />
                         </div>
                         <br />
@@ -270,13 +288,17 @@ const MyCalendar = () => {
                         <div className="date-time-container">
                             <input
                                 type="date"
+                                name="endDate"
+                                id="endDate"
                                 // value={selectedDate}
-                                // onChange={(e) => setSelectedDate(e.target.value)}
+                                // onChange={(e) => handleChange(e.target.value)}
                             />
                             <input
                                 type="time"
+                                name="endTime"
+                                id="endTime"
                                 // value={selectedTime}
-                                // onChange={(e) => setSelectedTime(e.target.value)}
+                                // onChange={(e) => handleChange(e.target.value)}
                             />
                         </div>
                     </div>
