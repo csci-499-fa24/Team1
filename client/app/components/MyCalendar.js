@@ -16,6 +16,7 @@ const MyCalendar = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [overlappingEvents, setOverlappingEvents] = useState([]);
+    const [error, setError] = useState([]);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
