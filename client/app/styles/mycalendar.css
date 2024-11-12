@@ -27,13 +27,6 @@ body, html {
     align-items: center; 
 }
 
-.rbc-event {
-    background-color: var(--accent-color);
-    color: #fff;
-    font-family: var(--font-family);
-    border-radius: 4px;
-}
-
 /* Place Details */
 .place-details {
     position: fixed;
@@ -166,7 +159,48 @@ h2 {
     align-items: center;
 }
 
-.export-button {
+.self-event {
+    background-color: var(--accent-color);
+    color: #fff;
+    font-family: var(--font-family);
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.self-event:hover {
+    background-color: #3d3d9d; /* Darker shade for hover effect */
+}
+
+.nyc-event {
+    background-color: #db8000; /* Highlight color for NYC events */
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 2px 5px;
+    transition: background-color 0.3s;
+}
+
+.nyc-event:hover {
+    background-color: #b36a00; /* Darker shade for hover effect */
+}
+
+.past-event {
+    background-color: #c7c7c7;  /* Highlight color for past */
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 2px 5px;
+    transition: background-color 0.3s;
+}
+
+.past-event:hover {
+    background-color: #adacac; /* Darker shade for hover effect */
+}
+
+.conflicting-event {
+    border: 2px solid red;
+
+  .export-button {
     position: relative;
     left: 453px;
     color: green;

@@ -113,6 +113,10 @@ const Events = () => {
             },
           }
       );
+      
+      if(response.data.status === 'success'){
+        alert('sucessfully added event to your plan');
+      }
 
     } catch (error) {
         if (error.response && error.response.data && error.response.data.message) {
