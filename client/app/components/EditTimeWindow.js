@@ -1,6 +1,7 @@
 import { useState, useEffect} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useDraggableCard } from './useDraggableCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
@@ -13,6 +14,11 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
         endTime: '',
         eventType: eventType,
     });
+
+    // Set dynamic initial position based on screen width
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const initialPosition = isMobile ? { x: 10, y: 80 } : { x: 1000, y: 200 };
+    const { cardPosition, handleDragStart } = useDraggableCard(initialPosition);
 
     useEffect(() => {
         if (start && end) {
@@ -111,11 +117,14 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
     }
     // console.log(updatePlanFrom.startDate, updatePlanFrom.startTime, updatePlanFrom.endDate, updatePlanFrom.endTime);
     return(
-        <div className="info-window-content">
-        <button className="close-button" onClick={onClose}>X</button>
-        <h3>{'Edit time'}</h3>
+        <div className="info-window-content"
+            style={{ top: `${cardPosition.y}px`, left: `${cardPosition.x-350}px`, position: 'absolute' }}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}>
+            <button className="close-button" onClick={onClose}>X</button>
+            <h3>{'Edit time'}</h3>
 
-        {/* Date and time */}
+            {/* Date and time */}
             <p>start time</p>
             <div className="date-time-container">
                 <br />
