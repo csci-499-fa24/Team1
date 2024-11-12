@@ -246,7 +246,7 @@ const MyCalendar = () => {
                         id={selectedEvent.id}
                     />
                 )}
-                {true && (
+                {false && (
                     <div className="info-window-content">
                         <h3>{'Edit time'}</h3>
 
