@@ -24,8 +24,11 @@ const Events = () => {
         const response = await axios.get(
           `https://data.cityofnewyork.us/resource/tvpp-9vvx.json?$query=SELECT%20event_id%2C%20event_name%2C%20start_date_time%2C%20end_date_time%2C%20event_agency%2C%20event_type%2C%20event_borough%2C%20event_location%2C%20event_street_side%2C%20street_closure_type%2C%20community_board%2C%20police_precinct%20WHERE%20%60event_type%60%20IN%20('Farmers%20Market'%2C%20'Street%20Festival')`
         );
-        setEvents(response.data);
-        setFilteredEvents(response.data);
+        // Sort the events by start_date_time in ascending order
+      const sortedEvents = response.data.sort((a, b) => new Date(a.start_date_time) - new Date(b.start_date_time));
+      
+      setEvents(sortedEvents);
+      setFilteredEvents(sortedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
         alert('Error fetching events. Please try again later.');
@@ -42,42 +45,43 @@ const Events = () => {
 
   useEffect(() => {
     const handleFilterEvents = () => {
-      const filtered = events.filter(event => {
+      let filtered = events.filter(event => {
         const eventBoroughUpper = event.event_borough?.toUpperCase() || '';
         const selectedBoroughUpper = borough?.toUpperCase() || '';
         const matchesBorough = !borough || eventBoroughUpper === selectedBoroughUpper;
         const matchesEventType = !eventType || event.event_type === eventType;
-
+    
         let matchesSpecificTime = true;
         if (specificHour && specificAmPm) {
           const selectedHour = parseInt(specificHour);
           const selected24Hour = convertTo24Hour(selectedHour, specificAmPm);
-
+    
           const eventStartTime = new Date(event.start_date_time);
           const eventEndTime = new Date(event.end_date_time);
           const eventStartHour = eventStartTime.getHours();
           const eventEndHour = eventEndTime.getHours();
-
+    
           matchesSpecificTime = selected24Hour >= eventStartHour && selected24Hour <= eventEndHour;
         }
-
-        let matchesDateRange = true;
-        if (startDate || endDate) {
-          const eventStartTime = new Date(event.start_date_time);
-          const startFilterDate = startDate ? new Date(startDate) : null;
-          const endFilterDate = endDate ? new Date(endDate) : null;
-
-          matchesDateRange =
-            (!startFilterDate || eventStartTime >= startFilterDate) &&
-            (!endFilterDate || eventStartTime <= endFilterDate);
-        }
-
-        return matchesBorough && matchesEventType && matchesSpecificTime && matchesDateRange;
+    
+        // New filter condition to check if start and end dates are the same
+        const startDateTime = new Date(event.start_date_time);
+        const endDateTime = new Date(event.end_date_time);
+        const isSameDay = startDateTime.toDateString() === endDateTime.toDateString();
+    
+        return matchesBorough && matchesEventType && matchesSpecificTime && isSameDay;
       });
-
+    
+      if (startDate) {
+        const startFilterDate = new Date(startDate);
+        filtered = filtered.sort((a, b) => new Date(a.start_date_time) - new Date(b.start_date_time))
+                           .filter(event => new Date(event.start_date_time) >= startFilterDate);
+      }
+    
       setFilteredEvents(filtered);
       setCurrentPage(1);
     };
+    
 
     handleFilterEvents();
   }, [borough, eventType, specificHour, specificAmPm, startDate, endDate, events]);
@@ -160,10 +164,6 @@ const Events = () => {
       pageNumbers.push(i);
     }
 
-    // if (end < totalPages - 1) {
-    //   pageNumbers.push('...'); // Right dots
-    // }
-
     pageNumbers.push(totalPages); // Always show the last page
 
     return pageNumbers.map((number, index) =>
@@ -233,10 +233,6 @@ const Events = () => {
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
         </div>
 
-        <div>
-          <label>End Date: </label>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-        </div>
       </div>
 
       <ul className="events-list">
