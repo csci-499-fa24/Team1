@@ -16,6 +16,7 @@ const MyCalendar = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [overlappingEvents, setOverlappingEvents] = useState([]);
+    const [isUpdatePlan, setIsUpdatePlan] = useState(false);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
@@ -51,6 +52,21 @@ const MyCalendar = () => {
             const [hour, minute] = plan.time.split(':');
             const startDate = new Date(year, month - 1, day, hour, minute);
             if(plan.eventType ==='Self Event'){
+                if( plan.endDate !== null || plan.endTime !== null){
+                    const [e_year, e_month, e_day] = plan.endDate.split('-');
+                    const [e_hour, e_minute] = plan.endTime.split(':');
+                    const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
+
+                    return {
+                        title: plan.Restaurant.dba,
+                        start: startDate,
+                        end: endDate,
+                        allDay: false,
+                        camis: plan.camis,
+                        id: plan.id,
+                        eventType: plan.eventType,
+                    }
+                }
                 const endDate = new Date(startDate);
                 endDate.setHours(endDate.getHours() + 1);
 
@@ -230,6 +246,42 @@ const MyCalendar = () => {
                         id={selectedEvent.id}
                     />
                 )}
+                {true && (
+                    <div className="info-window-content">
+                        <h3>{'Edit time'}</h3>
+
+                        {/* Date and time */}
+                            <p>start time</p>
+                        <div className="date-time-container">
+                            <br />
+                            <input
+                                type="date"
+                                // value={selectedDate}
+                                // onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                            <input
+                                type="time"
+                                // value={selectedTime}
+                                // onChange={(e) => setSelectedTime(e.target.value)}
+                            />
+                        </div>
+                        <br />
+                        <p>end time</p>
+                        <div className="date-time-container">
+                            <input
+                                type="date"
+                                // value={selectedDate}
+                                // onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                            <input
+                                type="time"
+                                // value={selectedTime}
+                                // onChange={(e) => setSelectedTime(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                )}
+                
             </div>
         </div>
     );

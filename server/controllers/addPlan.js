@@ -46,6 +46,46 @@ const addUserPlan = catchAsync(async (req, res, next) => {
     }
 });
 
+const updateUserPlan = catchAsync(async (req, res, next) => {
+    const { date, time, endDate, endTime, eventType } = req.body;
+    const { id } = req.query;
+
+    if(!id){
+        return next(new AppError('No plan ID', 400));
+    }
+
+    const updatedUserPlan = await UserPlan.findByPk(id);
+    if (!updatedUserPlan) {
+        return next(new AppError('No plan with ID', 400));
+    }
+
+    if(eventType !== 'Self Event'){
+        return next(new AppError('Can only update self events', 400));
+
+    }
+
+    if (!date || !time || !endDate || !endTime) {
+        return next(new AppError('Missing required fields', 400));
+    }
+
+    try {
+        updatedUserPlan.date = date;
+        updatedUserPlan.time = time;
+        updatedUserPlan.endTime = endTime;
+        updatedUserPlan.endDate = endDate;
+        await updatedUserPlan.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'User plan updated successfully',
+            data: updatedUserPlan,
+        });
+    } catch (error) {
+        return next(new AppError('Failed to update plan', 500));
+    }
+
+});
+
 const deleteUserPlan = catchAsync(async (req, res, next ) => {
     const { id } = req.query;
     if (!id) {
@@ -97,4 +137,4 @@ const getAllUserPlans = catchAsync(async (req, res, next) => {
     }
 });
 
-module.exports = { addUserPlan, getAllUserPlans, deleteUserPlan }
+module.exports = { addUserPlan, getAllUserPlans, deleteUserPlan, updateUserPlan }

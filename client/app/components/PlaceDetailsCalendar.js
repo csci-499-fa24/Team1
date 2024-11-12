@@ -4,7 +4,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useDraggableCard } from './useDraggableCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 
 export default function PlaceDetails({ camis, onClose , start, end, id}) {
@@ -110,11 +110,23 @@ export default function PlaceDetails({ camis, onClose , start, end, id}) {
             });
     };
 
+    const EditPlan = async (id) => {
+
+    }
+
     const handleRemovePlanClick = (id) => {
         if (!id) {
             alert('No ID for plan selected to remove');
         } else {
             deleteFromPlan(id);
+        }
+    };
+    const handleEditPlanClick = (id) => {
+        if (!id) {
+            alert('No ID for plan selected to remove');
+        } else {
+            // EditPlan(id);
+            
         }
     };
 
@@ -142,6 +154,11 @@ export default function PlaceDetails({ camis, onClose , start, end, id}) {
                     className='remove-from-plan-icon'
                     style={{ cursor: 'pointer', color: '#db0909', height:'30px' }} 
                     onClick={() => handleRemovePlanClick(id)}
+                />
+                <FontAwesomeIcon
+                    icon={faPenToSquare}
+                    className='remove-from-plan-icon'
+                    style={{ cursor: 'pointer', color: 'var(--accent-color)', height:'30px' }} 
                 />
                 <h2>{placeDetails.name}</h2>
             </div>
