@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Cookies from "js-cookie";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 import '../styles/events.css';
 
 const Events = () => {
@@ -81,52 +78,6 @@ const Events = () => {
 
     handleFilterEvents();
   }, [borough, eventType, specificHour, specificAmPm, startDate, endDate, events]);
-
-  const addToPlan = async(name, start, end) => {
-    const token = Cookies.get('token');
-    console.log(name, start, end);
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const start_date = startDate.toISOString().split('T')[0];
-    const start_time = startDate.toTimeString().split(' ')[0].slice(0, 5);
-    const end_date = endDate.toISOString().split('T')[0];
-    const end_time = endDate.toTimeString().split(' ')[0].slice(0, 5);
-
-    try {
-      const response = await axios.post(
-          process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
-          {
-            date: start_date,
-            time: start_time,
-            endDate: end_date,
-            endTime: end_time,
-            eventName: name,
-            eventType: 'NYC Event',
-          },
-          {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-          }
-      );
-
-    } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) {
-            alert(error.response.data.message);
-        } else {
-            alert('Failed to add location to your plan.');
-        }
-        console.error('Error adding location to plan:', error);
-    }
-  };
-
-  const handlePlanButtonClick = (event) => {
-    if (!event.start_date_time || !event.end_date_time || !event.event_name) {
-      alert('event is missing start time, end time, or name');
-    } else {
-        addToPlan(event.event_name, event.start_date_time, event.end_date_time);
-    }
-  };
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
@@ -239,15 +190,7 @@ const Events = () => {
         {currentEvents.length > 0 ? (
           currentEvents.map(event => (
             <li key={`${event.event_id}-${event.start_date_time}`} className="event-card">
-              <div className='align-name-plus'>
-                <h2>{event.event_name}</h2>
-                <FontAwesomeIcon
-                  icon={faSquarePlus}
-                  className='add-to-plan-icon'
-                  style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
-                  onClick={() => handlePlanButtonClick(event)}
-                />
-              </div>
+              <h2>{event.event_name}</h2>
               <p>{`Location: ${event.event_location}`}</p>
               <p>{`Start: ${new Date(event.start_date_time).toLocaleString()}`}</p>
               <p>{`End: ${new Date(event.end_date_time).toLocaleString()}`}</p>

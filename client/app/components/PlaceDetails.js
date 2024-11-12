@@ -75,6 +75,7 @@ export default function PlaceDetails({ camis, onClose }) {
 
     if (loading) return <div>Loading place details...</div>;
     if (error) return <div>{error}</div>;
+
     return (
         <div
             className="place-details"

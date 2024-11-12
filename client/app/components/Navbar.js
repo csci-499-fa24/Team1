@@ -58,11 +58,6 @@ function Navbar() {
             User
           </a>
         </li>
-        <li className="nav__item">
-          <a href="/calendar" className="nav__link">
-            Calendar
-          </a>
-        </li>
         {isAuthenticated ? (
           <li className="nav__item">
             <a href="/login" className="nav__link" onClick={handleSignOut}>
