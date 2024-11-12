@@ -5,10 +5,6 @@ import Cookies from "js-cookie";
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
-import { createEvents } from 'ics';
-import { saveAs } from 'file-saver';
-
-
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
@@ -19,9 +15,7 @@ const MyCalendar = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
-    const [error, setError] = useState('');
     const router = useRouter();
-    
 
     useEffect (() => {
         const token = Cookies.get("token");
@@ -89,7 +83,6 @@ const MyCalendar = () => {
         setView(view);
     };
 
-
     const handleEventClick = (event) => {
         const camis = event.camis;
         const start = event.start;
@@ -144,50 +137,6 @@ const MyCalendar = () => {
         }
     };
 
-
-    // ICS = standardized file that stores calendar information; opens with Calendar
-    const exportToICS = () => {
-        const formattedEvents = plans.map(plan => {
-            const [year, month, day] = plan.date.split('-');
-            const [hour, minute] = plan.time.split(':');
-            const startDate = new Date(year, month - 1, day, hour, minute);
-
-            const duration = plan.duration || 1;
-            const endDate = new Date(startDate);
-            endDate.setHours(startDate.getHours() + duration);
-            /*
-            title: plan.Restaurant.dba,
-            start: startDate,
-            end: endDate,
-            allDay: false,
-            camis: plan.camis,
-            id: plan.id,
-            */
-            const endYear = endDate.getFullYear();
-            const endMonth = endDate.getMonth() + 1; 
-            const endDay = endDate.getDate();
-            const endHour = endDate.getHours();
-            const endMinute = endDate.getMinutes();
-
-        return {
-            title: plan.Restaurant.dba,
-            start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)],
-            end: [endYear, endMonth, endDay, endHour, endMinute],
-            description: `Planned event at ${plan.Restaurant.dba}`,
-            location: plan.Restaurant.location,
-        };
-    });
-
-    createEvents(formattedEvents, (error, value) => {
-        if (!error) {
-            const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
-            saveAs(blob, 'my_calendar.ics');
-        } else {
-            console.error("ICS Generation Error:", error);
-        }
-    });
-    };
-
     return (
         <div className='whole-calendar-container'>
             <div className="key-div">
@@ -203,7 +152,6 @@ const MyCalendar = () => {
             </div>
             <div className="calendar-container">
                 <h2>My Planner</h2>
-                <button onClick={exportToICS} className="export-button">Export to .ics</button>
                 <div>
                     <Calendar
                         style={{ height: 700, width: 1000}}
