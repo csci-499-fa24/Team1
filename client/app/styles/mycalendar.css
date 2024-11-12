@@ -120,6 +120,7 @@ body, html {
     color: var(--accent-color);
 }
 
+/* calednar stuff */
 h2 {
     margin: 0;
 }
@@ -135,7 +136,7 @@ h2 {
     position: absolute;
     top: 0;
     left: 0;
-    margin-left: 30px;
+    margin-left: 4vh;
     margin-top: 20vh;
     border: black solid 1px;
     border-radius: 5px;
@@ -201,7 +202,56 @@ h2 {
     border: 2px solid red;
 }
 
-  .export-button {
+/* edit info window*/
+.info-window-content {
+    padding: 10px;
+    position: fixed;
+    top: 30%; 
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    margin: 10px;
+    background-color: var(--base-color); 
+    border-radius: 10px; 
+    box-shadow: none;
+    font-size: 16px; 
+    width: 300px;
+    z-index: 100;
+    border: black solid 5px;
+}
+.info-window-content p{
+    margin-top: 5px;
+}
+  
+.info-window-icons {
+    display: flex;
+    gap: 10px; 
+}
+
+.date-time-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+  
+.date-time-container input {
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 0.5px solid var(--accent-color);
+    outline: none;
+    width: 130px;
+    height: 30px;
+}
+
+.date-time-container input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 4px var(--secondary-color);
+}
+
+.export-button {
     position: relative;
     left: 453px;
     color: green;

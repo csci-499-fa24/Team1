@@ -1,13 +1,13 @@
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useDraggableCard } from './useDraggableCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 
-export default function PlaceDetails({ camis, onClose , start, end, id}) {
+export default function PlaceDetails({ camis, onClose , start, end, id, onEditClick}) {
     const [placeDetails, setPlaceDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -143,6 +143,12 @@ export default function PlaceDetails({ camis, onClose , start, end, id}) {
                     style={{ cursor: 'pointer', color: '#db0909', height:'30px' }} 
                     onClick={() => handleRemovePlanClick(id)}
                 />
+                <FontAwesomeIcon
+                    icon={faPenToSquare}
+                    className='remove-from-plan-icon'
+                    style={{ cursor: 'pointer', color: 'var(--accent-color)', height:'30px' }} 
+                    onClick={onEditClick}
+                />
                 <h2>{placeDetails.name}</h2>
             </div>
             {formattedStart!='' && formattedEnd!='' && <h2>{formattedStart} - {formattedEnd}</h2>}  {/* render the time interval if given */}
@@ -229,7 +235,6 @@ export default function PlaceDetails({ camis, onClose , start, end, id}) {
             ) : (
                 showHours && <p>N/A</p>
             )}
-
         </div>
     );
 }

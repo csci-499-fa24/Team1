@@ -6,6 +6,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
 import NYCEventDetails from '../components/NYCEventDetails';
+import EditTimeWindow from "./EditTimeWindow";
 import { createEvents } from 'ics';
 import { saveAs } from 'file-saver';
 
@@ -18,6 +19,7 @@ const MyCalendar = () => {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [overlappingEvents, setOverlappingEvents] = useState([]);
+    const [isUpdatePlan, setIsUpdatePlan] = useState(false);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const [error, setError] = useState('');
@@ -55,6 +57,21 @@ const MyCalendar = () => {
             const [hour, minute] = plan.time.split(':');
             const startDate = new Date(year, month - 1, day, hour, minute);
             if(plan.eventType ==='Self Event'){
+                if( plan.endDate !== null || plan.endTime !== null){
+                    const [e_year, e_month, e_day] = plan.endDate.split('-');
+                    const [e_hour, e_minute] = plan.endTime.split(':');
+                    const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
+
+                    return {
+                        title: plan.Restaurant.dba,
+                        start: startDate,
+                        end: endDate,
+                        allDay: false,
+                        camis: plan.camis,
+                        id: plan.id,
+                        eventType: plan.eventType,
+                    }
+                }
                 const endDate = new Date(startDate);
                 endDate.setHours(endDate.getHours() + 1);
 
@@ -106,6 +123,11 @@ const MyCalendar = () => {
         findOverlap(events);
     }, [events]);
 
+
+    const handleEditPlanClick = () => {
+        setIsUpdatePlan(true);
+    }
+
     const handleDate = (date) => {
         setDate(date);
     };
@@ -118,7 +140,7 @@ const MyCalendar = () => {
         const start = event.start;
         const end = event.end;
         const id = event.id;
-
+        const eventType = event.eventType;
         // restaurant
         const camis = event.camis;
         // nyc event
@@ -127,11 +149,13 @@ const MyCalendar = () => {
 
         if(event.eventType === 'Self Event') {
             setSelectedEvent(null);
-            setSelectedPlan({camis, start, end, id});
+            setIsUpdatePlan(false);
+            setSelectedPlan({camis, start, end, id, eventType});
         }
         else if (event.eventType === 'NYC Event'){
             setSelectedPlan(null);
-            setSelectedEvent({title, start, end, id});
+            setIsUpdatePlan(false);
+            setSelectedEvent({title, start, end, id, eventType});
         }
     };
     const closePlanDetails = () => {
@@ -139,6 +163,9 @@ const MyCalendar = () => {
     };
     const closeEventDetails = () => {
         setSelectedEvent(null);
+    };
+    const closeEditDetails = () => {
+        setIsUpdatePlan(false);
     };
 
     // Custom styling for events
@@ -261,23 +288,37 @@ const MyCalendar = () => {
                     eventPropGetter={eventPropGetter} // Apply custom styles to events
                     />
                 {selectedPlan && (
-                    <PlaceDetails
-                        camis={selectedPlan.camis}
-                        onClose={closePlanDetails}
-                        start={selectedPlan.start}
-                        end={selectedPlan.end}
-                        id={selectedPlan.id}
-                    />
+                    <div>
+                        <PlaceDetails
+                            camis={selectedPlan.camis}
+                            onClose={closePlanDetails}
+                            start={selectedPlan.start}
+                            end={selectedPlan.end}
+                            id={selectedPlan.id}
+                            onEditClick={handleEditPlanClick}
+                        />
+                        {isUpdatePlan && (
+                            <EditTimeWindow
+                            id={selectedPlan.id}
+                            start={selectedPlan.start}
+                            end={selectedPlan.end}
+                            eventType={selectedPlan.eventType}
+                            onClose={closeEditDetails}
+                            />
+                        )}
+                    </div>
                 )}
                 {selectedEvent && (
-                    <NYCEventDetails
-                        title={selectedEvent.title}
-                        onClose={closeEventDetails}
-                        start={selectedEvent.start}
-                        end={selectedEvent.end}
-                        id={selectedEvent.id}
-                    />
-                )}
+                    <div>
+                        <NYCEventDetails
+                            title={selectedEvent.title}
+                            onClose={closeEventDetails}
+                            start={selectedEvent.start}
+                            end={selectedEvent.end}
+                            id={selectedEvent.id}
+                        />
+                    </div>
+                )}               
             </div>
         </div>
     );
