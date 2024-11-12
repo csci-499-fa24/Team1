@@ -6,6 +6,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
 import NYCEventDetails from '../components/NYCEventDetails';
+import EditTimeWindow from "./EditTimeWindow";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
@@ -17,12 +18,6 @@ const MyCalendar = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [overlappingEvents, setOverlappingEvents] = useState([]);
     const [isUpdatePlan, setIsUpdatePlan] = useState(false);
-    const [updatePlanFrom, setUpdatePlanForm] = useState({
-        startDate: '',
-        startTime: '',
-        endDate: '',
-        endTime: '',
-    });
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
     const router = useRouter();
@@ -124,13 +119,10 @@ const MyCalendar = () => {
         findOverlap(events);
     }, [events]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setUpdatePlanForm((prevForm) => ({
-          ...prevForm,
-          [name]: value,
-        }));
-      };
+
+    const handleEditPlanClick = () => {
+        setIsUpdatePlan(true);
+    }
 
     const handleDate = (date) => {
         setDate(date);
@@ -143,7 +135,7 @@ const MyCalendar = () => {
         const start = event.start;
         const end = event.end;
         const id = event.id;
-
+        const eventType = event.eventType;
         // restaurant
         const camis = event.camis;
         // nyc event
@@ -152,11 +144,13 @@ const MyCalendar = () => {
 
         if(event.eventType === 'Self Event') {
             setSelectedEvent(null);
-            setSelectedPlan({camis, start, end, id});
+            setIsUpdatePlan(false);
+            setSelectedPlan({camis, start, end, id, eventType});
         }
         else if (event.eventType === 'NYC Event'){
             setSelectedPlan(null);
-            setSelectedEvent({title, start, end, id});
+            setIsUpdatePlan(false);
+            setSelectedEvent({title, start, end, id, eventType});
         }
     };
     const closePlanDetails = () => {
@@ -164,6 +158,9 @@ const MyCalendar = () => {
     };
     const closeEventDetails = () => {
         setSelectedEvent(null);
+    };
+    const closeEditDetails = () => {
+        setIsUpdatePlan(false);
     };
 
     // Custom styling for events
@@ -243,67 +240,37 @@ const MyCalendar = () => {
                         />
                 </div>
                 {selectedPlan && (
-                    <PlaceDetails
-                        camis={selectedPlan.camis}
-                        onClose={closePlanDetails}
-                        start={selectedPlan.start}
-                        end={selectedPlan.end}
-                        id={selectedPlan.id}
-                    />
-                )}
-                {selectedEvent && (
-                    <NYCEventDetails
-                        title={selectedEvent.title}
-                        onClose={closeEventDetails}
-                        start={selectedEvent.start}
-                        end={selectedEvent.end}
-                        id={selectedEvent.id}
-                    />
-                )}
-                {false && (
-                    <div className="info-window-content">
-                        <h3>{'Edit time'}</h3>
-
-                        {/* Date and time */}
-                            <p>start time</p>
-                        <div className="date-time-container">
-                            <br />
-                            <input
-                                type="date"
-                                name="startDate"
-                                id="startDate"
-                                // value={selectedDate}
-                                // onChange={(e) => handleChange(e.target.value)}
+                    <div>
+                        <PlaceDetails
+                            camis={selectedPlan.camis}
+                            onClose={closePlanDetails}
+                            start={selectedPlan.start}
+                            end={selectedPlan.end}
+                            id={selectedPlan.id}
+                            onEditClick={handleEditPlanClick}
+                        />
+                        {isUpdatePlan && (
+                            <EditTimeWindow
+                            id={selectedPlan.id}
+                            start={selectedPlan.start}
+                            end={selectedPlan.end}
+                            eventType={selectedPlan.eventType}
+                            onClose={closeEditDetails}
                             />
-                            <input
-                                type="time"
-                                name="startTime"
-                                id="startTime"
-                                // value={selectedTime}
-                                // onChange={(e) => handleChange(e.target.value)}
-                            />
-                        </div>
-                        <br />
-                        <p>end time</p>
-                        <div className="date-time-container">
-                            <input
-                                type="date"
-                                name="endDate"
-                                id="endDate"
-                                // value={selectedDate}
-                                // onChange={(e) => handleChange(e.target.value)}
-                            />
-                            <input
-                                type="time"
-                                name="endTime"
-                                id="endTime"
-                                // value={selectedTime}
-                                // onChange={(e) => handleChange(e.target.value)}
-                            />
-                        </div>
+                        )}
                     </div>
                 )}
-                
+                {selectedEvent && (
+                    <div>
+                        <NYCEventDetails
+                            title={selectedEvent.title}
+                            onClose={closeEventDetails}
+                            start={selectedEvent.start}
+                            end={selectedEvent.end}
+                            id={selectedEvent.id}
+                        />
+                    </div>
+                )}               
             </div>
         </div>
     );
