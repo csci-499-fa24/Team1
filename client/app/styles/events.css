@@ -3,7 +3,7 @@ body {
     background-color: #f7f9fc;
     margin: 0;
     padding: 0;
-    background-image: url('../assets/background-events.jpg');
+    /* background-image: url('../assets/background-events.jpg'); */
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
@@ -34,7 +34,7 @@ h1 {
     display: block;
     font-size: 14px;
     margin-bottom: 5px;
-    color: var(--secondary-text-color);
+    color: rgb(221, 41, 17);
     font-weight: bold;
     text-align: left;
 }
