@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const reviewController = require('../controllers/reviewController');
+const { authentication } = require('../controllers/authController');
 
 router.get('/reviews/:placeId', async (req, res) => {
     const { placeId } = req.params;
@@ -27,5 +29,10 @@ router.get('/reviews/:placeId', async (req, res) => {
     }
   });
   
+// Route for managing user-created reviews
+router.post('/', authentication, reviewController.addReview); // Add a review
+router.put('/:id', authentication, reviewController.editReview); // Edit a review
+router.delete('/:id', authentication, reviewController.deleteReview); // Delete a review
+router.get('/:id', reviewController.getReviews); // Get reviews by camis
 
 module.exports = router;
