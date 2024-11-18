@@ -33,6 +33,12 @@ const signup = catchAsync(async (req, res, next) => {
        
     }
 
+    // Email format check with Regular Expression
+    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+        return next(new AppError('Invalid email format', 400));
+    }
+
     // Create new user
     try {
         const newUser = await user.User.create({
@@ -141,7 +147,7 @@ const authentication =  catchAsync(async(req, res, next) => {
     const userDetail = await user.User.findByPk(tokenDetail.id);
 
     if(!userDetail) {
-        return next(new AppError('User no longer exists', 400));
+        return next(new AppError('User not found', 404));
     }
     
      req.user = userDetail;

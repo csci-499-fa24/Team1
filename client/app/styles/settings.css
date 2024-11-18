@@ -1,0 +1,68 @@
+
+.settings-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  top: 150px; 
+  position:absolute;
+}
+
+.account-info {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+}
+
+.account-info h2 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.info-item label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.info-item span {
+  flex: 1;
+}
+
+.info-item button {
+  color: #007bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.info-item button:hover {
+  color: #0056b3;
+}
+
+
+ .error-message {
+  color: red;
+  text-align: center;
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  font-size: 16px;
+  background-color: rgba(255, 0, 0, 0.1);
+  padding: 10px;
+  border: 1px solid red;
+  border-radius: 5px;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 90%;
+} 
+

@@ -179,6 +179,7 @@ const fetchPlaceDetails = catchAsync(async (req, res, next) => {
 
         // Step 4: Format the response with details and photo (if available)
         const formattedDetails = {
+            restaurant: restaurant,
             name: data.name,
             address: data.formatted_address,
             hours: data.opening_hours,
