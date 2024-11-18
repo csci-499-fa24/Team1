@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";  // Make sure this is inside the component's body
-import '../globals.css';
+import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import "../globals.css";
 import "../styles/Navbar.css";
 
 function Navbar() {
   const [active, setActive] = useState("nav__menu");
   const [icon, setIcon] = useState("nav__toggler");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter(); 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Reference to the dropdown menu
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if the user is logged in by checking for the token
     const token = Cookies.get("token");
     if (token) {
       setIsAuthenticated(true);
@@ -19,23 +22,42 @@ function Navbar() {
   }, []);
 
   const navToggle = () => {
-    if (active === "nav__menu") {
-      setActive("nav__menu nav__active");
-    } else setActive("nav__menu");
-
-    // Icon Toggler
-    if (icon === "nav__toggler") {
-      setIcon("nav__toggler toggle");
-    } else setIcon("nav__toggler");
+    setActive(active === "nav__menu" ? "nav__menu nav__active" : "nav__menu");
+    setIcon(icon === "nav__toggler" ? "nav__toggler toggle" : "nav__toggler");
   };
 
-  //handle sign out
   const handleSignOut = (e) => {
-    e.preventDefault();  // Prevent default link behavior
+    e.preventDefault();
     Cookies.remove("token");
     setIsAuthenticated(false);
     router.push("/login");
   };
+
+  const toggleDropdown = (e) => {
+    e.stopPropagation();
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  useEffect(() => {
+    // Function to close the dropdown if clicking outside of it
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    // Add event listener when dropdown is open
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup event listener on component unmount or when dropdown is closed
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   return (
     <nav className="nav container">
@@ -54,20 +76,30 @@ function Navbar() {
           </a>
         </li>
         <li className="nav__item">
-          <a href="/profile" className="nav__link">
-            User
-          </a>
-        </li>
-        <li className="nav__item">
           <a href="/calendar" className="nav__link">
             Calendar
           </a>
         </li>
         {isAuthenticated ? (
-          <li className="nav__item">
-            <a href="/login" className="nav__link" onClick={handleSignOut}>
-              Logout
-            </a>
+          <li className="nav__item user-dropdown" ref={dropdownRef}>
+            <span className="nav__link" onClick={toggleDropdown}>
+              <FontAwesomeIcon icon={faUserCircle} size="lg" />
+            </span>
+            {dropdownOpen && (
+              <ul className="dropdown-menu dropdown__active">
+                <li className="dropdown-item">
+                  <a href="/profile" className="dropdown-link">Profile</a>
+                </li>
+                <li className="dropdown-item">
+                  <a href="/settings" className="dropdown-link">Settings</a>
+                </li>
+                <li className="dropdown-item">
+                  <a href="/login" className="dropdown-link" onClick={handleSignOut}>
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            )}
           </li>
         ) : (
           <li className="nav__item">
@@ -88,5 +120,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
-

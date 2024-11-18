@@ -17,6 +17,7 @@ const catchAsync = require("./utils/asyncError");
 const cookieParser = require('cookie-parser');
 const favoriteRouter = require('./routes/favoriteRoute');
 const userPlanRoutes = require('./routes/userPlanRoute');
+const settingsRoutes = require("./routes/settingsRoute");
 
 //CORS configuration ensures that your server allows requests from
 //http://localhost:3000 and supports credentials (cookies).
@@ -54,6 +55,9 @@ app.use('/api/v1/favorites', favoriteRouter);
 
 //user-plan
 app.use('/api/v1/user-plans', userPlanRoutes);
+
+//settings
+app.use("/api/v1/settings", settingsRoutes);
 
 //no route match
 app.use('*', catchAsync (async(req, res, next) => {

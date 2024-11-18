@@ -224,8 +224,8 @@ describe('AuthController', () => {
                 .get('/api/v1/auth/authentication')
                 .set('Authorization', `Bearer ${token}`);
           
-            expect(res.statusCode).toEqual(400);
-            expect(res.body.message).toEqual('User no longer exists');
+            expect(res.statusCode).toEqual(404);
+            expect(res.body.message).toEqual('User not found');
         });
     });
 });
