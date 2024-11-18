@@ -11,16 +11,19 @@ import axios from "axios"; // To make API requests
 import Cookies from "js-cookie"; // For authorization
 import { useRouter } from "next/navigation";
 import "../styles/displaymapfilter.css";
-import '../globals.css';
-import { useDraggableCard } from './useDraggableCard';
-import ExpandableCard from './ExpandableCard';
-import { fetchReviewsByPlaceId } from './fetchReviews';
-import Sidebar from './Sidebar';
+import "../globals.css";
+import { useDraggableCard } from "./useDraggableCard";
+import ExpandableCard from "./ExpandableCard";
+import { fetchReviewsByPlaceId } from "./fetchReviews";
+import Sidebar from "./Sidebar";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons'; 
-import { faCircleInfo, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBus, //for import the TRANSIT icon (VS Code put it automatically)
+  faHeart as solidHeart,
+} from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
 
 import {
   faMagnifyingGlass,
@@ -29,7 +32,6 @@ import {
   faSquarePlus,
   faCar,
 } from "@fortawesome/free-solid-svg-icons";
-
 
 const containerStyle = {
   width: "100%",
@@ -96,6 +98,10 @@ const GoogleMapComponent = () => {
 
   // Create state directionsDestination, function setDirectionsDestination
   const [directionsDestination, setDirectionsDestination] = useState(null);
+
+  //Added for public transportation or TRANSIT option
+  const [directionsTravelMode, setDirectionsTravelMode] = useState(null);
+
   const [directions, setDirections] = useState(null);
 
   //Route directions from current location to selected marker on map
@@ -126,7 +132,7 @@ const GoogleMapComponent = () => {
         {
           origin: origin,
           destination: destination,
-          travelMode: google.maps.TravelMode.DRIVING,
+          travelMode: directionsTravelMode, //Modified for travel mode
         },
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK) {
@@ -139,7 +145,6 @@ const GoogleMapComponent = () => {
     }
   }, [currentLocation, directionsDestination]);
 
-  
   // Keywords to identify bars and exclude specific keywords
   const barKeywords = ["bar", "pub", "tavern", "lounge"];
   const excludedKeywords = [
@@ -349,28 +354,25 @@ const GoogleMapComponent = () => {
     console.log("date:", date);
     console.log("time:", time);
     try {
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_SERVER_URL + "/api/v1/user-plans/add",
+        {
+          camis: location.camis,
+          longitude: location.longitude,
+          latitude: location.latitude,
+          date,
+          time,
+          eventType: "Self Event",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        const response = await axios.post(
-            process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
-            {
-                camis: location.camis,
-                longitude: location.longitude,
-                latitude: location.latitude,
-                date,
-                time,
-                eventType: 'Self Event',
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-
-
-        if (response.status === 201) {
-            alert('Location added to your plan!');
-
+      if (response.status === 201) {
+        alert("Location added to your plan!");
       }
     } catch (error) {
       if (
@@ -837,15 +839,39 @@ const GoogleMapComponent = () => {
                   onClick={() => {
                     if (selectedLocation != directionsDestination) {
                       setDirectionsDestination(selectedLocation);
+                      setDirectionsTravelMode(google.maps.TravelMode.DRIVING);
                     } else {
                       setDirectionsDestination(null);
+                      setDirectionsTravelMode(null);
                     }
                   }}
                 >
                   <FontAwesomeIcon
                     icon={faCar}
                     style={
-                      selectedLocation?.camis == directionsDestination?.camis
+                      selectedLocation?.camis == directionsDestination?.camis && //&& added
+                      directionsTravelMode == google.maps.TravelMode.DRIVING
+                        ? { color: "#61aaf3" }
+                        : {}
+                    }
+                  />
+                </button>
+                <button //Added button of bus for TRANSIT or public transportation.
+                  onClick={() => {
+                    if (selectedLocation != directionsDestination) {
+                      setDirectionsDestination(selectedLocation);
+                      setDirectionsTravelMode(google.maps.TravelMode.TRANSIT);
+                    } else {
+                      setDirectionsDestination(null);
+                      setDirectionsTravelMode(null);
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={faBus}
+                    style={
+                      selectedLocation?.camis == directionsDestination?.camis &&
+                      directionsTravelMode == google.maps.TravelMode.TRANSIT
                         ? { color: "#61aaf3" }
                         : {}
                     }
@@ -859,9 +885,9 @@ const GoogleMapComponent = () => {
         {/* Expandable Card */}
         {selectedRestaurant && (
           <Sidebar
-          restaurant={selectedRestaurant}
-          onClose={() => setSelectedRestaurant(null)}
-          reviews={selectedRestaurant.reviews}
+            restaurant={selectedRestaurant}
+            onClose={() => setSelectedRestaurant(null)}
+            reviews={selectedRestaurant.reviews}
           />
         )}
       </div>
