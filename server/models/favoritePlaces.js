@@ -13,9 +13,6 @@ module.exports = (sequelize, DataTypes) => {
         camis: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            unique: {
-                msg: 'Location already exists'
-              },
             references: {
                 model: 'Restaurants', // References the Restaurants model
                 key: 'camis',

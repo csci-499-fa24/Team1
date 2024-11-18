@@ -239,7 +239,7 @@ const GoogleMapComponent = () => {
           `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/favorites`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
+        console.log(response);
         if (response.status === 200) {
           setFavorites(response.data.data.favoritePlaces);
         }
@@ -303,6 +303,7 @@ const GoogleMapComponent = () => {
     const isFavorite = favorites.some(
       (favorite) => favorite.camis === location.camis
     );
+  
     try {
       if (isFavorite) {
         // Remove favorite
@@ -315,7 +316,7 @@ const GoogleMapComponent = () => {
           setFavorites(
             favorites.filter((favorite) => favorite.camis !== location.camis)
           );
-          console.log(favorites);
+        
         }
       } else {
         // Add favorite
