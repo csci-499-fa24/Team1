@@ -4,7 +4,15 @@ exports.getReviews = async (req, res) => {
     try {
         const { id: camis } = req.params;
 
-        const reviews = await Review.findAll({ where: { camis } });
+        const reviews = await Review.findAll({ where: { camis },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['userName'], 
+                },
+            ],
+        });
 
         if (!reviews || reviews.length === 0) {
             return res.status(404).json({ status: 'error', message: 'No reviews found for this restaurant' });
@@ -18,8 +26,8 @@ exports.getReviews = async (req, res) => {
 
 exports.addReview = async (req, res) => {
     try {
-        const { camis, rating, comment } = req.body; // Use camis from the request body
-        const userId = req.user.id; // Retrieve the user ID from the authenticated request
+        const { camis, rating, comment } = req.body;
+        const userId = req.user.id; 
 
         const restaurant = await Restaurants.findOne({ where: { camis } });
         if (!restaurant) {
@@ -27,7 +35,17 @@ exports.addReview = async (req, res) => {
         }
         
         const review = await Review.create({ camis, userId, rating, comment });
-        res.status(201).json(review);
+        // Fetch the review with the user's name included
+        const createdReview = await Review.findByPk(review.id, {
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['userName'],
+                },
+            ],
+        });
+        res.status(201).json(createdReview);                
     } catch (error) {
         console.error('Error adding review:', error);
         res.status(500).json({ error: 'Failed to add review' });
@@ -53,7 +71,17 @@ exports.editReview = async (req, res) => {
         review.comment = comment || review.comment;
         await review.save();
 
-        res.status(200).json(review);
+        // Fetch the updated review with the user's name included
+        const updatedReview = await Review.findByPk(id, {
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['userName'],
+                },
+            ],
+        });
+        res.status(200).json(updatedReview); // Ensure updatedAt is included            
     } catch (error) {
         console.error('Error editing review:', error);
         res.status(500).json({ error: 'Failed to edit review' });
