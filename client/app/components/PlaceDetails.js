@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faPhone, faStar, faStarHalfAlt, faArrowPointer } from '@fortawesome/free-solid-svg-icons';
 
 
+
 export default function PlaceDetails({ camis, onClose }) {
     const [placeDetails, setPlaceDetails] = useState(null);
     const [loading, setLoading] = useState(true);
