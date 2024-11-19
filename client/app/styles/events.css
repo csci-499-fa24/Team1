@@ -121,3 +121,10 @@ h1 {
     margin-left: 10px;
     color: var(--accent-color);
 }
+
+.btn-primary{
+    position: absolute; /* Add position for alignment */
+    top: 0;
+    right: 40px; /* Adjust right property to position it next to the add-to-plan icon */
+    margin-right: 10px; /* Add some spacing */
+}
