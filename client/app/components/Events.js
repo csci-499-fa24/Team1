@@ -3,7 +3,19 @@ import axios from 'axios';
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/events.css';
+
+// Fix for missing default marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -18,24 +30,77 @@ const Events = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // Map and location state
+  const [userLocation, setUserLocation] = useState(null);
+  const [selectedEventLocation, setSelectedEventLocation] = useState(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      position => setUserLocation([position.coords.latitude, position.coords.longitude]),
+      error => console.error('Error fetching user location:', error)
+    );
+  }, []);
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get(
-          `https://data.cityofnewyork.us/resource/tvpp-9vvx.json?$query=SELECT%20event_id%2C%20event_name%2C%20start_date_time%2C%20end_date_time%2C%20event_agency%2C%20event_type%2C%20event_borough%2C%20event_location%2C%20event_street_side%2C%20street_closure_type%2C%20community_board%2C%20police_precinct%20WHERE%20%60event_type%60%20IN%20('Farmers%20Market'%2C%20'Street%20Festival')`
+          `https://data.cityofnewyork.us/resource/tvpp-9vvx.json?$query=SELECT%20event_id%2C%20event_name%2C%20start_date_time%2C%20end_date_time%2C%20event_agency%2C%20event_type%2C%20event_borough%2C%20event_location%2C%20event_street_side%2C%20street_closure_type%2C%20community_board%2C%20police_precinct%20WHERE%20%60event_type%60%20IN%20('Farmers%20Market')`
         );
-        // Sort the events by start_date_time in ascending order
-      const sortedEvents = response.data.sort((a, b) => new Date(a.start_date_time) - new Date(b.start_date_time));
-      
-      setEvents(sortedEvents);
-      setFilteredEvents(sortedEvents);
+  
+        const now = new Date(); // Current date and time
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Midnight today
+        const endOfToday = new Date(startOfToday);
+        endOfToday.setDate(startOfToday.getDate() + 1); // Midnight tomorrow
+  
+        // Filter events starting today or in the future
+        const validEvents = response.data.filter(event => {
+          const eventStartDate = new Date(event.start_date_time);
+          return eventStartDate >= startOfToday; // Include events from midnight today onwards
+        });
+  
+        // Sort events with today's events first, then future events in order
+        const sortedEvents = validEvents.sort((a, b) => {
+          const startA = new Date(a.start_date_time);
+          const startB = new Date(b.start_date_time);
+  
+          return startA - startB; // Ascending order by start date
+        });
+  
+        setEvents(sortedEvents);
+        setFilteredEvents(sortedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
         alert('Error fetching events. Please try again later.');
       }
     };
+  
     fetchEvents();
   }, []);
+
+  const fetchLocationCoordinates = async (location) => {
+    try {
+      const geoResponse = await axios.get(
+        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+          location
+        )}, New York, NY&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}`
+      );
+  
+      if (
+        geoResponse.data.results &&
+        geoResponse.data.results[0] &&
+        geoResponse.data.results[0].geometry
+      ) {
+        const { lat, lng } = geoResponse.data.results[0].geometry;
+        setSelectedEventLocation([lat, lng]);
+      } else {
+        alert('Unable to find location coordinates.');
+      }
+    } catch (error) {
+      console.error('Failed to fetch coordinates:', error);
+      alert('Failed to fetch location coordinates. Please try again later.');
+    }
+  };
 
   const convertTo24Hour = (hour, amPm) => {
     if (amPm === 'AM' && hour === 12) return 0;
@@ -50,45 +115,43 @@ const Events = () => {
         const selectedBoroughUpper = borough?.toUpperCase() || '';
         const matchesBorough = !borough || eventBoroughUpper === selectedBoroughUpper;
         const matchesEventType = !eventType || event.event_type === eventType;
-    
+
         let matchesSpecificTime = true;
         if (specificHour && specificAmPm) {
           const selectedHour = parseInt(specificHour);
           const selected24Hour = convertTo24Hour(selectedHour, specificAmPm);
-    
+
           const eventStartTime = new Date(event.start_date_time);
           const eventEndTime = new Date(event.end_date_time);
           const eventStartHour = eventStartTime.getHours();
           const eventEndHour = eventEndTime.getHours();
-    
+
           matchesSpecificTime = selected24Hour >= eventStartHour && selected24Hour <= eventEndHour;
         }
-    
-        // New filter condition to check if start and end dates are the same
+
         const startDateTime = new Date(event.start_date_time);
         const endDateTime = new Date(event.end_date_time);
         const isSameDay = startDateTime.toDateString() === endDateTime.toDateString();
-    
+
         return matchesBorough && matchesEventType && matchesSpecificTime && isSameDay;
       });
-    
+
       if (startDate) {
         const startFilterDate = new Date(startDate);
-        filtered = filtered.sort((a, b) => new Date(a.start_date_time) - new Date(b.start_date_time))
-                           .filter(event => new Date(event.start_date_time) >= startFilterDate);
+        filtered = filtered
+          .sort((a, b) => new Date(a.start_date_time) - new Date(b.start_date_time))
+          .filter(event => new Date(event.start_date_time) >= startFilterDate);
       }
-    
+
       setFilteredEvents(filtered);
       setCurrentPage(1);
     };
-    
 
     handleFilterEvents();
   }, [borough, eventType, specificHour, specificAmPm, startDate, endDate, events]);
 
-  const addToPlan = async(name, start, end) => {
+  const addToPlan = async (name, start, end) => {
     const token = Cookies.get('token');
-    console.log(name, start, end);
     const startDate = new Date(start);
     const endDate = new Date(end);
     const start_date = startDate.toISOString().split('T')[0];
@@ -98,41 +161,40 @@ const Events = () => {
 
     try {
       const response = await axios.post(
-          process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
-          {
-            date: start_date,
-            time: start_time,
-            endDate: end_date,
-            endTime: end_time,
-            eventName: name,
-            eventType: 'NYC Event',
+        process.env.NEXT_PUBLIC_SERVER_URL + '/api/v1/user-plans/add',
+        {
+          date: start_date,
+          time: start_time,
+          endDate: end_date,
+          endTime: end_time,
+          eventName: name,
+          eventType: 'NYC Event',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-          }
-      );
-      
-      if(response.data.status === 'success'){
-        alert('sucessfully added event to your plan');
-      }
-
-    } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) {
-            alert(error.response.data.message);
-        } else {
-            alert('Failed to add location to your plan.');
         }
-        console.error('Error adding location to plan:', error);
+      );
+
+      if (response.data.status === 'success') {
+        alert('Successfully added event to your plan');
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to add location to your plan.');
+      }
+      console.error('Error adding location to plan:', error);
     }
   };
 
   const handlePlanButtonClick = (event) => {
     if (!event.start_date_time || !event.end_date_time || !event.event_name) {
-      alert('event is missing start time, end time, or name');
+      alert('Event is missing start time, end time, or name');
     } else {
-        addToPlan(event.event_name, event.start_date_time, event.end_date_time);
+      addToPlan(event.event_name, event.start_date_time, event.end_date_time);
     }
   };
 
@@ -154,17 +216,17 @@ const Events = () => {
     const start = Math.max(2, currentPage - maxLeftRight);
     const end = Math.min(totalPages - 1, currentPage + maxLeftRight);
 
-    pageNumbers.push(1); // Always show the first page
+    pageNumbers.push(1);
 
     if (start > 2) {
-      pageNumbers.push('...'); // Left dots
+      pageNumbers.push('...');
     }
 
     for (let i = start; i <= end; i++) {
       pageNumbers.push(i);
     }
 
-    pageNumbers.push(totalPages); // Always show the last page
+    pageNumbers.push(totalPages);
 
     return pageNumbers.map((number, index) =>
       number === '...' ? (
@@ -185,6 +247,32 @@ const Events = () => {
 
   return (
     <div className="events-container">
+      {/* Map Section */}
+        <MapContainer
+          center={selectedEventLocation || userLocation || [40.7128, -74.006]} // Center on selected event or user location
+          zoom={selectedEventLocation ? 16 : 13} // Zoom in for selected event
+          style={{ height: '400px', width: '100%' }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+          />
+
+          {/* Display user location */}
+          {userLocation && !selectedEventLocation && (
+            <Marker position={userLocation}>
+              <Popup>Your Location</Popup>
+            </Marker>
+          )}
+
+          {/* Display only the selected event marker */}
+          {selectedEventLocation && (
+            <Marker position={selectedEventLocation}>
+              <Popup>Selected Event Location</Popup>
+            </Marker>
+          )}
+        </MapContainer>
+
       <div className="filter-form">
         <div>
           <label>Borough: </label>
@@ -203,7 +291,7 @@ const Events = () => {
           <select value={eventType} onChange={e => setEventType(e.target.value)}>
             <option value="">All</option>
             <option value="Farmers Market">Farmers Market</option>
-            <option value="Street Festival">Street Festival</option>
+            {/* <option value="Street Event">Street Event</option> */}
           </select>
         </div>
 
@@ -232,7 +320,6 @@ const Events = () => {
           <label>Start Date: </label>
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
         </div>
-
       </div>
 
       <ul className="events-list">
@@ -247,6 +334,20 @@ const Events = () => {
                   style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
                   onClick={() => handlePlanButtonClick(event)}
                 />
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      if (event.event_location) {
+                        fetchLocationCoordinates(event.event_location);
+                      } else {
+                        alert('Event location is not available.');
+                      }
+                    }}
+                  >
+                    <i className="bi bi-geo-alt-fill"></i> Show Location
+                  </button>
+
+
               </div>
               <p>{`Location: ${event.event_location}`}</p>
               <p>{`Start: ${new Date(event.start_date_time).toLocaleString()}`}</p>
@@ -274,21 +375,3 @@ const Events = () => {
 };
 
 export default Events;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
