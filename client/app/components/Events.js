@@ -1,9 +1,17 @@
+import dynamic from 'next/dynamic';
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+
+// Dynamically import React Leaflet components
+const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false });
+
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -35,10 +43,12 @@ const Events = () => {
   const [selectedEventLocation, setSelectedEventLocation] = useState(null);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      position => setUserLocation([position.coords.latitude, position.coords.longitude]),
-      error => console.error('Error fetching user location:', error)
-    );
+    if (typeof window !== 'undefined') {
+      navigator.geolocation.getCurrentPosition(
+        position => setUserLocation([position.coords.latitude, position.coords.longitude]),
+        error => console.error('Error fetching user location:', error)
+      );
+    }
   }, []);
 
   useEffect(() => {
