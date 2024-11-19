@@ -17,7 +17,11 @@ const catchAsync = require("./utils/asyncError");
 const cookieParser = require('cookie-parser');
 const favoriteRouter = require('./routes/favoriteRoute');
 const userPlanRoutes = require('./routes/userPlanRoute');
+
+const reviewRoutes = require('./routes/reviewsRoute');
+
 const settingsRoutes = require("./routes/settingsRoute");
+
 
 //CORS configuration ensures that your server allows requests from
 //http://localhost:3000 and supports credentials (cookies).
@@ -46,7 +50,7 @@ app.get("/api/inspections/:camis", getInspectionDetails);
 const { getRestaurantHours } = require('./controllers/getRestaurantHours'); // Import the route for fetching restaurant hours
 app.get('/api/restaurant-hours', getRestaurantHours); //route to fetch restaurant hours
 app.get('/api/v1/restaurant-reviews', reviewsRoute.getRestaurantReviews);
-
+app.use('/api/reviews', reviewRoutes);
 //routes for signup and login
 app.use('/api/v1/auth', authRouter);
 
