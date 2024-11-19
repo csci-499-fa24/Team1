@@ -1,6 +1,8 @@
 "use client";
+import dynamic from 'next/dynamic';
+
+const Events = dynamic(() => import('../components/Events'), { ssr: false });
 import React from 'react';
-import Events from '../components/Events';
 import Navbar from '../components/Navbar';
 import { useEffect, useState } from "react";
 import axios from "axios";
