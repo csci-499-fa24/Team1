@@ -24,4 +24,8 @@
 5. And now that you have that set up, after you run *npm run dev* in server, it will automatically create the tables for the respected model listed in the project
 
 -----
-    
+
+## Credits and Attributions
+   - Bar and restaurant markers
+      - <a href="https://www.flaticon.com/free-icons/restaurant" title="restaurant icons">Restaurant icons created by asol_studio - Flaticon</a>
+      - <a href="https://www.flaticon.com/free-icons/maps-and-location" title="maps and location icons">Maps and location icons created by DinosoftLabs - Flaticon</a>

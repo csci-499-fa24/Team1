@@ -25,6 +25,12 @@ import {
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
 
+//Custom markers and map style
+import BarIcon from "../assets/bar_icon.png";
+import RestaurantIcon from "../assets/restaurant_icon.png";
+import customMapStyles from "../styles/mapStyles/customMapStyles.json";
+
+
 import {
   faMagnifyingGlass,
   faLocationDot,
@@ -37,6 +43,19 @@ const containerStyle = {
   width: "100%",
   height: "700px",
 };
+
+const customMapOptions = {
+  disableDefaultUI: true, // Disables all default controls (optional)
+  zoomControl: true, // Shows zoom controls
+  mapTypeControl: false, // Hides the map/satellite view toggle
+  fullscreenControl: false, // Hides fullscreen control
+  streetViewControl: false, // Hides street view pegman
+  scrollwheel: true, // Enables zooming with the scroll wheel
+  draggable: true, // Allows dragging the map
+  styles: customMapStyles, // Apply your custom map styles
+  gestureHandling: "cooperative", // Allows zooming with ctrl/command + scroll
+};
+
 
 const toRad = (value) => {
   return (value * Math.PI) / 180;
@@ -694,7 +713,8 @@ const GoogleMapComponent = () => {
           center={currentLocation || { lat: 40.7128, lng: -74.006 }}
           zoom={currentLocation ? 15 : 12}
           options={{
-            styles: "f9f8fc87a66fc282",
+            styles: customMapStyles, 
+            customMapOptions,
           }}
         >
           {/*Directions renderer to get driving routes  */}
@@ -729,9 +749,8 @@ const GoogleMapComponent = () => {
                   const shouldShowBar =
                     typeFilter === "Bar" ||
                     (typeFilter === "" && isLocationBar);
-                  return shouldShowBar
-                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
-                    : "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                  return shouldShowBar ? BarIcon.src : RestaurantIcon.src;
+                    
                 })(),
                 scaledSize: new window.google.maps.Size(30, 30),
                 anchor: new window.google.maps.Point(15, 30),
