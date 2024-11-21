@@ -158,7 +158,7 @@ const authentication = catchAsync(async (req, res, next) => {
         req.user = userDetail;
         return next();
     } catch (err) {
-        console.error('Error during user lookup:', err); // Log for debugging
+        console.error('Error during user lookup:', err); 
         return next(new AppError('Something went wrong. Please try again later.', 500));
     }
 });
