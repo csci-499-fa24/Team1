@@ -34,6 +34,10 @@ describe('AuthController', () => {
     let mockUser;
     
     beforeEach(() => {
+        // Mock bcrypt.hash globally for all tests
+        bcrypt.hash.mockResolvedValue('hashedPassword');
+
+        // Reset mock user to a default state
         mockUser = {
             id: 1,
             userName: 'testUser',
@@ -64,8 +68,8 @@ describe('AuthController', () => {
                 .send({
                     userName: 'testUser',
                     email: 'test@example.com',
-                    password: 'password123',
-                    confirmPassword: 'password123',
+                    password: 'Password123!', // Ensure valid password format
+                    confirmPassword: 'Password123!', // Ensure passwords match
                 });
 
             expect(res.statusCode).toEqual(201);
@@ -74,8 +78,7 @@ describe('AuthController', () => {
             expect(User.create).toHaveBeenCalledWith(expect.objectContaining({
                 userName: 'testUser',
                 email: 'test@example.com',
-                password: expect.any(String), // Password should be hashed
-
+                password: 'hashedPassword', // Expect the mocked hashed password
             }));
             signMock.mockRestore(); 
         });
@@ -106,6 +109,58 @@ describe('AuthController', () => {
             expect(res.statusCode).toEqual(400);
             expect(res.body.message).toEqual('All fields are required');
         });
+
+        it('should fail if the email is not unique', async () => {
+            User.create.mockImplementation(() => {
+                throw new UniqueConstraintError({ fields: ['email'] });
+            });
+        
+            const res = await request(app)
+                .post('/api/v1/auth/signup')
+                .send({
+                    userName: 'testUser',
+                    email: 'duplicate@example.com',
+                    password: 'Password123!', // Valid password format
+                    confirmPassword: 'Password123!', // Matches password
+                });
+        
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('This email is already in use. Please use a different one.');
+        });
+
+        it('should fail if the password format is invalid', async () => {
+            const res = await request(app)
+                .post('/api/v1/auth/signup')
+                .send({
+                    userName: 'testUser',
+                    email: 'test@example.com',
+                    password: 'short', // Invalid password format
+                    confirmPassword: 'short',
+                });
+    
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.message).toEqual('Password must be at least 8 characters long, at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.');
+        });
+        
+        it('should handle database errors during signup', async () => {
+            User.create.mockImplementation(() => {
+                throw new Error('Database error');
+            });
+        
+            const res = await request(app)
+                .post('/api/v1/auth/signup')
+                .send({
+                    userName: 'testUser',
+                    email: 'test@example.com',
+                    password: 'Password123!', // Ensure valid password format
+                    confirmPassword: 'Password123!', // Ensure passwords match
+                });
+        
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Something went wrong. Please try again later.');
+        });
+
+
     });
 
     describe('Login', () => {
@@ -169,6 +224,22 @@ describe('AuthController', () => {
             expect(res.statusCode).toEqual(401);
             expect(res.body.message).toEqual('Incorrect email or password');
         });
+
+        it('should handle database errors during login', async () => {
+            User.findOne.mockImplementation(() => {
+                throw new Error('Database error');
+            });
+        
+            const res = await request(app)
+                .post('/api/v1/auth/login')
+                .send({
+                    email: 'test@example.com',
+                    password: 'password123',
+                });
+        
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Something went wrong. Please try again later.');
+        });
     });
 
     describe('Authentication', () => {
@@ -212,9 +283,7 @@ describe('AuthController', () => {
 
             expect(res.statusCode).toEqual(401);
             expect(res.body.message).toEqual('Invalid token. Please log in again.');
-        });
-
-        
+        });        
 
         it('should fail if the user does not exist', async () => {
             const token = jwt.sign({ id: 999 }, process.env.JWT_SECRET_KEY || 'default-secret-key'); // Non-existent user ID
@@ -227,6 +296,41 @@ describe('AuthController', () => {
             expect(res.statusCode).toEqual(404);
             expect(res.body.message).toEqual('User not found');
         });
+
+        it('should fail if the token is expired', async () => {
+            const expiredToken = jwt.sign(
+                { id: mockUser.id },
+                process.env.JWT_SECRET_KEY || 'default-secret-key',
+                { expiresIn: '-10s' } // Expired 10 seconds ago
+            );
+        
+            const res = await request(app)
+                .get('/api/v1/auth/authentication')
+                .set('Authorization', `Bearer ${expiredToken}`);
+        
+            expect(res.statusCode).toEqual(401);
+            expect(res.body.message).toEqual('Your token has expired. Please log in again.');
+        });
+        
+        it('should handle errors during user lookup in the authentication flow', async () => {
+            const token = jwt.sign(
+                { id: mockUser.id },
+                process.env.JWT_SECRET_KEY || 'default-secret-key'
+            );
+        
+            User.findByPk.mockImplementation(() => {
+                throw new Error('Database error');
+            });
+        
+            const res = await request(app)
+                .get('/api/v1/auth/authentication')
+                .set('Authorization', `Bearer ${token}`);
+        
+            expect(res.statusCode).toEqual(500);
+            expect(res.body.message).toEqual('Something went wrong. Please try again later.');
+        });
+
+
     });
 });
 

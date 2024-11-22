@@ -52,9 +52,17 @@ const updateUserInfo = catchAsync(async (req, res, next) => {
         }
         if (password !== confirmPassword) {
             return next(new AppError("Passwords do not match", 400));
-        }
-        if (password.length < 8) {
-            return next(new AppError("Password must be at least 8 characters long", 400));
+        }    
+        // Password complexity validation
+        const passwordRegex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return next(
+                new AppError(
+                    "Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, one digit, and one special character (!@#$%^&*)",
+                    400
+                )
+            );
         }
     }
 
