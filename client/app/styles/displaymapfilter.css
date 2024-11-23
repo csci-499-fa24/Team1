@@ -149,6 +149,10 @@
   outline: none; 
 }
 
+.restaurant-name-filter {
+  min-width: 200px;
+}
+
 .suggestions-list {
   list-style-type: none; 
   padding: 0;
