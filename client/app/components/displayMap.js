@@ -16,6 +16,7 @@ import { useDraggableCard } from "./useDraggableCard";
 import ExpandableCard from "./ExpandableCard";
 import { fetchReviewsByPlaceId } from "./fetchReviews";
 import Sidebar from "./Sidebar";
+import Select from "react-select"; //Added for Restaurant name filter correction.
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -29,7 +30,6 @@ import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
 import BarIcon from "../assets/bar_icon.png";
 import RestaurantIcon from "../assets/restaurant_icon.png";
 import customMapStyles from "../styles/mapStyles/customMapStyles.json";
-
 
 import {
   faMagnifyingGlass,
@@ -55,7 +55,6 @@ const customMapOptions = {
   styles: customMapStyles, // Apply your custom map styles
   gestureHandling: "cooperative", // Allows zooming with ctrl/command + scroll
 };
-
 
 const toRad = (value) => {
   return (value * Math.PI) / 180;
@@ -327,7 +326,7 @@ const GoogleMapComponent = () => {
     const isFavorite = favorites.some(
       (favorite) => favorite.camis === location.camis
     );
-  
+
     try {
       if (isFavorite) {
         // Remove favorite
@@ -340,7 +339,6 @@ const GoogleMapComponent = () => {
           setFavorites(
             favorites.filter((favorite) => favorite.camis !== location.camis)
           );
-        
         }
       } else {
         // Add favorite
@@ -654,7 +652,7 @@ const GoogleMapComponent = () => {
                 {" "}
                 {/*div b */}
                 <label htmlFor="filterRestaurantName">Name: </label>
-                <select
+                {/* <select
                   id="filterRestaurantName"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
@@ -665,7 +663,17 @@ const GoogleMapComponent = () => {
                       {namerestaurant}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  id="filterRestaurantName"
+                  className="restaurant-name-filter"
+                  options={[
+                    { label: "All", value: "" },
+                    ...nameOptions.map((x) => ({ value: x, label: x })),
+                  ]}
+                  onChange={(option) => setFilter(option.value)}
+                  defaultValue={filter}
+                />
               </div>{" "}
               {/*div b */}
               {/* Distance Filter */}
@@ -713,7 +721,7 @@ const GoogleMapComponent = () => {
           center={currentLocation || { lat: 40.7128, lng: -74.006 }}
           zoom={currentLocation ? 15 : 12}
           options={{
-            styles: customMapStyles, 
+            styles: customMapStyles,
             customMapOptions,
           }}
         >
@@ -750,7 +758,6 @@ const GoogleMapComponent = () => {
                     typeFilter === "Bar" ||
                     (typeFilter === "" && isLocationBar);
                   return shouldShowBar ? BarIcon.src : RestaurantIcon.src;
-                    
                 })(),
                 scaledSize: new window.google.maps.Size(30, 30),
                 anchor: new window.google.maps.Point(15, 30),
