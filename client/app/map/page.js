@@ -7,6 +7,8 @@ import axios from "axios";  // for API requests
 import Cookies from "js-cookie"; // for accessing cookies
 import Navbar from "../components/Navbar";
 import "../styles/displaymapfilter.css"
+import {ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function mapPage() {
 
@@ -66,11 +68,20 @@ export default function mapPage() {
             </div>
         );
     }
-      
+
     return (
         <div>
             <Navbar/>
             <GoogleMapEmbed />
+            <ToastContainer 
+             position="top-right"
+             autoClose={3000}
+             hideProgressBar={false}
+             closeOnClick
+             pauseOnHover
+             draggable
+             theme="light"
+             />
         </div>
     );
 };

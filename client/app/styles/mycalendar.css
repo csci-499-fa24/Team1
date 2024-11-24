@@ -27,43 +27,59 @@ body, html {
     align-items: center; 
 }
 
-/* Place Details */
-.place-details {
+
+/* Sidebar  */
+.place-details-planner {
     position: fixed;
-    bottom: 3%;
-    right: 3%;
-    width: 80%;
-    max-width: 500px;
-    height: 60vh;
+    right: 0;
+    top: 78px;
+    width: 350px;
+    height: calc(100vh - 85px);;
+    background-color: rgba(255, 255, 255); 
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    padding: 20px;
     overflow-y: auto;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 1vw;
-    z-index: 100;
-    transform: none;
-    animation: slideDown 0.5s ease forwards;
-    
-    /* Border styling */
-    border: 2px solid #ccc; /* Light gray border */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Optional shadow */
+    z-index: 1000; 
 }
 
-@keyframes slideDown { /* modified slightly to appear closer to the center of the screen*/
-    0% {
-        opacity: 0;
-        transform: translate(0, -50%); 
-    }
-    100% {
-        opacity: 1;
-        transform: translate(0, 0); 
-    }
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
 }
+
+.icon-name-container {
+    display: flex;
+    align-items: center;
+}
+
 
 .place-photo {
     width: 100%;
-    max-height: 20vw;
+    max-height: 30%;
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 15px;  
+}
+
+ .sidebar-info {
+    display: flex;
+    justify-content: space-between;
+     align-Items: center ; 
+} 
+
+.website a {
+    color: #007bff;
+}
+
+.website a:hover {
+    color: #0056b3;
+    text-decoration: underline;
 }
 
 .opening-hours-header:hover {
@@ -93,32 +109,53 @@ body, html {
     font-size: 0.95em;  
 }
 
-.website a {
-    color: #007bff;
-}
 
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #555;
-}
-
-.icon-name-container {
+ .event-actions {
     display: flex;
     align-items: center;
+    padding: 10px 20px;
+   justify-content: space-evenly;
+}
+
+.event-schedule {
+    margin-top: 30px;
+    padding: 10px 0;
+    border-top: 1px solid #ccc;
+    text-align: center;
+
+}
+
+.event-title-container {
+    font-size: 15px;
+    /* color: var(--primary-color); */
+    color:black;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.event-type{
+    color: var(--primary-color);
+}
+.event-schedule-header {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.time-icon {
+    vertical-align: middle;
+    height: 20px;
+}
+
+.edit-plan-icon {
+    color: var(--accent-color);
 }
 
 .remove-from-plan-icon {
-    margin-right: 10px; 
-    cursor: pointer;
-    color: var(--accent-color);
+    color: #db0909; 
 }
+
+
 
 /* calednar stuff */
 h2 {
@@ -202,21 +239,19 @@ h2 {
     border: 2px solid red;
 }
 
+
 /* edit info window*/
 .info-window-content {
     padding: 10px;
-    position: fixed;
-    top: 30%; 
-    left: 3%;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start; 
-    margin: 10px;
     background-color: var(--base-color); 
     border-radius: 10px; 
     box-shadow: none;
     font-size: 16px; 
-    width: 300px;
+    width: 290px;
     z-index: 100;
     border: black solid 5px;
 }
@@ -232,7 +267,7 @@ h2 {
 .date-time-container {
     display: flex;
     align-items: center;
-    margin-top: 10px;
+    margin-top: 5px; 
 }
   
 .date-time-container input {
@@ -242,7 +277,7 @@ h2 {
     cursor: pointer;
     border: 0.5px solid var(--accent-color);
     outline: none;
-    width: 130px;
+    width: 120px;
     height: 30px;
 }
 
@@ -255,4 +290,16 @@ h2 {
     position: relative;
     left: 453px;
     color: green;
+}
+
+.save-change{
+    display: flex;
+    flex-direction: row;
+    
+}
+.save-icon{
+    font-size: 25px;
+    cursor: pointer;
+    color: var(--accent-color);
+    margin-right: 20px;
 }
