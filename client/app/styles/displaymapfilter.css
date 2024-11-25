@@ -112,10 +112,10 @@
 
 .filter-list {
   display: flex;
-  flex-wrap: wrap; /* Allow wrapping to prevent overlaps */
-  gap: 15px; /* Ensure sufficient spacing between items */
-  width: 100%; /* Full width for the container */
-  justify-content: space-between; /* Spread items evenly */
+  flex-wrap: wrap; 
+  gap: 15px; 
+  width: 100%; 
+  justify-content: space-between; 
 }
 @media (max-width: 768px) {
   .filter-list {
@@ -125,13 +125,13 @@
 }
 .filter-item {
   display: flex;
-  flex-direction: column; /* Stack label and dropdown/input */
-  align-items: flex-start; /* Align to the left */
-  gap: 5px; /* Space between label and input */
-  flex: 1; /* Allow items to take equal space */
-  min-width: 150px; /* Minimum width to prevent collapsing */
-  max-width: 300px; /* Maximum width to prevent excessive stretching */
-  white-space: nowrap; /* Prevent text wrapping */
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 5px; 
+  flex: 1; 
+  min-width: 150px; 
+  max-width: 300px; 
+  white-space: nowrap; 
 }
 
 .filter-item label {
@@ -150,11 +150,11 @@
 }
 @media (max-width: 768px) {
   .filter-list {
-    flex-direction: column; /* Stack items vertically on smaller screens */
-    gap: 10px; /* Adjust gap for smaller screens */
+    flex-direction: column; 
+    gap: 10px; 
   }
   .filter-item {
-    max-width: 100%; /* Let items stretch fully on smaller screens */
+    max-width: 100%; 
   }
 }
 .filter-item select:focus {

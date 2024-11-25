@@ -312,7 +312,7 @@ const GoogleMapComponent = () => {
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
           );
   
-          const inspectionData = inspectionRes.data[0]; // Assuming API returns an array
+          const inspectionData = inspectionRes.data[0]; 
           return {
             ...location,
             grade: inspectionData?.grade || "Ungraded", // Add grade (default to "Ungraded")
