@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -41,6 +41,9 @@ const Events = () => {
   // Map and location state
   const [userLocation, setUserLocation] = useState(null);
   const [selectedEventLocation, setSelectedEventLocation] = useState(null);
+  const [mapCenter, setMapCenter] = useState([40.7128, -74.006]);
+
+  const mapRef = useRef(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -88,29 +91,58 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  const fetchLocationCoordinates = async (location) => {
+
+  const parseStreetIntersection = (description) => {
+    // Example format: "CORTLEYOU ROAD between RUGBY ROAD and ARGYLE ROAD"
+    const pattern = /(.+) between (.+) and (.+)/;
+    const match = description.match(pattern);
+    if (match) {
+        return { mainStreet: match[1].trim(), street1: match[2].trim(), street2: match[3].trim() };
+    }
+    return null;
+  };
+
+  const fetchLocationCoordinates = async (location, borough) => {
     try {
-      const geoResponse = await axios.get(
-        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
-          location
-        )}, New York, NY&key=${process.env.NEXT_PUBLIC_OPENCAGE_API_KEY}`
-      );
-  
-      if (
-        geoResponse.data.results &&
-        geoResponse.data.results[0] &&
-        geoResponse.data.results[0].geometry
-      ) {
-        const { lat, lng } = geoResponse.data.results[0].geometry;
-        setSelectedEventLocation([lat, lng]);
-      } else {
-        alert('Unable to find location coordinates.');
-      }
+        const streets = parseStreetIntersection(location);
+        let url;
+
+        if (streets) {
+            // Its an intersection
+            const intersectionQuery = `${streets.mainStreet} & ${streets.street1}, ${borough}, New York, NY`;
+            const query = encodeURIComponent(intersectionQuery);
+            url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`;
+        } else {
+            // Its a regular location
+            const detailedLocation = `${location}, ${borough}, New York, NY`;
+            const query = encodeURIComponent(detailedLocation);
+            url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}`;
+        }
+
+        const response = await axios.get(url);
+        if (response.data.results && response.data.results.length > 0) {
+            const { lat, lng } = response.data.results[0].geometry.location;
+            setSelectedEventLocation([lat, lng]);
+            setMapCenter([lat, lng]); // Update map center to the new location
+
+            if (mapRef.current) {
+                mapRef.current.leafletElement.flyTo([lat, lng], 13, {
+                    animate: true,
+                    duration: 1.5 // Animation duration in seconds
+                });
+            }
+        } else {
+            alert('No results found for the location. Please check the details and try again.');
+        }
     } catch (error) {
-      console.error('Failed to fetch coordinates:', error);
-      alert('Failed to fetch location coordinates. Please try again later.');
+        console.error('Failed to fetch coordinates:', error);
+        alert('Failed to fetch location coordinates. Please try again later.');
     }
   };
+
+
+  
+  
 
   const convertTo24Hour = (hour, amPm) => {
     if (amPm === 'AM' && hour === 12) return 0;
@@ -259,9 +291,11 @@ const Events = () => {
     <div className="events-container">
       {/* Map Section */}
         <MapContainer
-          center={selectedEventLocation || userLocation || [40.7128, -74.006]} // Center on selected event or user location
+          // center={selectedEventLocation || userLocation || [40.7128, -74.006]} // Center on selected event or user location
+          center={mapCenter}
           zoom={selectedEventLocation ? 16 : 13} // Zoom in for selected event
           style={{ height: '400px', width: '100%' }}
+          ref={mapRef}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -348,7 +382,7 @@ const Events = () => {
                     className="btn btn-primary"
                     onClick={() => {
                       if (event.event_location) {
-                        fetchLocationCoordinates(event.event_location);
+                        fetchLocationCoordinates(event.event_location, event.event_borough);
                       } else {
                         alert('Event location is not available.');
                       }
