@@ -7,6 +7,7 @@ import "../styles/profile.css";
 import Navbar from "../components/Navbar";
 import Favorites from "../components/Favorites";
 import Sidebar from "../components/Sidebar"; // Import Sidebar component
+import LoadingScreen from "../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
@@ -103,7 +104,7 @@ export default function Personal() {
   };
  
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen/>;
   }
 
   if (error) {

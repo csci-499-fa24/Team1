@@ -1,6 +1,7 @@
 'use client';
 import Navbar from '../components/Navbar.js';
 import Settings from '../components/Settings.js';
+import LoadingScreen from "../components/Loading";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -53,7 +54,7 @@ const settingsPage = () => {
     
     // Display loading indicator while checking authentication
     if (loading) {
-      return <div>Loading...</div>;
+      return <LoadingScreen/>;
     }  
 
      // If the user is not authenticated, display the error message

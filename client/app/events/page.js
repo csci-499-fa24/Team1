@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 const Events = dynamic(() => import('../components/Events'), { ssr: false });
 import React from 'react';
 import Navbar from '../components/Navbar';
+import LoadingScreen from "../components/Loading";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -56,7 +57,7 @@ const NYCEvents = () => {
     
     // Display loading indicator while checking authentication
     if (loading) {
-      return <div>Loading...</div>;
+      return <LoadingScreen/>;
     }  
 
      // If the user is not authenticated, display the error message
