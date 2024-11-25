@@ -5,6 +5,7 @@ import axios from 'axios';
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
+import { toast } from "react-toastify";
 
 // Dynamically import React Leaflet components
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
@@ -81,7 +82,7 @@ const Events = () => {
         setFilteredEvents(sortedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
-        alert('Error fetching events. Please try again later.');
+        toast.error('Error fetching events. Please try again later.');
       }
     };
   
@@ -104,11 +105,11 @@ const Events = () => {
         const { lat, lng } = geoResponse.data.results[0].geometry;
         setSelectedEventLocation([lat, lng]);
       } else {
-        alert('Unable to find location coordinates.');
+        toast.error('Unable to find location coordinates.');
       }
     } catch (error) {
       console.error('Failed to fetch coordinates:', error);
-      alert('Failed to fetch location coordinates. Please try again later.');
+      toast.error('Failed to fetch location coordinates. Please try again later.');
     }
   };
 
@@ -188,13 +189,13 @@ const Events = () => {
       );
 
       if (response.data.status === 'success') {
-        alert('Successfully added event to your plan');
+        toast.success('Successfully added event to your plan');
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        alert('Failed to add location to your plan.');
+        toast.error('Failed to add location to your plan.');
       }
       console.error('Error adding location to plan:', error);
     }
@@ -202,7 +203,7 @@ const Events = () => {
 
   const handlePlanButtonClick = (event) => {
     if (!event.start_date_time || !event.end_date_time || !event.event_name) {
-      alert('Event is missing start time, end time, or name');
+      toast.warn('Event is missing start time, end time, or name');
     } else {
       addToPlan(event.event_name, event.start_date_time, event.end_date_time);
     }
@@ -350,7 +351,7 @@ const Events = () => {
                       if (event.event_location) {
                         fetchLocationCoordinates(event.event_location);
                       } else {
-                        alert('Event location is not available.');
+                        toast.error('Event location is not available.');
                       }
                     }}
                   >

@@ -2,10 +2,10 @@ import { useState, useEffect} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
+import { toast } from "react-toastify";
 
-
-const EditTimeWindow = ({ onClose, id , start, end, eventType }) => { 
+const EditTimeWindow = ({ onClose, id , start, end, eventType, onTimeUpdate }) => { 
     const [updatePlanFrom, setUpdatePlanForm] = useState({
         startDate: '',
         startTime: '',
@@ -13,6 +13,7 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
         endTime: '',
         eventType: eventType,
     });
+
 
     useEffect(() => {
         if (start && end) {
@@ -23,7 +24,7 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
                 : '';
             const endTime = end
                 ? end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : '';
+                : ''; 
 
             const formattedStartDate = new Date(startDate).toLocaleDateString('en-CA');
             const formattedEndDate = new Date(endDate).toLocaleDateString('en-CA');
@@ -67,14 +68,14 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
     const handleSubmit = (formData) => {
         
         if(!formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime ){
-            alert("Fill in all date and time fields");
+            toast.warn("Fill in all date and time fields");
             return;
         }
 
         const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
         const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
         if (startDateTime > endDateTime) {
-            alert("Start time cannot be after end time. Please adjust the times.");
+            toast.warn("Start time cannot be after end time. Please adjust the times.");
             return;
         }
 
@@ -85,8 +86,6 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
             endTime: formData.endTime,
             eventType: "Self Event"
         }
-
-        // console.log("Sending data to server:", requestData);
 
         const token = Cookies.get("token");
         axios
@@ -100,21 +99,28 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
             )
             .then((response) => {
                 if(response.data.status === 'success'){
-                    alert('successfully updated');
+                    toast.success('successfully updated');          
+                    onTimeUpdate(startDateTime, endDateTime); 
+                    onClose(); // Close the EditTimeWindow
                 }
-                console.log(response.data.data);
+               
             })
             .catch((err) => {
                 console.error("Error", err);
             });
 
     }
-    // console.log(updatePlanFrom.startDate, updatePlanFrom.startTime, updatePlanFrom.endDate, updatePlanFrom.endTime);
     return(
         <div className="info-window-content">
         <button className="close-button" onClick={onClose}>X</button>
+        <div className='save-change'>
+        <FontAwesomeIcon
+                icon={faSave}
+                className='save-icon'
+                onClick={ () => handleSubmit(updatePlanFrom) }
+            />
         <h3>{'Edit time'}</h3>
-
+        </div>
         {/* Date and time */}
             <p>start time</p>
             <div className="date-time-container">
@@ -153,12 +159,6 @@ const EditTimeWindow = ({ onClose, id , start, end, eventType }) => {
                 />
             </div>
             <br />
-            <FontAwesomeIcon
-                icon={faPenToSquare}
-                className='remove-from-plan-icon'
-                style={{ cursor: 'pointer', color: 'var(--accent-color)', height:'30px' }} 
-                onClick={ () => handleSubmit(updatePlanFrom) }
-            />
         </div>
     )
 }

@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 library.add(fas);
+import {ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Personal() {
   const [user, setUser] = useState(null);
@@ -148,6 +150,16 @@ export default function Personal() {
           onClose={closeSidebar} // Handle close functionality
         />
       )}
-    </div>
+
+      <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light" //"light" or "dark"
+        />
+      </div>
   );
 }

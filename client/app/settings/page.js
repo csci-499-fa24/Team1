@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-
+import {ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const settingsPage = () => {
 
@@ -70,6 +71,15 @@ const settingsPage = () => {
         <div>
             <Navbar />
             <Settings />
+            <ToastContainer 
+             position="top-right"
+             autoClose={3000}
+             hideProgressBar={false}
+             closeOnClick
+             pauseOnHover
+             draggable
+             theme="light" //"light" or "dark"
+             />
         </div>
     );
 };
