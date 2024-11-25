@@ -16,6 +16,7 @@ import { useDraggableCard } from "./useDraggableCard";
 import ExpandableCard from "./ExpandableCard";
 import { fetchReviewsByPlaceId } from "./fetchReviews";
 import Sidebar from "./Sidebar";
+import { toast } from "react-toastify";
 import Select from "react-select"; //Added for Restaurant name filter correction.
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -389,7 +390,8 @@ const GoogleMapComponent = () => {
       );
 
       if (response.status === 201) {
-        alert("Location added to your plan!");
+        //alert("Location added to your plan!");
+        toast.success("Location successfully added to your plan!");
       }
     } catch (error) {
       if (
@@ -397,9 +399,11 @@ const GoogleMapComponent = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        alert(error.response.data.message);
+        //alert(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        alert("Failed to add location to your plan.");
+        //alert("Failed to add location to your plan.");
+        toast.error("Failed to add location to your plan.");
       }
 
       console.error("Error adding location to plan:", error);
@@ -408,7 +412,8 @@ const GoogleMapComponent = () => {
 
   const handlePlanButtonClick = (location) => {
     if (!selectedDate || !selectedTime) {
-      alert("Please select both date and time before adding to your plan.");
+      //alert("Please select both date and time before adding to your plan.");
+      toast.warn("Please select both date and time before adding to your plan.");
     } else {
       addToPlan(location, selectedDate, selectedTime);
     }
