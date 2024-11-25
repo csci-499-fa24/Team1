@@ -112,25 +112,30 @@
 
 .filter-list {
   display: flex;
-  flex-direction: row;
-  margin-top: -60px;
-  gap: 15px;
-  width: 100%;
-  position: absolute;
-  top: 100%;
-  left: 52px; 
+  flex-wrap: wrap; /* Allow wrapping to prevent overlaps */
+  gap: 15px; /* Ensure sufficient spacing between items */
+  width: 100%; /* Full width for the container */
+  justify-content: space-between; /* Spread items evenly */
 }
-
+@media (max-width: 768px) {
+  .filter-list {
+    flex-direction: column;
+    gap: 5px; /* Reduce gap further */
+  }
+}
 .filter-item {
   display: flex;
-  align-items: center;
-  margin-bottom: 0;
-  border-radius: 5px; 
-  white-space: nowrap;
+  flex-direction: column; /* Stack label and dropdown/input */
+  align-items: flex-start; /* Align to the left */
+  gap: 5px; /* Space between label and input */
+  flex: 1; /* Allow items to take equal space */
+  min-width: 150px; /* Minimum width to prevent collapsing */
+  max-width: 300px; /* Maximum width to prevent excessive stretching */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .filter-item label {
-  margin-right: 10px;
+  margin-right: 12px;
 
 }
 
@@ -138,11 +143,20 @@
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
-  font-size: 14px; 
+  font-size: 12px; 
   width: auto;
+  max-width: 150px;
   font-family: var(--font-family);
 }
-
+@media (max-width: 768px) {
+  .filter-list {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    gap: 10px; /* Adjust gap for smaller screens */
+  }
+  .filter-item {
+    max-width: 100%; /* Let items stretch fully on smaller screens */
+  }
+}
 .filter-item select:focus {
   border-color: var(--secondary-color);
   box-shadow: 0 0 4px var(--secondary-color);
@@ -150,7 +164,9 @@
 }
 
 .restaurant-name-filter {
-  min-width: 490px;
+  min-width: 150px;
+  max-width: 150px;
+  flex-grow: 1;
 }
 
 .suggestions-list {

@@ -101,7 +101,7 @@ const GoogleMapComponent = () => {
     x: window.innerWidth / 2 - 250,
     y: window.innerHeight / 2 - 300,
   });
-
+  const [inspectionGradeFilter, setInspectionGradeFilter] = useState(""); // e.g., "", "A", "B", "C"
   const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -200,36 +200,60 @@ const GoogleMapComponent = () => {
           process.env.NEXT_PUBLIC_SERVER_URL + "/api/locations"
         );
         const data = await response.json();
-
-        setLocations(data);
-
+    
+        // Process locations with a controlled number of concurrent requests
+        const updatedLocations = [];
+        for (const location of data) {
+          try {
+            const inspectionRes = await axios.get(
+              `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+            );
+    
+            const inspectionData = inspectionRes.data[0];
+            updatedLocations.push({
+              ...location,
+              grade: inspectionData?.grade || "Ungraded",
+            });
+          } catch (error) {
+            console.error(
+              `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}:`,
+              error.message
+            );
+            updatedLocations.push({
+              ...location,
+              grade: "Ungraded", // Default to "Ungraded" on error
+            });
+          }
+        }
+    
+        setLocations(updatedLocations);
+    
+        // Debug: Log the updated locations with grades
+        console.log("Updated Locations with Grades:", updatedLocations);
+    
         // Extract unique cuisine descriptions
         const uniqueCuisines = [
           ...new Set(
-            data
+            updatedLocations
               .map((location) => location.Restaurant.cuisine_description)
               .filter((cuisine) => cuisine && cuisine.trim() !== "")
           ),
         ];
         setCuisineOptions(uniqueCuisines);
-
-        //Extract unique Names descriptions
-
+    
+        // Extract unique restaurant names
         const uniqueNames = [
           ...new Set(
-            data
+            updatedLocations
               .map((location) => location.Restaurant.dba)
-              .filter(
-                (namerestaurant) =>
-                  namerestaurant && namerestaurant.trim() !== ""
-              )
+              .filter((name) => name && name.trim() !== "")
           ),
         ];
         setNameOptions(uniqueNames);
       } catch (error) {
-        console.error("Error fetching locations:", error);
+        console.error("Error fetching locations:", error.message);
       }
-    };
+    };    
 
     // Get user's current location
     if (navigator.geolocation) {
@@ -279,6 +303,33 @@ const GoogleMapComponent = () => {
     setSelectedLocation(location);
   };
 
+  const fetchInspectionGrades = async (locations) => {
+    // Loop through locations and fetch inspection data
+    const updatedLocations = await Promise.all(
+      locations.map(async (location) => {
+        try {
+          const inspectionRes = await axios.get(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+          );
+  
+          const inspectionData = inspectionRes.data[0]; // Assuming API returns an array
+          return {
+            ...location,
+            grade: inspectionData?.grade || "Ungraded", // Add grade (default to "Ungraded")
+          };
+        } catch (error) {
+          console.error(
+            `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}`,
+            error
+          );
+          return { ...location, grade: "Ungraded" }; // Default to "Ungraded" on error
+        }
+      })
+    );
+  
+    return updatedLocations;
+  };
+  
   //handle view more
   const handleViewMoreClick = async (location) => {
     try {
@@ -444,18 +495,20 @@ const GoogleMapComponent = () => {
           parseFloat(location.longitude)
         )
       : 0;
-
+  
     return (
       (filter === "" ||
         location.Restaurant.cuisine_description === filter || // cuisine_description filter
-        filter === "" ||
-        location.Restaurant.dba === filter) &&
+        location.Restaurant.dba === filter) && // name filter
       (currentLocation ? distance <= distanceFilter : true) && // distance filter
       (typeFilter === "" ||
         (typeFilter === "Bar" && isBar(location)) ||
-        (typeFilter === "Restaurant" && !isBar(location)))
+        (typeFilter === "Restaurant" && !isBar(location))) &&
+      (inspectionGradeFilter === "" || 
+       (inspectionGradeFilter === "Ungraded" && (!location.grade || location.grade === "Ungraded")) || 
+       location.grade === inspectionGradeFilter) // inspection grade filter
     );
-  });
+  });  
 
   const handleSearchInputChange = (event) => {
     const value = event.target.value;
@@ -646,6 +699,37 @@ const GoogleMapComponent = () => {
                   ))}
                 </select>
               </div>{" "}
+              <div className="filter-item">
+  <label htmlFor="filterCuisine">Cuisine: </label>
+  <select
+    id="filterCuisine"
+    value={filter}
+    onChange={(e) => setFilter(e.target.value)}
+  >
+    <option value="">All</option>
+    {cuisineOptions.map((cuisine, index) => (
+      <option key={index} value={cuisine}>
+        {cuisine}
+      </option>
+    ))}
+  </select>
+</div>
+
+<div className="filter-item">
+  <label htmlFor="filterInspectionGrade">Inspection Result: </label>
+  <select
+    id="filterInspectionGrade"
+    value={inspectionGradeFilter}
+    onChange={(e) => setInspectionGradeFilter(e.target.value)}
+  >
+    <option value="">All</option>
+    <option value="A">A</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="Ungraded">Ungraded</option>
+  </select>
+</div>
+
               {/*div a */}
               {/* Name Restaurant Filter */}
               <div className="filter-item">
