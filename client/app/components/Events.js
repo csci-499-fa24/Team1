@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 import { toast } from "react-toastify";
+import "../globals.css"
 
 // Dynamically import React Leaflet components
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
@@ -17,6 +18,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/events.css';
+import { faMap, faMapMarker, faMapMarkerAlt, faMarker } from '@fortawesome/free-solid-svg-icons';
 
 // Fix for missing default marker icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -49,7 +51,15 @@ const Events = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       navigator.geolocation.getCurrentPosition(
-        position => setUserLocation([position.coords.latitude, position.coords.longitude]),
+        position => {
+          const userLoc = [position.coords.latitude, position.coords.longitude];
+          console.log("User location obtained:", userLoc);
+          setUserLocation(userLoc);
+          setMapCenter(userLoc); // Center map on user location
+          if (mapRef.current) {
+            mapRef.current.setView(userLoc, 13);
+          }
+        },
         error => console.error('Error fetching user location:', error)
       );
     }
@@ -127,10 +137,10 @@ const Events = () => {
             setMapCenter([lat, lng]); // Update map center to the new location
 
             if (mapRef.current) {
-                mapRef.current.leafletElement.flyTo([lat, lng], 13, {
-                    animate: true,
-                    duration: 1.5 // Animation duration in seconds
-                });
+              mapRef.current.flyTo([lat, lng], 16, {
+                animate: true,
+                duration: 0.5 // Adjust animation duration to your liking
+              });
             }
         } else {
             toast.error('No results found for the location. Please check the details and try again.');
@@ -141,6 +151,15 @@ const Events = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("mapRef current:", mapRef.current);
+    if (mapRef.current) {
+      mapRef.current.flyTo(mapCenter, 16, {
+        animate: true,
+        duration: 0.5 // Adjust animation duration to your liking
+      });
+    }
+}, [mapCenter]); // Ensure this useEffect is triggered when mapCenter changes
 
   
   
@@ -292,12 +311,16 @@ const Events = () => {
     <div className="events-container">
       {/* Map Section */}
         <MapContainer
-          // center={selectedEventLocation || userLocation || [40.7128, -74.006]} // Center on selected event or user location
+          key={mapCenter.join(',')}
           center={mapCenter}
-          zoom={selectedEventLocation ? 16 : 13} // Zoom in for selected event
+          zoom={selectedEventLocation ? 16 : 13}
           style={{ height: '400px', width: '100%' }}
-          ref={mapRef}
+          whenCreated={(mapInstance) => {
+            console.log("Map created:", mapInstance);
+            mapRef.current = mapInstance;
+          }}
         >
+
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
@@ -373,25 +396,28 @@ const Events = () => {
             <li key={`${event.event_id}-${event.start_date_time}`} className="event-card">
               <div className='align-name-plus'>
                 <h2>{event.event_name}</h2>
+                {/* Add to Plan Trip Button */}
                 <FontAwesomeIcon
                   icon={faSquarePlus}
                   className='add-to-plan-icon'
                   style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
                   onClick={() => handlePlanButtonClick(event)}
                 />
-                  <button
-                    className="btn btn-primary"
+                
+                {/**/}
+                <FontAwesomeIcon 
+                  icon={faMapMarkerAlt}
+                  className="btn btn-primary"
+                  style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
                     onClick={() => {
-                      if (event.event_location) {
+                      if (event.event_location && event.event_borough) {
                         fetchLocationCoordinates(event.event_location, event.event_borough);
                       } else {
                         toast.error('Event location is not available.');
                       }
                     }}
-                  >
-                    <i className="bi bi-geo-alt-fill"></i> Show Location
-                  </button>
 
+                />
 
               </div>
               <p>{`Location: ${event.event_location}`}</p>
