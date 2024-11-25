@@ -6,7 +6,6 @@ import Cookies from "js-cookie";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 import { toast } from "react-toastify";
-import "../globals.css"
 
 // Dynamically import React Leaflet components
 const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
@@ -403,7 +402,7 @@ const Events = () => {
                   style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
                   onClick={() => handlePlanButtonClick(event)}
                 />
-                
+
                 {/**/}
                 <FontAwesomeIcon 
                   icon={faMapMarkerAlt}
