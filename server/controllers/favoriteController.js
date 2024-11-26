@@ -6,39 +6,35 @@ const axios = require('axios');
 
 // Add a new favorite place
 const addFavoritePlace = catchAsync(async (req, res, next) => {
-    const { camis } = req.body; 
-    const userId = req.user.id; // Assuming user is authenticated and userId is available
+    const { camis } = req.body;
+    const userId = req.user.id;
 
-    // Check if the restaurant with the provided camis exists
+    // Check if the restaurant exists
     const restaurant = await Restaurants.findOne({ where: { camis } });
 
     if (!restaurant) {
         return next(new AppError('Restaurant not found', 404));
     }
 
-    // Create the favorite place
-    try {
-        const favoritePlace = await FavoritePlaces.create({         
+    // Check if the favorite place already exists
+    const existingFavorite = await FavoritePlaces.findOne({ where: { userId, camis } });
+    if (existingFavorite) {
+        return next(new AppError('Favorite place already exists', 400));
+    }
 
-            userId,
-            camis, 
-        });
-        
+    try {
+        // Attempt to create the favorite place
+        const favoritePlace = await FavoritePlaces.create({ userId, camis });
+
         return res.status(201).json({
             status: 'success',
             data: {
-                favoritePlace
+                favoritePlace,
             },
         });
-       
     } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            // Extract the unique constraint error message
-            const message = error.errors.map(err => err.message).join(', ');
-            return next(new AppError(message, 400)); // Send the custom unique constraint message
-        }
 
-        return next(new AppError('Failed to add favorite place', 500)); // General error handling
+        return next(new AppError('Failed to add favorite place', 500));
     }
 });
 
@@ -105,105 +101,99 @@ const deleteFavoritePlace = catchAsync(async (req, res, next) => {
 });
 
 
-
-// fetch place details
+//fetch place details
 const fetchPlaceDetails = catchAsync(async (req, res, next) => {
-  
     const { camis } = req.query;
+
     if (!camis) {
         return next(new AppError('Camis is required', 400));
     }
-    
+
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
     try {
-        // Step 1: Fetch restaurant details from the database using `camis`
+        // Fetch restaurant details from the database using `camis`
         const restaurant = await Restaurants.findOne({ where: { camis } });
         if (!restaurant) {
-
-            //return res.status(404).json({ error: 'Restaurant not found' });
-            return next(new AppError('Restaurant not found', 404));  // Ensure this error is returned
+            return next(new AppError('Restaurant not found', 404));
         }
+
         const name = restaurant.dba;
         const address = `${restaurant.building} ${restaurant.street}, ${restaurant.boro}, NY ${restaurant.zipcode}`;
 
-    try {
-        // Step 1: Find place by name and address to get the place ID
-        const response = await axios.get('https://maps.googleapis.com/maps/api/place/findplacefromtext/json', {
-            params: {
-                input: `${name} ${address}`,
-                inputtype: 'textquery',
-                fields: 'place_id',
-                key: apiKey
+        // Find place by name and address to get the place ID
+        const placeResponse = await axios.get(
+            'https://maps.googleapis.com/maps/api/place/findplacefromtext/json',
+            {
+                params: {
+                    input: `${name} ${address}`,
+                    inputtype: 'textquery',
+                    fields: 'place_id',
+                    key: apiKey,
+                },
             }
-        });
+        );
 
-        if (response.data.status !== 'OK' || !response.data.candidates.length) {
+        if (placeResponse.data.status !== 'OK' || !placeResponse.data.candidates.length) {
             return next(new AppError('Place not found', 404));
         }
 
-        const placeId = response.data.candidates[0].place_id;
+        const placeId = placeResponse.data.candidates[0].place_id;
 
-        // Step 2: Use place ID to fetch additional details, including photos
-        const additionalDetailsResponse = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
-            params: {
-                place_id: placeId,
-                key: apiKey,
-                fields: 'name,formatted_address,formatted_phone_number,opening_hours,website,rating,photos'
+        // Use place ID to fetch additional details, including photos
+        const detailsResponse = await axios.get(
+            'https://maps.googleapis.com/maps/api/place/details/json',
+            {
+                params: {
+                    place_id: placeId,
+                    key: apiKey,
+                    fields: 'name,formatted_address,formatted_phone_number,opening_hours,website,rating,photos',
+                },
             }
-        });
+        );
 
-        if (additionalDetailsResponse.data.status !== 'OK') {
+        if (detailsResponse.data.status !== 'OK') {
             return next(new AppError('Failed to fetch additional details', 500));
         }
 
-        const data = additionalDetailsResponse.data.result;
-        const photos = data.photos;
+        const data = detailsResponse.data.result;
 
+        // If there are photos, get the first photo's URL
         let photoUrl = null;
-
-        // Step 3: If there are photos, get the first photo's URL
-        if (photos && photos.length > 0) {
-            const photoReference = photos[0].photo_reference;
-            const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?photo_reference=${photoReference}&key=${apiKey}&maxwidth=400&maxheight=300`;
+        if (data.photos && data.photos.length > 0) {
+            const photoReference = data.photos[0].photo_reference;
+            const photoUrlResponse = `https://maps.googleapis.com/maps/api/place/photo?photo_reference=${photoReference}&key=${apiKey}&maxwidth=400&maxheight=300`;
 
             try {
-                const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+                const imageResponse = await axios.get(photoUrlResponse, { responseType: 'arraybuffer' });
                 const imageBuffer = Buffer.from(imageResponse.data, 'binary');
                 photoUrl = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
-            } catch (error) {
-                console.error('Error fetching image:', error);
-                // Optionally log this but continue without image
+            } catch (photoError) {
+                console.error('Error fetching photo URL:', photoError);
+                // Continue without photo URL
             }
         }
 
-        // Step 4: Format the response with details and photo (if available)
+        // Format and return the response
         const formattedDetails = {
-            restaurant: restaurant,
+            restaurant,
             name: data.name,
             address: data.formatted_address,
             hours: data.opening_hours,
             website: data.website,
             rating: data.rating,
             phone: data.formatted_phone_number,
-            photoUrl // Will be `null` if no photo was fetched
+            photoUrl, // Will be `null` if no photo was fetched
         };
-        
+
         return res.status(200).json({
             status: 'success',
-            data: formattedDetails
+            data: formattedDetails,
         });
-
     } catch (error) {
-       console.error("Error fetching place details:", error);
+        console.error('Error fetching place details:', error);
         return next(new AppError('Failed to fetch place details', 500));
     }
-
-} catch (error) {
-    console.error('Error fetching restaurant reviews:', error);
-    //res.status(500).json({ error: 'Failed to retrieve restaurant reviews' });
-    return next(new AppError('Failed to retrieve restaurant reviews', 500));  
-}
 });
 
 

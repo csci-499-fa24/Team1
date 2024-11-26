@@ -14,13 +14,6 @@ function Navbar() {
   const dropdownRef = useRef(null); // Reference to the dropdown menu
   const router = useRouter();
 
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   const navToggle = () => {
     setActive(active === "nav__menu" ? "nav__menu nav__active" : "nav__menu");
     setIcon(icon === "nav__toggler" ? "nav__toggler toggle" : "nav__toggler");
@@ -80,7 +73,6 @@ function Navbar() {
             Calendar
           </a>
         </li>
-        {isAuthenticated ? (
           <li className="nav__item user-dropdown" ref={dropdownRef}>
             <span className="nav__link" onClick={toggleDropdown}>
               <FontAwesomeIcon icon={faUserCircle} size="lg" />
@@ -101,13 +93,6 @@ function Navbar() {
               </ul>
             )}
           </li>
-        ) : (
-          <li className="nav__item">
-            <a href="/login" className="nav__link">
-              Login
-            </a>
-          </li>
-        )}
       </ul>
 
       <div onClick={navToggle} className={icon}>

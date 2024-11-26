@@ -42,7 +42,6 @@ const MyCalendar = () => {
             })
             .then((response) => {
                 setPlans(response.data.data.userPlans);
-                // console.log(response.data.data.userPlans);
             })
             .catch((err) => {
                 console.error("Error during authentication", err);
@@ -201,6 +200,31 @@ const MyCalendar = () => {
         }
     };
 
+     // Update the `plans` state to reflect the new start and end times
+    const onUpdateEventTime = (id, newStart, newEnd) => {
+        setPlans(prevPlans =>
+            prevPlans.map(plan =>
+                plan.id === id
+                    ? {
+                          ...plan,
+                          date: `${newStart.getFullYear()}-${String(newStart.getMonth() + 1).padStart(2, '0')}-${String(newStart.getDate()).padStart(2, '0')}`,
+                          time: `${String(newStart.getHours()).padStart(2, '0')}:${String(newStart.getMinutes()).padStart(2, '0')}`,
+                          endDate: `${newEnd.getFullYear()}-${String(newEnd.getMonth() + 1).padStart(2, '0')}-${String(newEnd.getDate()).padStart(2, '0')}`,
+                          endTime: `${String(newEnd.getHours()).padStart(2, '0')}:${String(newEnd.getMinutes()).padStart(2, '0')}`
+                      }
+                    : plan
+            )
+        );
+    
+        // Optionally, close any edit modes or dialogs
+        setIsUpdatePlan(false);
+    };
+
+    //handle deleted plans
+    const handleDelete = (deletedPlanId) => {
+        setPlans((prevPlans) => prevPlans.filter(plan => plan.id !== deletedPlanId));
+    };
+
 
     // ICS = standardized file that stores calendar information; opens with Calendar
     const exportToICS = () => {
@@ -287,38 +311,24 @@ const MyCalendar = () => {
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventPropGetter} // Apply custom styles to events
                     />
-                {selectedPlan && (
+                {(selectedPlan || selectedEvent) && (
                     <div>
                         <PlaceDetails
-                            camis={selectedPlan.camis}
-                            onClose={closePlanDetails}
-                            start={selectedPlan.start}
-                            end={selectedPlan.end}
-                            id={selectedPlan.id}
-                            onEditClick={handleEditPlanClick}
-                        />
-                        {isUpdatePlan && (
-                            <EditTimeWindow
-                            id={selectedPlan.id}
-                            start={selectedPlan.start}
-                            end={selectedPlan.end}
-                            eventType={selectedPlan.eventType}
-                            onClose={closeEditDetails}
-                            />
-                        )}
-                    </div>
-                )}
-                {selectedEvent && (
-                    <div>
-                        <NYCEventDetails
-                            title={selectedEvent.title}
-                            onClose={closeEventDetails}
-                            start={selectedEvent.start}
-                            end={selectedEvent.end}
-                            id={selectedEvent.id}
+                            camis={selectedPlan ? selectedPlan.camis : null}
+                            eventTitle={selectedEvent ? selectedEvent.title : selectedPlan?.title}
+                            onClose={selectedPlan ? closePlanDetails : closeEventDetails}
+                            start={selectedPlan ? selectedPlan.start : selectedEvent?.start}
+                            end={selectedPlan ? selectedPlan.end : selectedEvent?.end}
+                            id={selectedPlan ? selectedPlan.id : selectedEvent?.id}
+                            eventType={selectedPlan ? selectedPlan.eventType : null}
+                            isEvent={!!selectedEvent} // Boolean to indicate if it's an event
+                            onEditClick={selectedPlan ? handleEditPlanClick : null}
+                            onUpdate={selectedPlan ? onUpdateEventTime : null}
+                            //onDelete={selectedPlan ? handleDelete : null}
+                            onDelete={selectedPlan || selectedEvent ? handleDelete : null}
                         />
                     </div>
-                )}               
+                )}           
             </div>
         </div>
     );

@@ -3,9 +3,12 @@
     "jest": "^29.7.0"
   },
   "dependencies": {
+    "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.6",
-    "react-chartjs-2": "^5.2.0",
     "file-saver": "^2.0.5",
-    "ics": "^3.8.1"
+    "ics": "^3.8.1",
+    "leaflet": "^1.9.4",
+    "react-chartjs-2": "^5.2.0",
+    "react-leaflet": "^4.2.1"
   }
 }

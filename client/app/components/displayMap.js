@@ -16,6 +16,8 @@ import { useDraggableCard } from "./useDraggableCard";
 import ExpandableCard from "./ExpandableCard";
 import { fetchReviewsByPlaceId } from "./fetchReviews";
 import Sidebar from "./Sidebar";
+import { toast } from "react-toastify";
+import Select from "react-select"; //Added for Restaurant name filter correction.
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -29,7 +31,6 @@ import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
 import BarIcon from "../assets/bar_icon.png";
 import RestaurantIcon from "../assets/restaurant_icon.png";
 import customMapStyles from "../styles/mapStyles/customMapStyles.json";
-
 
 import {
   faMagnifyingGlass,
@@ -55,7 +56,6 @@ const customMapOptions = {
   styles: customMapStyles, // Apply your custom map styles
   gestureHandling: "cooperative", // Allows zooming with ctrl/command + scroll
 };
-
 
 const toRad = (value) => {
   return (value * Math.PI) / 180;
@@ -102,7 +102,7 @@ const GoogleMapComponent = () => {
     x: window.innerWidth / 2 - 250,
     y: window.innerHeight / 2 - 300,
   });
-
+  const [inspectionGradeFilter, setInspectionGradeFilter] = useState(""); // e.g., "", "A", "B", "C"
   const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -201,36 +201,60 @@ const GoogleMapComponent = () => {
           process.env.NEXT_PUBLIC_SERVER_URL + "/api/locations"
         );
         const data = await response.json();
-
-        setLocations(data);
-
+    
+        // Process locations with a controlled number of concurrent requests
+        const updatedLocations = [];
+        for (const location of data) {
+          try {
+            const inspectionRes = await axios.get(
+              `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+            );
+    
+            const inspectionData = inspectionRes.data[0];
+            updatedLocations.push({
+              ...location,
+              grade: inspectionData?.grade || "Ungraded",
+            });
+          } catch (error) {
+            console.error(
+              `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}:`,
+              error.message
+            );
+            updatedLocations.push({
+              ...location,
+              grade: "Ungraded", // Default to "Ungraded" on error
+            });
+          }
+        }
+    
+        setLocations(updatedLocations);
+    
+        // Debug: Log the updated locations with grades
+        console.log("Updated Locations with Grades:", updatedLocations);
+    
         // Extract unique cuisine descriptions
         const uniqueCuisines = [
           ...new Set(
-            data
+            updatedLocations
               .map((location) => location.Restaurant.cuisine_description)
               .filter((cuisine) => cuisine && cuisine.trim() !== "")
           ),
         ];
         setCuisineOptions(uniqueCuisines);
-
-        //Extract unique Names descriptions
-
+    
+        // Extract unique restaurant names
         const uniqueNames = [
           ...new Set(
-            data
+            updatedLocations
               .map((location) => location.Restaurant.dba)
-              .filter(
-                (namerestaurant) =>
-                  namerestaurant && namerestaurant.trim() !== ""
-              )
+              .filter((name) => name && name.trim() !== "")
           ),
         ];
         setNameOptions(uniqueNames);
       } catch (error) {
-        console.error("Error fetching locations:", error);
+        console.error("Error fetching locations:", error.message);
       }
-    };
+    };    
 
     // Get user's current location
     if (navigator.geolocation) {
@@ -280,6 +304,33 @@ const GoogleMapComponent = () => {
     setSelectedLocation(location);
   };
 
+  const fetchInspectionGrades = async (locations) => {
+    // Loop through locations and fetch inspection data
+    const updatedLocations = await Promise.all(
+      locations.map(async (location) => {
+        try {
+          const inspectionRes = await axios.get(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
+          );
+  
+          const inspectionData = inspectionRes.data[0]; 
+          return {
+            ...location,
+            grade: inspectionData?.grade || "Ungraded", // Add grade (default to "Ungraded")
+          };
+        } catch (error) {
+          console.error(
+            `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}`,
+            error
+          );
+          return { ...location, grade: "Ungraded" }; // Default to "Ungraded" on error
+        }
+      })
+    );
+  
+    return updatedLocations;
+  };
+  
   //handle view more
   const handleViewMoreClick = async (location) => {
     try {
@@ -327,7 +378,7 @@ const GoogleMapComponent = () => {
     const isFavorite = favorites.some(
       (favorite) => favorite.camis === location.camis
     );
-  
+
     try {
       if (isFavorite) {
         // Remove favorite
@@ -340,7 +391,6 @@ const GoogleMapComponent = () => {
           setFavorites(
             favorites.filter((favorite) => favorite.camis !== location.camis)
           );
-        
         }
       } else {
         // Add favorite
@@ -391,7 +441,8 @@ const GoogleMapComponent = () => {
       );
 
       if (response.status === 201) {
-        alert("Location added to your plan!");
+        //alert("Location added to your plan!");
+        toast.success("Location successfully added to your plan!");
       }
     } catch (error) {
       if (
@@ -399,9 +450,11 @@ const GoogleMapComponent = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        alert(error.response.data.message);
+        //alert(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        alert("Failed to add location to your plan.");
+        //alert("Failed to add location to your plan.");
+        toast.error("Failed to add location to your plan.");
       }
 
       console.error("Error adding location to plan:", error);
@@ -410,7 +463,8 @@ const GoogleMapComponent = () => {
 
   const handlePlanButtonClick = (location) => {
     if (!selectedDate || !selectedTime) {
-      alert("Please select both date and time before adding to your plan.");
+      //alert("Please select both date and time before adding to your plan.");
+      toast.warn("Please select both date and time before adding to your plan.");
     } else {
       addToPlan(location, selectedDate, selectedTime);
     }
@@ -446,18 +500,20 @@ const GoogleMapComponent = () => {
           parseFloat(location.longitude)
         )
       : 0;
-
+  
     return (
       (filter === "" ||
         location.Restaurant.cuisine_description === filter || // cuisine_description filter
-        filter === "" ||
-        location.Restaurant.dba === filter) &&
+        location.Restaurant.dba === filter) && // name filter
       (currentLocation ? distance <= distanceFilter : true) && // distance filter
       (typeFilter === "" ||
         (typeFilter === "Bar" && isBar(location)) ||
-        (typeFilter === "Restaurant" && !isBar(location)))
+        (typeFilter === "Restaurant" && !isBar(location))) &&
+      (inspectionGradeFilter === "" || 
+       (inspectionGradeFilter === "Ungraded" && (!location.grade || location.grade === "Ungraded")) || 
+       location.grade === inspectionGradeFilter) // inspection grade filter
     );
-  });
+  });  
 
   const handleSearchInputChange = (event) => {
     const value = event.target.value;
@@ -648,24 +704,65 @@ const GoogleMapComponent = () => {
                   ))}
                 </select>
               </div>{" "}
+              <div className="filter-item">
+  <label htmlFor="filterCuisine">Cuisine: </label>
+  <select
+    id="filterCuisine"
+    value={filter}
+    onChange={(e) => setFilter(e.target.value)}
+  >
+    <option value="">All</option>
+    {cuisineOptions.map((cuisine, index) => (
+      <option key={index} value={cuisine}>
+        {cuisine}
+      </option>
+    ))}
+  </select>
+</div>
+
+<div className="filter-item">
+  <label htmlFor="filterInspectionGrade">Inspection Result: </label>
+  <select
+    id="filterInspectionGrade"
+    value={inspectionGradeFilter}
+    onChange={(e) => setInspectionGradeFilter(e.target.value)}
+  >
+    <option value="">All</option>
+    <option value="A">A</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="Ungraded">Ungraded</option>
+  </select>
+</div>
+
               {/*div a */}
               {/* Name Restaurant Filter */}
               <div className="filter-item">
                 {" "}
                 {/*div b */}
                 <label htmlFor="filterRestaurantName">Name: </label>
-                <select
+                {/* <select
                   id="filterRestaurantName"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                 >
-                  <option value="">All - Hold shift key while searching</option>
+                  <option value="">All </option>
                   {nameOptions.map((namerestaurant, index) => (
                     <option key={index} value={namerestaurant}>
                       {namerestaurant}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <Select
+                  id="filterRestaurantName"
+                  className="restaurant-name-filter"
+                  options={[
+                    { label: "All", value: "" },
+                    ...nameOptions.map((x) => ({ value: x, label: x })),
+                  ]}
+                  onChange={(option) => setFilter(option.value)}
+                  defaultValue={filter}
+                />
               </div>{" "}
               {/*div b */}
               {/* Distance Filter */}
@@ -713,7 +810,7 @@ const GoogleMapComponent = () => {
           center={currentLocation || { lat: 40.7128, lng: -74.006 }}
           zoom={currentLocation ? 15 : 12}
           options={{
-            styles: customMapStyles, 
+            styles: customMapStyles,
             customMapOptions,
           }}
         >
@@ -750,7 +847,6 @@ const GoogleMapComponent = () => {
                     typeFilter === "Bar" ||
                     (typeFilter === "" && isLocationBar);
                   return shouldShowBar ? BarIcon.src : RestaurantIcon.src;
-                    
                 })(),
                 scaledSize: new window.google.maps.Size(30, 30),
                 anchor: new window.google.maps.Point(15, 30),

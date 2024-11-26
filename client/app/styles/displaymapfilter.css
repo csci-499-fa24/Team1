@@ -112,25 +112,30 @@
 
 .filter-list {
   display: flex;
-  flex-direction: row;
-  margin-top: -60px;
-  gap: 15px;
-  width: 100%;
-  position: absolute;
-  top: 100%;
-  left: 52px; 
+  flex-wrap: wrap; 
+  gap: 15px; 
+  width: 100%; 
+  justify-content: space-between; 
 }
-
+@media (max-width: 768px) {
+  .filter-list {
+    flex-direction: column;
+    gap: 5px; /* Reduce gap further */
+  }
+}
 .filter-item {
   display: flex;
-  align-items: center;
-  margin-bottom: 0;
-  border-radius: 5px; 
-  white-space: nowrap;
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 5px; 
+  flex: 1; 
+  min-width: 150px; 
+  max-width: 300px; 
+  white-space: nowrap; 
 }
 
 .filter-item label {
-  margin-right: 10px;
+  margin-right: 12px;
 
 }
 
@@ -138,15 +143,30 @@
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
-  font-size: 14px; 
+  font-size: 12px; 
   width: auto;
+  max-width: 150px;
   font-family: var(--font-family);
 }
-
+@media (max-width: 768px) {
+  .filter-list {
+    flex-direction: column; 
+    gap: 10px; 
+  }
+  .filter-item {
+    max-width: 100%; 
+  }
+}
 .filter-item select:focus {
   border-color: var(--secondary-color);
   box-shadow: 0 0 4px var(--secondary-color);
   outline: none; 
+}
+
+.restaurant-name-filter {
+  min-width: 150px;
+  max-width: 150px;
+  flex-grow: 1;
 }
 
 .suggestions-list {

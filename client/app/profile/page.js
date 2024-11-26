@@ -7,10 +7,13 @@ import "../styles/profile.css";
 import Navbar from "../components/Navbar";
 import Favorites from "../components/Favorites";
 import Sidebar from "../components/Sidebar"; // Import Sidebar component
+import LoadingScreen from "../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 library.add(fas);
+import {ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Personal() {
   const [user, setUser] = useState(null);
@@ -46,9 +49,18 @@ export default function Personal() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error during authentication", err);
-        setError("Failed to authenticate. Please log in again.");
+         // Remove token from cookies
+        Cookies.remove("token");
+        const backendMessage = err.response?.data?.message || "An unexpected error occurred.";
+        setError(backendMessage); // Set backend error message
+        console.error("Error during authentication:", backendMessage);
         setLoading(false);
+
+         // Redirect to the login page after showing the error
+         setTimeout(() => {
+          router.push("/login");
+         }, 3000); // Redirect after 3 seconds
+
       });
   }, [router]);
 
@@ -75,10 +87,8 @@ export default function Personal() {
         { params: { camis: place.camis } }
       );
 
-      setSelectedPlace({
-        
-        Restaurant: placeDetailsRes.data.data.restaurant,
-       
+      setSelectedPlace({      
+        Restaurant: placeDetailsRes.data.data.restaurant,     
         inspectionDetails: inspectionRes.data,
         reviews: reviewsRes.data,
           placeDetails:   {
@@ -94,16 +104,16 @@ export default function Personal() {
       console.error("Error fetching restaurant details:", error);
     }
   };
-  console.log(selectedPlace)
+ 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingScreen/>;
   }
 
   if (error) {
     return (
-      <div>
-        <p>{error}</p>
-        <button onClick={() => router.push("/login")}>Go to Login</button>
+      <div className="error-container">
+        <p className="error-message">{error}</p>
+        <p>Redirecting to login...</p>
       </div>
     );
   }
@@ -141,6 +151,16 @@ export default function Personal() {
           onClose={closeSidebar} // Handle close functionality
         />
       )}
-    </div>
+
+      <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light" //"light" or "dark"
+        />
+      </div>
   );
 }

@@ -89,8 +89,8 @@ describe('SettingsController', () => {
         });
 
         it('should hash password if provided and update user information', async () => {
-            const newPassword = 'newPassword123';
-            const hashedPassword = 'hashedNewPassword123';
+            const newPassword = 'newPassword123!';
+            const hashedPassword = 'hashedNewPassword123!';
             bcrypt.hash.mockResolvedValue(hashedPassword);
             User.update.mockResolvedValue([1, [mockUser]]);
 

@@ -1,5 +1,5 @@
-// models/favoritePlaces.js
-
+//models/favoritePlaces.js
+ 
 module.exports = (sequelize, DataTypes) => {
     const FavoritePlaces = sequelize.define('FavoritePlaces', {
         userId: {
@@ -18,6 +18,13 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'camis',
             },
         },
+    }, {
+        indexes: [
+            {
+                unique: true,
+                fields: ['userId', 'camis'], // Enforce unique combination
+            },
+        ],
     });
 
     FavoritePlaces.associate = function(models) {

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "../styles/settings.css";
+import { toast } from "react-toastify";
 
 export default function Settings() {
     const [userInfo, setUserInfo] = useState({
@@ -90,9 +91,11 @@ export default function Settings() {
                 setEditingField(null);
                 setEditedValue('');
                 setConfirmPassword('');
+                toast.success("Account info has been updated");
             } else {
                 // Set server error message
                 setError(data.message || "Failed to update user information.");
+                toast.error("Failed to update account information.")
             }
         } catch (error) {
             // Handle unexpected errors
