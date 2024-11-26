@@ -1,6 +1,7 @@
 'use client';
 import Navbar from '../components/Navbar.js';
 import MyCalendar from '../components/MyCalendar.js';
+import LoadingScreen from "../components/Loading";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -55,7 +56,7 @@ const MyCalendarPage = () => {
     
     // Display loading indicator while checking authentication
     if (loading) {
-      return <div>Loading...</div>;
+      return <LoadingScreen/>;
     }  
 
      // If the user is not authenticated, display the error message

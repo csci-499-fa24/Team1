@@ -1,0 +1,81 @@
+/* Remove the global body styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Scoped styles for the loading screen */
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: white;
+    text-align: center;
+    color: #2e2e7a;
+  }
+  
+  .icon-container {
+    font-size: 80px;
+    margin-bottom: 20px;
+  }
+  
+  .fork-knife-icon {
+    color: #2e2e7a;
+    animation: spin 1.5s infinite linear;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .loading-text {
+    font-size: 20px;
+    margin-bottom: 10px;
+    animation: fade 1.5s infinite;
+  }
+  
+  @keyframes fade {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  
+  .progress-bar {
+    width: 10vw;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+  
+  .progress {
+    height: 100%;
+    width: 30%; /* Simulates loading */
+    background-color: #2e2e7a;
+    animation: load 2s infinite;
+  }
+  
+  @keyframes load {
+    0% {
+      width: 0%;
+    }
+    50% {
+      width: 50%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+  
+  

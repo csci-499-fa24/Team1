@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import GoogleMapEmbed from "../components/displayMap";
 import { useRouter } from "next/navigation"; // for redirection
+import LoadingScreen from "../components/Loading";
 import axios from "axios";  // for API requests
 import Cookies from "js-cookie"; // for accessing cookies
 import Navbar from "../components/Navbar";
 import "../styles/displaymapfilter.css"
 import {ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 export default function mapPage() {
 
@@ -56,7 +58,7 @@ export default function mapPage() {
     
     // Display loading indicator while checking authentication
     if (loading) {
-      return <div>Loading...</div>;
+      return <LoadingScreen/>
     }  
 
      // If the user is not authenticated, display the error message
