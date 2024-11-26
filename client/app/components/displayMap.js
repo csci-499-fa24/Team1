@@ -746,7 +746,7 @@ const GoogleMapComponent = () => {
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                 >
-                  <option value="">All - Hold shift key while searching</option>
+                  <option value="">All </option>
                   {nameOptions.map((namerestaurant, index) => (
                     <option key={index} value={namerestaurant}>
                       {namerestaurant}
