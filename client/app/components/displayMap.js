@@ -704,21 +704,6 @@ const GoogleMapComponent = () => {
                   ))}
                 </select>
               </div>{" "}
-              <div className="filter-item">
-  <label htmlFor="filterCuisine">Cuisine: </label>
-  <select
-    id="filterCuisine"
-    value={filter}
-    onChange={(e) => setFilter(e.target.value)}
-  >
-    <option value="">All</option>
-    {cuisineOptions.map((cuisine, index) => (
-      <option key={index} value={cuisine}>
-        {cuisine}
-      </option>
-    ))}
-  </select>
-</div>
 
 <div className="filter-item">
   <label htmlFor="filterInspectionGrade">Inspection Result: </label>
