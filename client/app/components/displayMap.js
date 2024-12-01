@@ -250,39 +250,7 @@ const GoogleMapComponent = () => {
     }
   }, []);
 
-  const inspectionCache = {};
 
-const fetchInspectionData = async (location) => {
-    if (inspectionCache[location.Restaurant.camis]) {
-        // Use cached data if available
-        return {
-            ...location,
-            grade: inspectionCache[location.Restaurant.camis],
-        };
-    }
-
-    try {
-        const inspectionRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
-        );
-        const inspectionData = inspectionRes.data[0];
-        const grade = inspectionData?.grade || "Ungraded";
-
-        // Cache the result
-        inspectionCache[location.Restaurant.camis] = grade;
-
-        return {
-            ...location,
-            grade,
-        };
-    } catch (error) {
-        console.error(`Error fetching inspection for ${location.Restaurant.camis}`, error);
-        return {
-            ...location,
-            grade: "Ungraded", // Default to "Ungraded" if an error occurs
-        };
-    }
-};
 
   //fetch favorites
   const [favorites, setFavorites] = useState([]);
@@ -498,8 +466,7 @@ const fetchInspectionData = async (location) => {
   //   ? locations.filter((location) => {
   //       const distance = calculateDistance(
   // Filter locations based on both cuisine_description and distance from the current location
-  const filteredLocations = Array.isArray(locations)
-    ? locations.filter((location) => {
+  const filteredLocations = locations.filter((location) => {
         const distance = currentLocation
             ? calculateDistance(
                   currentLocation.lat,
@@ -508,7 +475,11 @@ const fetchInspectionData = async (location) => {
                   parseFloat(location.longitude)
               )
             : 0;
-
+            const isLocationBar = isBar(location); // Infer if it's a bar based on keywords
+            const shouldShowBar = typeFilter === "Bar" && isLocationBar;
+            const shouldShowRestaurant =
+                typeFilter === "Restaurant" && !isLocationBar;
+        
         return (
             // Cuisine filter
             (filter === "" || location.Restaurant.cuisine_description === filter) &&
@@ -517,9 +488,7 @@ const fetchInspectionData = async (location) => {
             // Distance filter
             (currentLocation ? distance <= distanceFilter : true) &&
             // Type filter (e.g., Bar or Restaurant)
-            (typeFilter === "" ||
-                (typeFilter === "Bar" && location.Restaurant.type === "Bar") ||
-                (typeFilter === "Restaurant" && location.Restaurant.type === "Restaurant")) &&
+            (typeFilter === "" || shouldShowBar || shouldShowRestaurant) &&
             // Inspection grade filter
             (inspectionGradeFilter === "" ||
                 (inspectionGradeFilter === "Ungraded" && 
@@ -527,8 +496,7 @@ const fetchInspectionData = async (location) => {
                   location.Restaurant.Inspections[0]?.grade === "Ungraded")) ||
                 location.Restaurant.Inspections[0]?.grade === inspectionGradeFilter)
         );
-    })
-    : [];
+    });
 
 // Debug: Log the filtered locations
 console.log("Filtered Locations:", filteredLocations);
