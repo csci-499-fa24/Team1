@@ -641,7 +641,32 @@ console.log("Filtered Locations:", filteredLocations);
             onChange={handleSearchInputChange}
             className="search-input"
           />
-
+      {/* Add the "Return to Current Location" button */}
+      <button
+  className="return-to-location-button"
+  onClick={() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error("Error getting user's location:", error);
+          setGeolocationError(true);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  }}
+>
+  <FontAwesomeIcon
+    icon={faLocationDot} /* Or another location-related icon */
+    style={{ marginRight: "5px" }}
+  />
+  Return to My Location
+</button>
           {error && <div className="error">{error}</div>}
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
@@ -968,7 +993,7 @@ console.log("Filtered Locations:", filteredLocations);
           )}
         </GoogleMap>
 
-        {/* Expandable Card */}
+        {/* sidebar */}
         {selectedRestaurant && (
           <Sidebar
             restaurant={selectedRestaurant}
