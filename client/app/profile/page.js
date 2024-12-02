@@ -119,48 +119,43 @@ export default function Personal() {
   }
 
   return (
-    <div className="profile-container">
-      {/* Top Section */}
+    <div>
       <Navbar />
-      {/* Main Content */}
-      <div className="profile-main-content">
-        <div className="profile-inner-section">
-          {/* Welcome Section */}
-          <div className="profile-welcome-section">
-            <FontAwesomeIcon icon="user-circle" className="avatar-icon" />
-            <h2 className="welcome-message">Welcome, {user.userName}</h2>
-          </div>
-
-          {/* Favorites Section */}
-          <div className="favorite-section">
-            <h1 className="favorites-title">
-              <FontAwesomeIcon icon="star" /> Favorites
-            </h1>
-            <div className="favorites-container">
-              <Favorites onFavoriteClick={onFavoriteClick} />
+       {/* Profile container */}
+      <div className="profile-container">
+        <div className="profile-main-section">
+            <div className="profile-welcome-section">
+              <FontAwesomeIcon icon="user-circle" className="avatar-icon" />
+              <h2 className="welcome-message">Welcome, {user.userName}</h2>
             </div>
-          </div>
+            <div className="favorite-section">
+              <h1 className="favorites-title">
+                <FontAwesomeIcon icon="star" /> Favorites
+              </h1>
+              <div className="favorites-container">
+                <Favorites onFavoriteClick={onFavoriteClick} />
+              </div>
+            </div>
         </div>
-      </div>
+        {/* Sidebar for Selected Place */}
+        {selectedPlace && (
+          <Sidebar
+            restaurant={selectedPlace} // Pass selected place details
+            reviews={selectedPlace.reviews} // Pass reviews
+            onClose={closeSidebar} // Handle close functionality
+          />
+        )}
 
-      {/* Sidebar for Selected Place */}
-      {selectedPlace && (
-        <Sidebar
-          restaurant={selectedPlace} // Pass selected place details
-          reviews={selectedPlace.reviews} // Pass reviews
-          onClose={closeSidebar} // Handle close functionality
-        />
-      )}
-
-      <ToastContainer 
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          closeOnClick
-          pauseOnHover
-          draggable
-          theme="light" //"light" or "dark"
-        />
+        <ToastContainer 
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="light" //"light" or "dark"
+          />
+        </div>
       </div>
   );
 }
