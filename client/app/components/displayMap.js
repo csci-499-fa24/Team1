@@ -756,8 +756,8 @@ console.log("Filtered Locations:", filteredLocations);
                     { label: "All", value: "" },
                     ...nameOptions.map((x) => ({ value: x, label: x })),
                   ]}
-                  onChange={(option) => setFilter(option.value)}
-                  defaultValue={filter}
+                  onChange={(option) => setNameFilter(option?.value || "")} // Use setNameFilter, not setFilter
+                  value={{ label: filterName || "All", value: filterName }}
                 />
               </div>{" "}
               {/*div b */}
