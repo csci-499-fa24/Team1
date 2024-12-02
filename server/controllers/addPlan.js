@@ -5,29 +5,16 @@ const AppError = require('../utils/appError');
 const addUserPlan = catchAsync(async (req, res, next) => {
     const { camis, longitude, latitude, date, time, eventName, endDate, endTime, eventType } = req.body;
     const userId = req.user.id;
-
-    
     if(eventType === 'Self Event') {
         if (!camis || !longitude || !latitude || !date || !time) {
             return next(new AppError('All fields are required', 400));
         }
+        
         const restaurant = await Restaurants.findOne({ where: { camis } });
         if (!restaurant) {
             return next(new AppError('Restaurant not found', 404));
         }
-    } 
-
-    // Check if the same event already exists
-    const condition = eventType === 'Self Event'
-    ? { userId, camis, date, time }
-    : { userId, eventName, date, time };
-
-    const existingEvent = await UserPlan.findOne({ where: condition });
- 
-    if (existingEvent) {   
-        return next(new AppError('An event with the same name, date, and time already exists.', 400));
     }
-    
     try {
         const userPlan = await UserPlan.create({
             userId,
@@ -49,6 +36,11 @@ const addUserPlan = catchAsync(async (req, res, next) => {
             },
         });
     } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const message = error.errors.map(err => err.message).join(', ');
+            return next(new AppError(message, 400));
+        }
+
         console.error('Error creating user plan:', error);
         return next(new AppError('Failed to add user plan', 500));
     }
@@ -64,7 +56,7 @@ const updateUserPlan = catchAsync(async (req, res, next) => {
 
     const updatedUserPlan = await UserPlan.findByPk(id);
     if (!updatedUserPlan) {
-        return next(new AppError('Plan not found', 404));
+        return next(new AppError('No plan with ID', 400));
     }
 
     if(eventType !== 'Self Event'){
