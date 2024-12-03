@@ -28,6 +28,12 @@ describe("GET /locations", () => {
           cuisine_description: "American", 
           phone: "1234567890",
           camis: "12345678",
+          Inspections: [
+            {
+              grade: "A",
+              inspection_date: "2024-12-01",
+            },
+          ],
         },
       },
     ];
@@ -52,6 +58,15 @@ describe("GET /locations", () => {
         {
           model: db.Restaurants,
           attributes: ['dba', 'building', 'street', 'zipcode', 'boro', 'cuisine_description', 'phone', 'camis'],
+          include: [
+            {
+              model: db.Inspections,
+              attributes: ['grade', 'inspection_date'],
+              required: false,
+              limit: 1,
+              order: [['inspection_date', 'DESC']],
+            },
+          ],
         },
       ],
     });
