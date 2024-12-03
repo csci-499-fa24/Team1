@@ -1,38 +1,21 @@
-.profile-container {
+ .profile-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    width: 100vw;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100vw; 
     align-items: center; 
-    padding: 2vw; 
 }
 
-.profile-main-content {
-    display: flex;
-    justify-content: center;
-    width: 80%; 
-    height: 90vh;
-    max-width: 1400px;  
-    border-radius: 1.5vw;
-    overflow: hidden;
-    margin-top: 7vh; 
-    padding: 2vw;
-}
-
-.profile-inner-section {
+.profile-main-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 60%;
-     /*  padding: 2vw;  */
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    position: relative;
-    top: 3vw;  
+    width: 65%;
+    height: 90vh;
+    background-color: #e7f1fc; 
+    border-radius: 10px;
+    position: absolute;
+    top: 200px;  
    
 } 
 
@@ -40,26 +23,22 @@
     display: flex;
     flex-direction: column;
     align-items: center; 
-    /* margin-top: 50px;  */
 }
 
 .avatar-icon {
-    font-size: 7.5vw; 
+    font-size: 150px; 
     color: var(--text-color);
-    position:absolute;
-    top: -0.5vw;       
+    position:absolute;    
     transform: translateY(-50%);
     z-index: 10px;
 }
    
-
 .welcome-message {
     color: black;
-    /* font-size: 2vw; */
     font-size: 30px;
     font-weight: 600;
     text-align: center;
-    top: 10vh;
+    top: 80px;
     position: absolute;
 }
 
@@ -68,32 +47,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
-    max-width: 700px; 
-    padding: 1.5vw;
+    width: 40vw;
+    padding: 10px;  
     border-radius: 1vw;
-    top: 20vh;
-    position: absolute;
+    top: 170px;
+    position: relative;
 }
 
 .favorites-title {
-    /* font-size: 1.5vw; */
     font-size: 25px;
     color: var(--primary-color);
-    margin-bottom: 1vw;
+    margin-bottom: 10px;
     text-align: center;
-    margin-top: -5vh;
 }
 
 .favorites-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: auto;
+    overflow: auto;
     width: 100%;
-    max-height: 45vh;
-    padding: 0.5vw;
-    
+    height: 45vh; 
+    padding: 7px
 }
 
 .favorite-item {
@@ -104,7 +79,6 @@
     margin-bottom: 10px;
     background-color: var(--base-color);
     cursor: pointer;
-    /* position: relative; */
 }
 
 .favorite-item:hover {
@@ -382,48 +356,61 @@
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-    .profile-main-content {
-        flex-direction: column;
-        width: 90%;
-        height: 85%; 
-        padding: 2vw; 
-       
-    }
-
-    .profile-inner-section {    
-        width: 100%;
-        height: 90%;       
+  
+    .profile-main-section {    
+        width: 80%;
+        height: 80%;       
         padding: 2vw;
         border-right: none;
         border-bottom: 1px solid #ccc; 
-        top: 7vh;   
+        top: 170px;   
        
     }
 
-    .favorite-section {
-        width: 100%;
-       /*  margin-top: 2vw; */
-        gap: 2vw;
-    }
-
     .avatar-icon {
-        font-size: 15vw;
+        font-size: 120px;
+        top: 1px
     }
 
     .welcome-message {
-        font-size: 6vw;
+        font-size: 30px;
     }
 
+    .favorite-section {
+      width: 100%;
+      height: 50vh;
+    }
+
+    .favorites-container{
+      /*  margin-bottom: 10px;  */
+    }
+  
     .favorites-title {
-        font-size: 5vw;
+        font-size: 23px;
     }
 
     .sidebar {
         width: 100%; 
         top: 100px; 
-      }
+    }
     
-      .sidebar h3 {
-        font-size: 1.2em;
-      }
+    .sidebar h3 {
+      font-size: 1.2em;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
