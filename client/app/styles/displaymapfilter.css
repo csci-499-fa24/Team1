@@ -53,7 +53,7 @@
 
 .search-icon {
   margin-right: 1px; 
-  margin-left: -15px;
+  margin-left: -25px;
   color: var(--secondary-color);
   font-size: 20px;
   
@@ -626,17 +626,27 @@ button.show-more-reviews {
   background-color: var(--primary-active-color);
   transform: scale(0.98); 
 }
+
 @media (max-width: 768px) {
   .starting-location {
-    flex-direction: column;
-    align-items: stretch;
-    width: 90%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px; 
+    width: 100%; 
+    padding: 0 20px;
   }
-
+  .search-input {
+    flex-grow: 0.8; 
+    max-width: 89%;
+    font-size: 14px;
+    padding: 6px; 
+    margin: 0 10px;
+  }
   .return-to-location-button {
     margin-left: 0;
-    margin-top: 10px;
-    max-width: 190px;
+    max-width: 180px;
   }
 }
 

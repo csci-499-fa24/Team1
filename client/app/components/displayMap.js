@@ -21,11 +21,11 @@ import Select from "react-select"; //Added for Restaurant name filter correction
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faBus, //for import the TRANSIT icon (VS Code put it automatically)
+  faBus, faMapMarkerAlt, //for import the TRANSIT icon (VS Code put it automatically)
   faHeart as solidHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faCircleInfo, faFilter, faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 
 //Custom markers and map style
 import BarIcon from "../assets/bar_icon.png";
@@ -643,30 +643,30 @@ console.log("Filtered Locations:", filteredLocations);
           />
       {/* Add the "Return to Current Location" button */}
       <button
-  className="return-to-location-button"
-  onClick={() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });
-        },
-        (error) => {
-          console.error("Error getting user's location:", error);
-          setGeolocationError(true);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-  }}
->
-  <FontAwesomeIcon
-    icon={faLocationDot} /* Or another location-related icon */
-    style={{ marginRight: "5px" }}
-  />
-  Return to My Location
-</button>
+        className="return-to-location-button"
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                setCurrentLocation({ lat: latitude, lng: longitude });
+              },
+              (error) => {
+                console.error("Error getting user's location:", error);
+                setGeolocationError(true);
+              }
+            );
+          } else {
+            console.error("Geolocation is not supported by this browser.");
+          }
+        }}
+      >
+        <FontAwesomeIcon
+          icon={faLocationArrow} 
+          // style={{ marginRight: "5px" }}
+        />
+
+      </button>
           {error && <div className="error">{error}</div>}
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
