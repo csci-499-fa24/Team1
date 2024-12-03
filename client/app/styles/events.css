@@ -3,7 +3,6 @@ body {
     background-color: #f7f9fc;
     margin: 0;
     padding: 0;
-    /* background-image: url('../assets/background-events.jpg'); */
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
@@ -20,14 +19,16 @@ h1 {
     max-width: 1200px;
     margin: 0 auto;
     padding: 100px;
+    
 }
 
 .filter-form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 .filter-form label {
@@ -123,8 +124,139 @@ h1 {
 }
 
 .btn-primary{
-    position: absolute; /* Add position for alignment */
+    position: absolute; 
     top: 0;
-    right: 40px; /* Adjust right property to position it next to the add-to-plan icon */
-    margin-right: 10px; /* Add some spacing */
+    right: 40px; 
+    margin-right: 10px; 
 }
+
+.zoom{
+  
+  position: relative;
+  overflow-y: hidden; 
+  z-index: 900;
+}
+
+/* Responsive layout breakpoints */
+@media (min-width: 768px) {
+  .event-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .event-item p {
+    font-size: 16px;
+  }
+}
+  
+@media (max-width: 768px) {
+  .event-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .add-to-plan-button {
+    align-self: stretch;
+  }
+}
+  
+@media (max-width: 720px) {
+  .events-container {
+    margin-top: 100px;
+    padding: 0 10px;
+  }
+
+  .event-item h3 {
+    font-size: 16px;
+  }
+
+  .event-item p {
+    font-size: 13px;
+  }
+
+  .add-to-plan-icon {
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+    margin-left: 10px;
+    color: var(--accent-color);
+    top: 170px;
+  }
+
+  .btn-primary{
+    position: absolute; 
+    top: 170px;
+    right: 20px; 
+    margin-right: 10px; 
+  }
+
+
+}
+
+
+@media screen and (min-width: 455px) and (max-width: 720px) {
+  .add-to-plan-icon{
+    top:150px;
+  }
+
+  .btn-primary{
+    right: 40px; 
+    margin-right: 10px; 
+    top:150px;
+  }
+}
+
+
+@media screen and (min-width: 500px) and (max-width:850px)  {
+  .filter-form {
+    gap: 10px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+
+  .filter-form select,
+.filter-form input[type="date"] {
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    width: 135px;
+    font-family: var(--font-family);
+}
+}
+
+@media screen and (min-width: 500px) and (max-width: 590px){
+  .filter-form select,
+  .filter-form input[type="date"] {
+      padding: 9px;
+      width: 110px;
+      font-size: 10px;
+  }
+}
+
+@media screen and (min-width: 500px) and (max-width: 590px){
+  .filter-form select,
+  .filter-form input[type="date"] {
+      padding: 9px;
+      width: 110px;
+      font-size: 10px;
+  }
+}
+
+
+@media screen and (min-width: 720px) and (max-width: 770px){
+
+  .filter-form {
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+
+  .filter-form select,
+  .filter-form input[type="date"] {
+      padding: 8px;
+      width: 120px;
+      font-size:12px;
+      
+  }
+}
+

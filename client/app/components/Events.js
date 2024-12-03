@@ -310,6 +310,7 @@ const Events = () => {
     <div className="events-container">
       {/* Map Section */}
         <MapContainer
+          className="zoom"
           key={mapCenter.join(',')}
           center={mapCenter}
           zoom={selectedEventLocation ? 16 : 13}
@@ -353,14 +354,6 @@ const Events = () => {
           </select>
         </div>
 
-        <div>
-          <label>Event Type: </label>
-          <select value={eventType} onChange={e => setEventType(e.target.value)}>
-            <option value="">All</option>
-            <option value="Farmers Market">Farmers Market</option>
-            {/* <option value="Street Event">Street Event</option> */}
-          </select>
-        </div>
 
         <div>
           <label>Specific Hour: </label>
