@@ -21,11 +21,11 @@ import Select from "react-select"; //Added for Restaurant name filter correction
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faBus, //for import the TRANSIT icon (VS Code put it automatically)
+  faBus, faMapMarkerAlt, //for import the TRANSIT icon (VS Code put it automatically)
   faHeart as solidHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { faCircleInfo, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faCircleInfo, faFilter, faLocationArrow } from "@fortawesome/free-solid-svg-icons";
 
 //Custom markers and map style
 import BarIcon from "../assets/bar_icon.png";
@@ -197,65 +197,38 @@ const GoogleMapComponent = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await fetch(
-          process.env.NEXT_PUBLIC_SERVER_URL + "/api/locations"
-        );
-        const data = await response.json();
-    
-        // Process locations with a controlled number of concurrent requests
-        const updatedLocations = [];
-        for (const location of data) {
-          try {
-            const inspectionRes = await axios.get(
-              `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
-            );
-    
-            const inspectionData = inspectionRes.data[0];
-            updatedLocations.push({
-              ...location,
-              grade: inspectionData?.grade || "Ungraded",
-            });
-          } catch (error) {
-            console.error(
-              `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}:`,
-              error.message
-            );
-            updatedLocations.push({
-              ...location,
-              grade: "Ungraded", // Default to "Ungraded" on error
-            });
-          }
-        }
-    
-        setLocations(updatedLocations);
-    
-        // Debug: Log the updated locations with grades
-        console.log("Updated Locations with Grades:", updatedLocations);
-    
-        // Extract unique cuisine descriptions
-        const uniqueCuisines = [
-          ...new Set(
-            updatedLocations
-              .map((location) => location.Restaurant.cuisine_description)
-              .filter((cuisine) => cuisine && cuisine.trim() !== "")
-          ),
-        ];
-        setCuisineOptions(uniqueCuisines);
-    
-        // Extract unique restaurant names
-        const uniqueNames = [
-          ...new Set(
-            updatedLocations
-              .map((location) => location.Restaurant.dba)
-              .filter((name) => name && name.trim() !== "")
-          ),
-        ];
-        setNameOptions(uniqueNames);
+          const response = await fetch(
+              process.env.NEXT_PUBLIC_SERVER_URL + "/api/locations"
+          );
+          const data = await response.json();
+  
+          // Handle cases where the data is an object, not an array
+          const locationsData = Array.isArray(data) ? data : data.locations || [];
+  
+          console.log("Fetched Locations:", locationsData);
+          console.log("Type of Fetched Locations:", typeof locationsData, Array.isArray(locationsData));
+  
+          setLocations(locationsData);
+          setCuisineOptions([
+              ...new Set(
+                  locationsData
+                      .map((location) => location.Restaurant.cuisine_description)
+                      .filter((cuisine) => cuisine && cuisine.trim() !== "")
+              ),
+          ]);
+  
+          setNameOptions([
+              ...new Set(
+                  locationsData
+                      .map((location) => location.Restaurant.dba)
+                      .filter((name) => name && name.trim() !== "")
+              ),
+          ]);
       } catch (error) {
-        console.error("Error fetching locations:", error.message);
+          console.error("Error fetching locations:", error.message);
       }
-    };    
-
+  };
+     
     // Get user's current location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -276,6 +249,8 @@ const GoogleMapComponent = () => {
       //fetchLocations(); // Fetch all locations if geolocation is not supported
     }
   }, []);
+
+
 
   //fetch favorites
   const [favorites, setFavorites] = useState([]);
@@ -492,28 +467,39 @@ const GoogleMapComponent = () => {
   //       const distance = calculateDistance(
   // Filter locations based on both cuisine_description and distance from the current location
   const filteredLocations = locations.filter((location) => {
-    const distance = currentLocation
-      ? calculateDistance(
-          currentLocation.lat,
-          currentLocation.lng,
-          parseFloat(location.latitude),
-          parseFloat(location.longitude)
-        )
-      : 0;
-  
-    return (
-      (filter === "" ||
-        location.Restaurant.cuisine_description === filter || // cuisine_description filter
-        location.Restaurant.dba === filter) && // name filter
-      (currentLocation ? distance <= distanceFilter : true) && // distance filter
-      (typeFilter === "" ||
-        (typeFilter === "Bar" && isBar(location)) ||
-        (typeFilter === "Restaurant" && !isBar(location))) &&
-      (inspectionGradeFilter === "" || 
-       (inspectionGradeFilter === "Ungraded" && (!location.grade || location.grade === "Ungraded")) || 
-       location.grade === inspectionGradeFilter) // inspection grade filter
-    );
-  });  
+        const distance = currentLocation
+            ? calculateDistance(
+                  currentLocation.lat,
+                  currentLocation.lng,
+                  parseFloat(location.latitude),
+                  parseFloat(location.longitude)
+              )
+            : 0;
+            const isLocationBar = isBar(location); // Infer if it's a bar based on keywords
+            const shouldShowBar = typeFilter === "Bar" && isLocationBar;
+            const shouldShowRestaurant =
+                typeFilter === "Restaurant" && !isLocationBar;
+        
+        return (
+            // Cuisine filter
+            (filter === "" || location.Restaurant.cuisine_description === filter) &&
+            // Name filter
+            (filterName === "" || location.Restaurant.dba === filterName) &&
+            // Distance filter
+            (currentLocation ? distance <= distanceFilter : true) &&
+            // Type filter (e.g., Bar or Restaurant)
+            (typeFilter === "" || shouldShowBar || shouldShowRestaurant) &&
+            // Inspection grade filter
+            (inspectionGradeFilter === "" ||
+                (inspectionGradeFilter === "Ungraded" && 
+                 (!location.Restaurant.Inspections[0]?.grade || 
+                  location.Restaurant.Inspections[0]?.grade === "Ungraded")) ||
+                location.Restaurant.Inspections[0]?.grade === inspectionGradeFilter)
+        );
+    });
+
+// Debug: Log the filtered locations
+console.log("Filtered Locations:", filteredLocations);
 
   const handleSearchInputChange = (event) => {
     const value = event.target.value;
@@ -655,7 +641,32 @@ const GoogleMapComponent = () => {
             onChange={handleSearchInputChange}
             className="search-input"
           />
+      {/* Add the "Return to Current Location" button */}
+      <button
+        className="return-to-location-button"
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { latitude, longitude } = position.coords;
+                setCurrentLocation({ lat: latitude, lng: longitude });
+              },
+              (error) => {
+                console.error("Error getting user's location:", error);
+                setGeolocationError(true);
+              }
+            );
+          } else {
+            console.error("Geolocation is not supported by this browser.");
+          }
+        }}
+      >
+        <FontAwesomeIcon
+          icon={faLocationArrow} 
+          // style={{ marginRight: "5px" }}
+        />
 
+      </button>
           {error && <div className="error">{error}</div>}
           {suggestions.length > 0 && (
             <ul className="suggestions-list">
@@ -704,21 +715,6 @@ const GoogleMapComponent = () => {
                   ))}
                 </select>
               </div>{" "}
-              <div className="filter-item">
-  <label htmlFor="filterCuisine">Cuisine: </label>
-  <select
-    id="filterCuisine"
-    value={filter}
-    onChange={(e) => setFilter(e.target.value)}
-  >
-    <option value="">All</option>
-    {cuisineOptions.map((cuisine, index) => (
-      <option key={index} value={cuisine}>
-        {cuisine}
-      </option>
-    ))}
-  </select>
-</div>
 
 <div className="filter-item">
   <label htmlFor="filterInspectionGrade">Inspection Result: </label>
@@ -760,8 +756,8 @@ const GoogleMapComponent = () => {
                     { label: "All", value: "" },
                     ...nameOptions.map((x) => ({ value: x, label: x })),
                   ]}
-                  onChange={(option) => setFilter(option.value)}
-                  defaultValue={filter}
+                  onChange={(option) => setNameFilter(option?.value || "")} // Use setNameFilter, not setFilter
+                  value={{ label: filterName || "All", value: filterName }}
                 />
               </div>{" "}
               {/*div b */}
@@ -997,7 +993,7 @@ const GoogleMapComponent = () => {
           )}
         </GoogleMap>
 
-        {/* Expandable Card */}
+        {/* sidebar */}
         {selectedRestaurant && (
           <Sidebar
             restaurant={selectedRestaurant}
