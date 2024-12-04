@@ -205,8 +205,8 @@ const GoogleMapComponent = () => {
           // Handle cases where the data is an object, not an array
           const locationsData = Array.isArray(data) ? data : data.locations || [];
   
-          console.log("Fetched Locations:", locationsData);
-          console.log("Type of Fetched Locations:", typeof locationsData, Array.isArray(locationsData));
+          //console.log("Fetched Locations:", locationsData);
+          //console.log("Type of Fetched Locations:", typeof locationsData, Array.isArray(locationsData));
   
           setLocations(locationsData);
           setCuisineOptions([
@@ -240,17 +240,15 @@ const GoogleMapComponent = () => {
         (error) => {
           console.error("Error getting user's location:", error);
           setGeolocationError(true); // Set error state if geolocation fails
-          //fetchLocations(); // Fetch all locations if geolocation fails
+          fetchLocations(); // Fetch all locations if geolocation fails
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
       setGeolocationError(true);
-      //fetchLocations(); // Fetch all locations if geolocation is not supported
+      fetchLocations(); // Fetch all locations if geolocation is not supported
     }
   }, []);
-
-
 
   //fetch favorites
   const [favorites, setFavorites] = useState([]);
@@ -279,32 +277,6 @@ const GoogleMapComponent = () => {
     setSelectedLocation(location);
   };
 
-  const fetchInspectionGrades = async (locations) => {
-    // Loop through locations and fetch inspection data
-    const updatedLocations = await Promise.all(
-      locations.map(async (location) => {
-        try {
-          const inspectionRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
-          );
-  
-          const inspectionData = inspectionRes.data[0]; 
-          return {
-            ...location,
-            grade: inspectionData?.grade || "Ungraded", // Add grade (default to "Ungraded")
-          };
-        } catch (error) {
-          console.error(
-            `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}`,
-            error
-          );
-          return { ...location, grade: "Ungraded" }; // Default to "Ungraded" on error
-        }
-      })
-    );
-  
-    return updatedLocations;
-  };
   
   //handle view more
   const handleViewMoreClick = async (location) => {
@@ -475,6 +447,7 @@ const GoogleMapComponent = () => {
                   parseFloat(location.longitude)
               )
             : 0;
+            const inspectionGrade = location.Restaurant.Inspections[0]?.grade || null;
             const isLocationBar = isBar(location); // Infer if it's a bar based on keywords
             const shouldShowBar = typeFilter === "Bar" && isLocationBar;
             const shouldShowRestaurant =
@@ -491,10 +464,9 @@ const GoogleMapComponent = () => {
             (typeFilter === "" || shouldShowBar || shouldShowRestaurant) &&
             // Inspection grade filter
             (inspectionGradeFilter === "" ||
-                (inspectionGradeFilter === "Ungraded" && 
-                 (!location.Restaurant.Inspections[0]?.grade || 
-                  location.Restaurant.Inspections[0]?.grade === "Ungraded")) ||
-                location.Restaurant.Inspections[0]?.grade === inspectionGradeFilter)
+            (inspectionGradeFilter === "Ungraded" &&
+              (!inspectionGrade || inspectionGrade === "Ungraded")) || // Handle Ungraded
+                inspectionGrade === inspectionGradeFilter)
         );
     });
 
