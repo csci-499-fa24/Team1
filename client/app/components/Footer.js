@@ -8,26 +8,15 @@ import React from "react";
 const Footer = () => {
   return (
     <div className="footer-wrapper">
-      <div className="footer-section-one">
-        
-      </div>
+      <div className="footer-section-one"></div>
       <div className="footer-section-two">
         <div className="footer-section-columns">
-          <span>Qualtiy</span>
+          <span>Questions</span>
           <span>Help</span>
-          <span>Share</span>
-          <span>Testimonials</span>
-          <span>Work</span>
         </div>
         <div className="footer-section-columns">
-          <span>244-533-7783</span>
-          <span>hello@food.com</span>
-          <span>press@food.com</span>
-          <span>contact@food.com</span>
-        </div>
-        <div className="footer-section-columns">
-          <span>Terms & Conditions</span>
-          <span>Privacy Policy</span>
+          <span>718-500-7822</span>
+          <span>fa24capstoneproj@gmail.com</span>
         </div>
       </div>
     </div>
