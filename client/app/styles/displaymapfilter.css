@@ -113,10 +113,12 @@
 
 .filter-list {
   display: flex;
-  flex-wrap: wrap; 
-  gap: 15px; 
+  flex-wrap: nowrap; 
+  grid-template-columns: repeat(5, 1fr); /* Adjust based on the number of filters */
+  gap: 15px;
   width: 100%; 
   justify-content: space-between; 
+  justify-content: flex-start;
 }
 
 .filter-item {
@@ -125,9 +127,9 @@
   flex-direction: column; 
   align-items: flex-start; 
   gap: 5px; 
-  flex: 1; 
-  min-width: 150px; 
-  max-width: 300px; 
+  flex: 1 1 auto; 
+  max-width: 200px; /* Optional: Limit the max width for uniformity */
+  min-width: 150px; /* Optional: Prevent excessive shrinking */
   white-space: nowrap; 
 }
 
@@ -143,9 +145,11 @@
   border: 1px solid #ccc;
   font-size: 12px; 
   width: auto;
+  
   max-width: 150px;
   z-index: 1000;
   font-family: var(--font-family);
+  margin-right: 10px;
 }
 @media (max-width: 768px) {
   .filter-list {
@@ -171,9 +175,11 @@
 }
 
 .restaurant-name-filter {
-  min-width: 150px;
-  max-width: 150px;
+  width: 100%; /* Enforce field width */
+  max-width: 2000px;
   flex-grow: 1;
+  text-overflow: ellipsis;
+  
 }
 
 .suggestions-list {

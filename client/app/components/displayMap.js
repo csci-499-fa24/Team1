@@ -704,34 +704,7 @@ console.log("Filtered Locations:", filteredLocations);
 </div>
 
               {/*div a */}
-              {/* Name Restaurant Filter */}
-              <div className="filter-item">
-                {" "}
-                {/*div b */}
-                <label htmlFor="filterRestaurantName">Name: </label>
-                {/* <select
-                  id="filterRestaurantName"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                >
-                  <option value="">All </option>
-                  {nameOptions.map((namerestaurant, index) => (
-                    <option key={index} value={namerestaurant}>
-                      {namerestaurant}
-                    </option>
-                  ))}
-                </select> */}
-                <Select
-                  id="filterRestaurantName"
-                  className="restaurant-name-filter"
-                  options={[
-                    { label: "All", value: "" },
-                    ...nameOptions.map((x) => ({ value: x, label: x })),
-                  ]}
-                  onChange={(option) => setNameFilter(option?.value || "")} // Use setNameFilter, not setFilter
-                  value={{ label: filterName || "All", value: filterName }}
-                />
-              </div>{" "}
+              
               {/*div b */}
               {/* Distance Filter */}
               <div className="filter-item">
@@ -763,6 +736,53 @@ console.log("Filtered Locations:", filteredLocations);
                   <option value="Restaurant">Restaurant</option>
                   <option value="Bar">Bar</option>
                 </select>
+              </div>{" "}
+
+              {/* Name Restaurant Filter */}
+              <div className="filter-item">
+                {" "}
+                {/*div b */}
+                <label htmlFor="filterRestaurantName">Name: </label>
+                {/* <select
+                  id="filterRestaurantName"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  <option value="">All </option>
+                  {nameOptions.map((namerestaurant, index) => (
+                    <option key={index} value={namerestaurant}>
+                      {namerestaurant}
+                    </option>
+                  ))}
+                </select> */}
+                <Select
+                  id="filterRestaurantName"
+                  className="restaurant-name-filter"
+                  styles={{
+                      control: (base) => ({
+                          ...base,
+                          width: '100%', // Matches the parent container
+                          minWidth: '200px',
+                          maxWidth: '200px', // Ensures consistent width
+                      }),
+                      menu: (base) => ({
+                          ...base,
+                          width: '280px', // Dropdown menu stays wide
+                      }),
+                      singleValue: (base) => ({
+                          ...base,
+                          textOverflow: 'ellipsis', // Truncate long names
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                      }),
+                  }}
+                  options={[
+                      { label: "All", value: "" },
+                      ...nameOptions.map((x) => ({ value: x, label: x })),
+                  ]}
+                  onChange={(option) => setNameFilter(option?.value || "")}
+                  value={{ label: filterName || "All", value: filterName }}
+                />
               </div>{" "}
               {/*div b */}
             </div>
