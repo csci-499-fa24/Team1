@@ -216,6 +216,8 @@ nav {
   align-items: center;
   padding: 1rem;
   border-radius: 5rem;
+  justify-content: center;
+  gap: 10px;
 }
 .contact-form-container input {
   flex: 1;
@@ -248,6 +250,7 @@ nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  justify-content: center;
 }
 .footer-section-columns {
   display: flex;
