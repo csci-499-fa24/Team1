@@ -249,6 +249,7 @@
     font-weight: bold;
     color: #000000; /* Styling color to match your theme */
     padding: 5px 10px;
+    font-size: 10px;
 }
 
 .event{
@@ -442,6 +443,14 @@
         font-size: 10px; 
     }
 
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000; /* Styling color to match your theme */
+        padding: 5px 10px;
+        font-size: 8px;
+    }
+
     .toggle-sidebar-icon {
         font-size: 2rem; 
     }
@@ -504,6 +513,14 @@
     .rbc-calendar {
         max-width: 100%;
         font-size: 12px;
+    }
+
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000; /* Styling color to match your theme */
+        padding: 5px 10px;
+        font-size: 7px;
     }
 
     .key-div {
@@ -627,6 +644,13 @@
     .rbc-date-cell {
         font-size: 10px;
     }
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000; /* Styling color to match your theme */
+        padding: 5px 10px;
+        font-size: 6px;
+    }
 
     .key-div {
         top: 70px;
@@ -697,3 +721,4 @@
         margin-bottom: 10px;
     }
 }
+
