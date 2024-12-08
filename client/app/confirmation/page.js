@@ -1,11 +1,11 @@
 
 'use client';
-
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
-import "../styles/confirmation.css";
+import "../globals.css"; 
+import styles from '../styles/confirm.module.css';
 
 const Confirmation = () => {
     const router = useRouter();
@@ -25,7 +25,7 @@ const Confirmation = () => {
         // Automatically redirect to the personal page after 5 seconds
         const timer = setTimeout(() => {
             router.push("/profile");
-        }, 3000);
+        }, 2000);
 
         // Clean up the timer if the component unmounts
         return () => clearTimeout(timer);
@@ -34,16 +34,15 @@ const Confirmation = () => {
     }, [router]);
 
     return (
-        <div className="background">
-            <div className="wrapper">
-                <div className="confirmation">
-                    <h1>Sign-Up Successful!</h1>
-                    <p>Thank you for signing up.</p>
-                    <div>                        
-                        <p>Redirecting to your personal page in 3 seconds...</p>
-                          
-                    </div>                  
+        <div className={styles.background}>
+            <div className={styles.wrapper}>
+            <div className={styles.confirmation}>
+                <h1 className={styles.heading}>Sign-Up Successful!</h1>
+                <p>Thank you for signing up.</p>
+                <div>
+                <p>Redirecting to your personal page in 2 seconds...</p>
                 </div>
+            </div>
             </div>
         </div>
     );
