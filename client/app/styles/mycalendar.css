@@ -54,7 +54,7 @@
     right: 10px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 23px;
     cursor: pointer;
     font-weight: bold;
     color: #555;
@@ -186,11 +186,11 @@
     transition: width 0.3s ease-in-out; /* Smooth expand/collapse */
     transform: translateX(-100%);
     border-right: 1px solid #ddd;
-    font-size: 15px;
+    font-size: 18px;
 }
 
 .key-div.expanded {
-    width: 200px; /* Visible when expanded */
+    width: 240px; /* Visible when expanded */
     transform: translateX(0);
 }
 
@@ -249,7 +249,14 @@
     font-weight: bold;
     color: #000000; /* Styling color to match your theme */
     padding: 5px 10px;
-    font-size: 10px;
+    font-size: 13px;
+}
+
+.rbc-event-label {
+    font-size: 1px; /* Default font size */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .event{
@@ -257,8 +264,8 @@
 }
 
 .box{
-    height: 15px;
-    width: 15px;
+    height: 13px;
+    width: 13px;
     border: black solid 1px;
     border-radius: 1px;
 }
@@ -411,10 +418,10 @@
     .key-div {
         height: 100%;
         transform: translateX(-100%);
-        font-size: 13px;
+        font-size: 17px;
     }
     .key-div.expanded {
-        width: 200px;
+        width: 220px;
         transform: translateX(0);
     }
     .box{
@@ -448,7 +455,7 @@
         font-weight: bold;
         color: #000000; /* Styling color to match your theme */
         padding: 5px 10px;
-        font-size: 8px;
+        font-size: 12px;
     }
 
     .toggle-sidebar-icon {
@@ -520,28 +527,31 @@
         font-weight: bold;
         color: #000000; /* Styling color to match your theme */
         padding: 5px 10px;
-        font-size: 7px;
+        font-size: 9.1px;
     }
 
     .key-div {
         position: fixed;
         top: 70px;
         left: -200px; 
-        width: 200px;
+        
         height: 100%;
         background: white;
         z-index: 500;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
         transition: left 0.3s ease-in-out;
-        font-size: 11px;
+        transform: translateX(-100%);
+        font-size: 14px;
     }
 
     .key-div.expanded {
+        width: 200px;
+        transform: translateX(0);
         left: 0;
     }
     .box{
-        height: 9px;
-        width: 9px;
+        height: 10px;
+        width: 10px;
         border: black solid 1px;
         border-radius: 1px;
     }
@@ -649,7 +659,7 @@
         font-weight: bold;
         color: #000000; /* Styling color to match your theme */
         padding: 5px 10px;
-        font-size: 6px;
+        font-size: 9px;
     }
 
     .key-div {
@@ -658,7 +668,7 @@
         transition: left 0.3s ease-in-out;
         transform: translateX(-100%);
         z-index: 500;
-        font-size: 8px;
+        font-size: 10px;
     }
 
     .key-div.expanded {
@@ -666,8 +676,8 @@
         transform: translateX(0);
     }
     .box{
-        height: 7px;
-        width: 7px;
+        height: 8px;
+        width: 8px;
         border: black solid 1px;
         border-radius: 1px;
     }
@@ -690,32 +700,33 @@
         padding: 5px 11px;
     }
     .place-details-planner {
-        width: 150px;
+        width: 178px;
         padding: 5px;
-        font-size: 8px;
+        font-size: 10px;
         margin-top: 1px;
         z-index: 500;
+        height: 100%;
     }
     .place-details-planner .icon-name-container i,
     .place-details-planner .edit-plan-icon,
     .place-details-planner .remove-from-plan-icon,
     .place-details-planner .time-icon {
-        font-size: 9px;
-        height: 9px;
+        font-size: 10px;
+        height: 10px;
     }
 
     .place-details-planner .close-button {
-        font-size: 10px;
+        font-size: 11px;
     }
 
     .place-details-planner .opening-hours-day,
     .place-details-planner .event-title-container,
     .place-details-planner .event-type {
-        font-size: 8px; 
+        font-size: 9px; 
     }
 
     .event-schedule-header {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: bold;
         color: var(--primary-color);
         margin-bottom: 10px;
