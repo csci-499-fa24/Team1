@@ -82,21 +82,27 @@
 }
 
 .filter-section {
-  background: rgba(255, 255, 255, 0.9);
+  display: flex; /* Use flexbox to arrange items in a row */
+  align-items: center; /* Align items vertically in the center */
+  gap: 15px; /* Add spacing between items */
+
   border-radius: 10px;
-  padding: 15px;
-  box-shadow: none;
+  padding: 10px;
+  
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 43px; /* Adjust to align in the same row as the filter icon */
+  left: 2px;
   z-index: 10;
+  width: auto; /* Adjust to content */
 }
 
 .filter-toggle-icon {
+  
+  
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 10px;
+  padding: 5px;
   font-size: 24px;
   margin-left: -17px;
   color: var(--secondary-color);
@@ -112,13 +118,10 @@
 
 
 .filter-list {
-  display: flex;
-  flex-wrap: nowrap; 
-  grid-template-columns: repeat(5, 1fr); /* Adjust based on the number of filters */
-  gap: 15px;
-  width: 100%; 
-  justify-content: space-between; 
-  justify-content: flex-start;
+  display: flex; /* Arrange the filters in a horizontal row */
+  flex-wrap: nowrap; /* Prevent wrapping to the next line */
+  gap: 10px; /* Add space between filters */
+  justify-content: flex-start; /* Align filters to the left */
 }
 
 .filter-item {
@@ -152,22 +155,46 @@
   margin-right: 10px;
 }
 @media (max-width: 768px) {
+  .filter-section {
+    display: block;
+    background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  
+  }
+  .filter-toggle-icon{
+  background: transparent;
+  
+  }
   .filter-list {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 15px; 
+    width: 100%; 
+    justify-content: space-between; 
     flex-direction: column; 
     gap: 13px; 
-  }
-  .filter-item {
-    max-width: 100%; 
     
   }
-}
-@media (max-width: 768px) {
+  .filter-item {
+  position: relative;
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 5px; 
+  flex: 1; 
+  min-width: 150px; 
+  max-width: 100%; 
+  white-space: nowrap; 
+    
+  }
   .filter-item select {
     max-width: 100%; 
     margin: 0; 
     margin-bottom: 10px; 
   }
 }
+
+
 .filter-item select:focus {
   border-color: var(--secondary-color);
   box-shadow: 0 0 4px var(--secondary-color);
@@ -230,19 +257,85 @@
   align-items: flex-start; 
   margin: 10px;
   background-color: var(--base-color); 
-  border-radius: 10px; 
+  border-radius: 100px; 
   box-shadow: none;
   font-size: 16px; 
-  width: 300px;
+  width: auto;
+  white-space: normal;
+  word-wrap: break-word;
+  
 }
+
 .info-window-content p{
   margin-top: 5px;
 }
 
 .info-window-icons {
-  display: flex;
-  gap: 10px; 
+  display: flex; /* Aligns icons horizontally */
+  justify-content: space-evenly; /* Spreads them out evenly */
+  align-items: center; /* Centers them vertically */
+  gap: 15px; /* Adds spacing between icons */
+  margin-top: 10px; /* Adds some space from the elements above */
 }
+
+.info-header {
+  position: absolute; /* Make it independent of the normal flow */
+  top: 8px; /* Move it upwards */
+  left: 5px; /* Adjust alignment */
+  z-index: 1000; /* Ensure it's above everything else */
+  background: white; /* Add background to prevent text being blocked */
+  padding: 5px; /* Add some padding for better readability */
+  border-radius: 10px; /* Optional: Make it look better */
+  box-shadow: 0px 2px 4px rgba(58, 8, 8, 0.1); /* Optional: Make it look better */
+  text-align: center;
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  width: 85%;
+  overflow: hidden; /* Prevent content overflow */
+  white-space: wrap; /* Prevent text wrapping */
+  text-overflow: ellipsis; /* Add ellipsis for long names */
+}
+
+.restaurant-title {
+  font-weight: bold; /* Make it stand out */
+  margin: 0; /* Remove default margin */
+  color: black; /* Ensure visibility */
+}
+
+@media (max-width: 768px) {
+  .info-window-content {
+    font-size: 15px; /* Adjust text size */
+    padding: 0px; /* Adjust padding */
+    
+  }
+
+  .info-header{
+    top: 8px; /* Move it upwards */
+    left: 5px; /* Adjust alignment */
+    width: 80%;
+  }
+  .info-window-icons {
+    flex-wrap: wrap; /* Stack icons if needed */
+    gap: 5px;
+  }
+  .date-time-container {
+    flex-direction: row; /* Stack fields vertically on small screens */
+    gap: 0px;
+  }
+
+  .date-time-container input {
+    margin-right: 0px;
+    padding: 0px;
+    border-radius: 1px;
+    font-size: 12px; /* Smaller font */
+    padding: 0px; /* Smaller padding */
+    width: auto;
+    max-width: 85px; /* Reduce max width */
+  }
+}
+
+
 
 .expandable-card {
   position: absolute;

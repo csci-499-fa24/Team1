@@ -462,11 +462,7 @@ const handleEdit = (index) => {
   )}
 </div>
 
-      {showReviews && reviews.length > visibleReviews && (
-        <button onClick={() => setVisibleReviews(visibleReviews + 3)} style={{ marginTop: '10px', backgroundColor: 'silver', color: 'black', padding: '8px 12px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-          Show more reviews
-        </button>
-      )}
+  
     </div>
   );
 };

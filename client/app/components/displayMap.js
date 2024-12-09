@@ -852,7 +852,11 @@ console.log("Filtered Locations:", filteredLocations);
               onCloseClick={() => setSelectedLocation(null)}
             >
               <div className="info-window-content">
-                <h3>{selectedLocation.Restaurant.dba || "No Name"}</h3>
+              <div className="info-header">
+      <h3 className="restaurant-title">
+        {selectedLocation.Restaurant.dba || "No Name"}
+      </h3>
+    </div>
                 {/* Address */}
                 <p style={{ display: "flex", alignItems: "center" }}>
                   <FontAwesomeIcon
@@ -935,10 +939,20 @@ console.log("Filtered Locations:", filteredLocations);
                     }
                     onClick={() => handleAddToFavorites(selectedLocation)}
                   />
-                </div>
+                
 
-                {/*Getting routes directions car button */}
-                <button
+                {/*Getting routes directions car button */} 
+                  <FontAwesomeIcon
+                    icon={faCar}
+                    style={{
+                      cursor: "pointer",
+                      color:
+                      selectedLocation?.camis == directionsDestination?.camis && //&& added
+                      directionsTravelMode == google.maps.TravelMode.DRIVING
+                        ? "#61aaf3"
+                        : "inherit", // Default color
+                    fontSize: "20px", 
+                  }}
                   onClick={() => {
                     if (selectedLocation != directionsDestination) {
                       setDirectionsDestination(selectedLocation);
@@ -948,18 +962,20 @@ console.log("Filtered Locations:", filteredLocations);
                       setDirectionsTravelMode(null);
                     }
                   }}
-                >
+                />
+                
+                {/*Added button of bus for TRANSIT or public transportation. */} 
                   <FontAwesomeIcon
-                    icon={faCar}
-                    style={
-                      selectedLocation?.camis == directionsDestination?.camis && //&& added
-                      directionsTravelMode == google.maps.TravelMode.DRIVING
-                        ? { color: "#61aaf3" }
-                        : {}
-                    }
-                  />
-                </button>
-                <button //Added button of bus for TRANSIT or public transportation.
+                    icon={faBus}
+                    style={{
+                      cursor: "pointer",
+                      color:
+                      selectedLocation?.camis == directionsDestination?.camis &&
+                      directionsTravelMode == google.maps.TravelMode.TRANSIT
+                        ? "#61aaf3"
+                        : "inherit", // Default color
+                    fontSize: "20px", 
+                  }}
                   onClick={() => {
                     if (selectedLocation != directionsDestination) {
                       setDirectionsDestination(selectedLocation);
@@ -969,17 +985,9 @@ console.log("Filtered Locations:", filteredLocations);
                       setDirectionsTravelMode(null);
                     }
                   }}
-                >
-                  <FontAwesomeIcon
-                    icon={faBus}
-                    style={
-                      selectedLocation?.camis == directionsDestination?.camis &&
-                      directionsTravelMode == google.maps.TravelMode.TRANSIT
-                        ? { color: "#61aaf3" }
-                        : {}
-                    }
                   />
-                </button>
+                
+              </div>
               </div>
             </InfoWindow>
           )}
