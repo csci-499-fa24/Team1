@@ -82,23 +82,21 @@
 }
 
 .filter-section {
-  display: flex; /* Use flexbox to arrange items in a row */
-  align-items: center; /* Align items vertically in the center */
-  gap: 15px; /* Add spacing between items */
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
 
   border-radius: 10px;
   padding: 10px;
   
   position: absolute;
-  top: 43px; /* Adjust to align in the same row as the filter icon */
+  top: 43px; 
   left: 2px;
   z-index: 10;
-  width: auto; /* Adjust to content */
+  width: auto; 
 }
 
 .filter-toggle-icon {
-  
-  
   background: transparent;
   border: none;
   cursor: pointer;
@@ -118,10 +116,10 @@
 
 
 .filter-list {
-  display: flex; /* Arrange the filters in a horizontal row */
-  flex-wrap: nowrap; /* Prevent wrapping to the next line */
-  gap: 10px; /* Add space between filters */
-  justify-content: flex-start; /* Align filters to the left */
+  display: flex; 
+  flex-wrap: nowrap; 
+  gap: 10px; 
+  justify-content: flex-start; 
 }
 
 .filter-item {
@@ -131,8 +129,8 @@
   align-items: flex-start; 
   gap: 5px; 
   flex: 1 1 auto; 
-  max-width: 200px; /* Optional: Limit the max width for uniformity */
-  min-width: 150px; /* Optional: Prevent excessive shrinking */
+  max-width: 200px; 
+  min-width: 150px; 
   white-space: nowrap; 
 }
 
@@ -235,8 +233,8 @@
 }
 @media (max-width: 768px) {
   .suggestions-list {
-    max-width: 95%; /* Adjust width for smaller screens */
-    left: 1%; /* Center it within the screen */
+    max-width: 95%; 
+    left: 1%; 
     top: 55%;
   }
 }
@@ -271,56 +269,56 @@
 }
 
 .info-window-icons {
-  display: flex; /* Aligns icons horizontally */
-  justify-content: space-evenly; /* Spreads them out evenly */
-  align-items: center; /* Centers them vertically */
-  gap: 15px; /* Adds spacing between icons */
-  margin-top: 10px; /* Adds some space from the elements above */
+  display: flex; 
+  justify-content: space-evenly; 
+  align-items: center; 
+  gap: 15px; 
+  margin-top: 10px; 
 }
 
 .info-header {
-  position: absolute; /* Make it independent of the normal flow */
-  top: 8px; /* Move it upwards */
-  left: 5px; /* Adjust alignment */
-  z-index: 1000; /* Ensure it's above everything else */
-  background: white; /* Add background to prevent text being blocked */
-  padding: 5px; /* Add some padding for better readability */
-  border-radius: 10px; /* Optional: Make it look better */
-  box-shadow: 0px 2px 4px rgba(58, 8, 8, 0.1); /* Optional: Make it look better */
+  position: absolute; 
+  top: 8px; 
+  left: 5px; 
+  z-index: 1000; 
+  background: white; 
+  padding: 5px; 
+  border-radius: 10px; 
+  box-shadow: 0px 2px 4px rgba(58, 8, 8, 0.1); 
   text-align: center;
   display: flex; 
   justify-content: center;
   align-items: center;
   width: 85%;
-  overflow: hidden; /* Prevent content overflow */
-  white-space: wrap; /* Prevent text wrapping */
-  text-overflow: ellipsis; /* Add ellipsis for long names */
+  overflow: hidden; 
+  white-space: wrap; 
+  text-overflow: ellipsis; 
 }
 
 .restaurant-title {
-  font-weight: bold; /* Make it stand out */
-  margin: 0; /* Remove default margin */
-  color: black; /* Ensure visibility */
+  font-weight: bold; 
+  margin: 0; 
+  color: black; 
 }
 
 @media (max-width: 768px) {
   .info-window-content {
-    font-size: 15px; /* Adjust text size */
-    padding: 0px; /* Adjust padding */
+    font-size: 15px; 
+    padding: 0px; 
     
   }
 
   .info-header{
-    top: 8px; /* Move it upwards */
-    left: 5px; /* Adjust alignment */
+    top: 8px; 
+    left: 5px; 
     width: 80%;
   }
   .info-window-icons {
-    flex-wrap: wrap; /* Stack icons if needed */
+    flex-wrap: wrap; 
     gap: 5px;
   }
   .date-time-container {
-    flex-direction: row; /* Stack fields vertically on small screens */
+    flex-direction: row; 
     gap: 0px;
   }
 
@@ -328,10 +326,10 @@
     margin-right: 0px;
     padding: 0px;
     border-radius: 1px;
-    font-size: 12px; /* Smaller font */
-    padding: 0px; /* Smaller padding */
+    font-size: 12px; 
+    padding: 0px; 
     width: auto;
-    max-width: 85px; /* Reduce max width */
+    max-width: 85px; 
   }
 }
 
