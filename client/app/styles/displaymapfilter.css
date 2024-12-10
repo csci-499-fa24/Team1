@@ -82,21 +82,25 @@
 }
 
 .filter-section {
-  background: rgba(255, 255, 255, 0.9);
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+
   border-radius: 10px;
-  padding: 15px;
-  box-shadow: none;
+  padding: 10px;
+  
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 43px; 
+  left: 2px;
   z-index: 10;
+  width: auto; 
 }
 
 .filter-toggle-icon {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 10px;
+  padding: 5px;
   font-size: 24px;
   margin-left: -17px;
   color: var(--secondary-color);
@@ -112,11 +116,10 @@
 
 
 .filter-list {
-  display: flex;
-  flex-wrap: wrap; 
-  gap: 15px; 
-  width: 100%; 
-  justify-content: space-between; 
+  display: flex; 
+  flex-wrap: nowrap; 
+  gap: 10px; 
+  justify-content: flex-start; 
 }
 
 .filter-item {
@@ -125,9 +128,9 @@
   flex-direction: column; 
   align-items: flex-start; 
   gap: 5px; 
-  flex: 1; 
+  flex: 1 1 auto; 
+  max-width: 200px; 
   min-width: 150px; 
-  max-width: 300px; 
   white-space: nowrap; 
 }
 
@@ -143,27 +146,53 @@
   border: 1px solid #ccc;
   font-size: 12px; 
   width: auto;
+  
   max-width: 150px;
   z-index: 1000;
   font-family: var(--font-family);
+  margin-right: 10px;
 }
 @media (max-width: 768px) {
+  .filter-section {
+    display: block;
+    background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  
+  }
+  .filter-toggle-icon{
+  background: transparent;
+  
+  }
   .filter-list {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 15px; 
+    width: 100%; 
+    justify-content: space-between; 
     flex-direction: column; 
     gap: 13px; 
-  }
-  .filter-item {
-    max-width: 100%; 
     
   }
-}
-@media (max-width: 768px) {
+  .filter-item {
+  position: relative;
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start; 
+  gap: 5px; 
+  flex: 1; 
+  min-width: 150px; 
+  max-width: 100%; 
+  white-space: nowrap; 
+    
+  }
   .filter-item select {
     max-width: 100%; 
     margin: 0; 
     margin-bottom: 10px; 
   }
 }
+
+
 .filter-item select:focus {
   border-color: var(--secondary-color);
   box-shadow: 0 0 4px var(--secondary-color);
@@ -171,9 +200,11 @@
 }
 
 .restaurant-name-filter {
-  min-width: 150px;
-  max-width: 150px;
+  width: 100%; /* Enforce field width */
+  max-width: 2000px;
   flex-grow: 1;
+  text-overflow: ellipsis;
+  
 }
 
 .suggestions-list {
@@ -202,8 +233,8 @@
 }
 @media (max-width: 768px) {
   .suggestions-list {
-    max-width: 95%; /* Adjust width for smaller screens */
-    left: 1%; /* Center it within the screen */
+    max-width: 95%; 
+    left: 1%; 
     top: 55%;
   }
 }
@@ -224,19 +255,85 @@
   align-items: flex-start; 
   margin: 10px;
   background-color: var(--base-color); 
-  border-radius: 10px; 
+  border-radius: 100px; 
   box-shadow: none;
   font-size: 16px; 
-  width: 300px;
+  width: auto;
+  white-space: normal;
+  word-wrap: break-word;
+  
 }
+
 .info-window-content p{
   margin-top: 5px;
 }
 
 .info-window-icons {
-  display: flex;
-  gap: 10px; 
+  display: flex; 
+  justify-content: space-evenly; 
+  align-items: center; 
+  gap: 15px; 
+  margin-top: 10px; 
 }
+
+.info-header {
+  position: absolute; 
+  top: 8px; 
+  left: 5px; 
+  z-index: 1000; 
+  background: white; 
+  padding: 5px; 
+  border-radius: 10px; 
+  box-shadow: 0px 2px 4px rgba(58, 8, 8, 0.1); 
+  text-align: center;
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  width: 85%;
+  overflow: hidden; 
+  white-space: wrap; 
+  text-overflow: ellipsis; 
+}
+
+.restaurant-title {
+  font-weight: bold; 
+  margin: 0; 
+  color: black; 
+}
+
+@media (max-width: 768px) {
+  .info-window-content {
+    font-size: 15px; 
+    padding: 0px; 
+    
+  }
+
+  .info-header{
+    top: 8px; 
+    left: 5px; 
+    width: 80%;
+  }
+  .info-window-icons {
+    flex-wrap: wrap; 
+    gap: 5px;
+  }
+  .date-time-container {
+    flex-direction: row; 
+    gap: 0px;
+  }
+
+  .date-time-container input {
+    margin-right: 0px;
+    padding: 0px;
+    border-radius: 1px;
+    font-size: 12px; 
+    padding: 0px; 
+    width: auto;
+    max-width: 85px; 
+  }
+}
+
+
 
 .expandable-card {
   position: absolute;

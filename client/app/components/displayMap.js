@@ -205,8 +205,8 @@ const GoogleMapComponent = () => {
           // Handle cases where the data is an object, not an array
           const locationsData = Array.isArray(data) ? data : data.locations || [];
   
-          console.log("Fetched Locations:", locationsData);
-          console.log("Type of Fetched Locations:", typeof locationsData, Array.isArray(locationsData));
+          //console.log("Fetched Locations:", locationsData);
+          //console.log("Type of Fetched Locations:", typeof locationsData, Array.isArray(locationsData));
   
           setLocations(locationsData);
           setCuisineOptions([
@@ -240,17 +240,15 @@ const GoogleMapComponent = () => {
         (error) => {
           console.error("Error getting user's location:", error);
           setGeolocationError(true); // Set error state if geolocation fails
-          //fetchLocations(); // Fetch all locations if geolocation fails
+          fetchLocations(); // Fetch all locations if geolocation fails
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
       setGeolocationError(true);
-      //fetchLocations(); // Fetch all locations if geolocation is not supported
+      fetchLocations(); // Fetch all locations if geolocation is not supported
     }
   }, []);
-
-
 
   //fetch favorites
   const [favorites, setFavorites] = useState([]);
@@ -279,32 +277,6 @@ const GoogleMapComponent = () => {
     setSelectedLocation(location);
   };
 
-  const fetchInspectionGrades = async (locations) => {
-    // Loop through locations and fetch inspection data
-    const updatedLocations = await Promise.all(
-      locations.map(async (location) => {
-        try {
-          const inspectionRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/inspections/${location.Restaurant.camis}`
-          );
-  
-          const inspectionData = inspectionRes.data[0]; 
-          return {
-            ...location,
-            grade: inspectionData?.grade || "Ungraded", // Add grade (default to "Ungraded")
-          };
-        } catch (error) {
-          console.error(
-            `Failed to fetch inspection data for CAMIS ${location.Restaurant.camis}`,
-            error
-          );
-          return { ...location, grade: "Ungraded" }; // Default to "Ungraded" on error
-        }
-      })
-    );
-  
-    return updatedLocations;
-  };
   
   //handle view more
   const handleViewMoreClick = async (location) => {
@@ -475,6 +447,7 @@ const GoogleMapComponent = () => {
                   parseFloat(location.longitude)
               )
             : 0;
+            const inspectionGrade = location.Restaurant.Inspections[0]?.grade || null;
             const isLocationBar = isBar(location); // Infer if it's a bar based on keywords
             const shouldShowBar = typeFilter === "Bar" && isLocationBar;
             const shouldShowRestaurant =
@@ -491,10 +464,9 @@ const GoogleMapComponent = () => {
             (typeFilter === "" || shouldShowBar || shouldShowRestaurant) &&
             // Inspection grade filter
             (inspectionGradeFilter === "" ||
-                (inspectionGradeFilter === "Ungraded" && 
-                 (!location.Restaurant.Inspections[0]?.grade || 
-                  location.Restaurant.Inspections[0]?.grade === "Ungraded")) ||
-                location.Restaurant.Inspections[0]?.grade === inspectionGradeFilter)
+            (inspectionGradeFilter === "Ungraded" &&
+              (!inspectionGrade || inspectionGrade === "Ungraded")) || // Handle Ungraded
+                inspectionGrade === inspectionGradeFilter)
         );
     });
 
@@ -732,34 +704,7 @@ console.log("Filtered Locations:", filteredLocations);
 </div>
 
               {/*div a */}
-              {/* Name Restaurant Filter */}
-              <div className="filter-item">
-                {" "}
-                {/*div b */}
-                <label htmlFor="filterRestaurantName">Name: </label>
-                {/* <select
-                  id="filterRestaurantName"
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                >
-                  <option value="">All </option>
-                  {nameOptions.map((namerestaurant, index) => (
-                    <option key={index} value={namerestaurant}>
-                      {namerestaurant}
-                    </option>
-                  ))}
-                </select> */}
-                <Select
-                  id="filterRestaurantName"
-                  className="restaurant-name-filter"
-                  options={[
-                    { label: "All", value: "" },
-                    ...nameOptions.map((x) => ({ value: x, label: x })),
-                  ]}
-                  onChange={(option) => setNameFilter(option?.value || "")} // Use setNameFilter, not setFilter
-                  value={{ label: filterName || "All", value: filterName }}
-                />
-              </div>{" "}
+              
               {/*div b */}
               {/* Distance Filter */}
               <div className="filter-item">
@@ -791,6 +736,53 @@ console.log("Filtered Locations:", filteredLocations);
                   <option value="Restaurant">Restaurant</option>
                   <option value="Bar">Bar</option>
                 </select>
+              </div>{" "}
+
+              {/* Name Restaurant Filter */}
+              <div className="filter-item">
+                {" "}
+                {/*div b */}
+                <label htmlFor="filterRestaurantName">Name: </label>
+                {/* <select
+                  id="filterRestaurantName"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  <option value="">All </option>
+                  {nameOptions.map((namerestaurant, index) => (
+                    <option key={index} value={namerestaurant}>
+                      {namerestaurant}
+                    </option>
+                  ))}
+                </select> */}
+                <Select
+                  id="filterRestaurantName"
+                  className="restaurant-name-filter"
+                  styles={{
+                      control: (base) => ({
+                          ...base,
+                          width: '100%', // Matches the parent container
+                          minWidth: '200px',
+                          maxWidth: '200px', // Ensures consistent width
+                      }),
+                      menu: (base) => ({
+                          ...base,
+                          width: '280px', // Dropdown menu stays wide
+                      }),
+                      singleValue: (base) => ({
+                          ...base,
+                          textOverflow: 'ellipsis', // Truncate long names
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                      }),
+                  }}
+                  options={[
+                      { label: "All", value: "" },
+                      ...nameOptions.map((x) => ({ value: x, label: x })),
+                  ]}
+                  onChange={(option) => setNameFilter(option?.value || "")}
+                  value={{ label: filterName || "All", value: filterName }}
+                />
               </div>{" "}
               {/*div b */}
             </div>
@@ -860,7 +852,11 @@ console.log("Filtered Locations:", filteredLocations);
               onCloseClick={() => setSelectedLocation(null)}
             >
               <div className="info-window-content">
-                <h3>{selectedLocation.Restaurant.dba || "No Name"}</h3>
+              <div className="info-header">
+      <h3 className="restaurant-title">
+        {selectedLocation.Restaurant.dba || "No Name"}
+      </h3>
+    </div>
                 {/* Address */}
                 <p style={{ display: "flex", alignItems: "center" }}>
                   <FontAwesomeIcon
@@ -943,10 +939,20 @@ console.log("Filtered Locations:", filteredLocations);
                     }
                     onClick={() => handleAddToFavorites(selectedLocation)}
                   />
-                </div>
+                
 
-                {/*Getting routes directions car button */}
-                <button
+                {/*Getting routes directions car button */} 
+                  <FontAwesomeIcon
+                    icon={faCar}
+                    style={{
+                      cursor: "pointer",
+                      color:
+                      selectedLocation?.camis == directionsDestination?.camis && //&& added
+                      directionsTravelMode == google.maps.TravelMode.DRIVING
+                        ? "#61aaf3"
+                        : "inherit", // Default color
+                    fontSize: "20px", 
+                  }}
                   onClick={() => {
                     if (selectedLocation != directionsDestination) {
                       setDirectionsDestination(selectedLocation);
@@ -956,18 +962,20 @@ console.log("Filtered Locations:", filteredLocations);
                       setDirectionsTravelMode(null);
                     }
                   }}
-                >
+                />
+                
+                {/*Added button of bus for TRANSIT or public transportation. */} 
                   <FontAwesomeIcon
-                    icon={faCar}
-                    style={
-                      selectedLocation?.camis == directionsDestination?.camis && //&& added
-                      directionsTravelMode == google.maps.TravelMode.DRIVING
-                        ? { color: "#61aaf3" }
-                        : {}
-                    }
-                  />
-                </button>
-                <button //Added button of bus for TRANSIT or public transportation.
+                    icon={faBus}
+                    style={{
+                      cursor: "pointer",
+                      color:
+                      selectedLocation?.camis == directionsDestination?.camis &&
+                      directionsTravelMode == google.maps.TravelMode.TRANSIT
+                        ? "#61aaf3"
+                        : "inherit", // Default color
+                    fontSize: "20px", 
+                  }}
                   onClick={() => {
                     if (selectedLocation != directionsDestination) {
                       setDirectionsDestination(selectedLocation);
@@ -977,17 +985,9 @@ console.log("Filtered Locations:", filteredLocations);
                       setDirectionsTravelMode(null);
                     }
                   }}
-                >
-                  <FontAwesomeIcon
-                    icon={faBus}
-                    style={
-                      selectedLocation?.camis == directionsDestination?.camis &&
-                      directionsTravelMode == google.maps.TravelMode.TRANSIT
-                        ? { color: "#61aaf3" }
-                        : {}
-                    }
                   />
-                </button>
+                
+              </div>
               </div>
             </InfoWindow>
           )}
