@@ -38,15 +38,31 @@
 .place-details-planner {
     position: fixed;
     right: 0;
-    top: 78px;
+    top: 71px;
     width: 350px;
-    height: calc(100vh - 85px);;
+    height: 90vh;
     background-color: rgba(255, 255, 255); 
     box-shadow: -2px 0 5px rgba(0,0,0,0.2);
     padding: 20px;
     overflow-y: auto;
     z-index: 1000; 
     font-size: 16px;
+}
+
+.place-details-planner::-webkit-scrollbar {
+    width: 6px; /* scrollbar width */
+}
+
+.place-details-planner::-webkit-scrollbar-track {
+    background: #f1f1f1; /* track color */
+}
+
+.place-details-planner::-webkit-scrollbar-thumb {
+    background: #888; /* thumb color */
+}
+
+.place-details-planner::-webkit-scrollbar-thumb:hover {
+    background: #555; /* thumb hover color */
 }
 
 .close-button {
@@ -71,7 +87,9 @@
     width: 100%;
     /* max-height: 30%; */
     /* border-radius: 8px; */
-    margin-bottom: 15px;  
+    margin-top: 10px;
+    margin-bottom: 15px; 
+    border-radius: 15px; 
 }
 
  .sidebar-info {
@@ -330,9 +348,9 @@
     border-radius: 10px; 
     box-shadow: none;
     font-size: 16px; 
-    width: 290px;
+    width: 95%;
     z-index: 100;
-    border: black solid 5px;
+    border: rgb(60, 60, 60) solid 1px;
 }
 .info-window-content p{
     margin-top: 5px;
@@ -469,9 +487,10 @@
     }
     .place-details-planner {
         width: 390px;
-        padding: 10px; 
+        padding: 20px;
         font-size: 15px;
         z-index: 500;
+        
     }
     .place-details-planner .icon-name-container i,
     .place-details-planner .edit-plan-icon,
@@ -487,6 +506,7 @@
 
 
     .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
     .place-details-planner .event-title-container,
     .place-details-planner .event-type {
         font-size: 14px;
@@ -497,6 +517,9 @@
         font-weight: bold;
         color: var(--primary-color);
         margin-bottom: 10px;
+    }
+    .info-window-content h3{
+        font-size: 17px;
     }
 }
 
@@ -591,7 +614,7 @@
     }
     .place-details-planner {
         width: 500px;
-        padding: 5px; 
+        padding: 20px; 
         font-size: 15px;
         z-index: 500;
     }
@@ -610,9 +633,10 @@
     
 
     .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
     .place-details-planner .event-title-container,
     .place-details-planner .event-type {
-        font-size: 11px; 
+        font-size: 12px; 
     }
     .event-schedule-header {
         font-size: 13px;
@@ -620,7 +644,21 @@
         color: var(--primary-color);
         margin-bottom: 10px;
     }
+
+    .date-time-container input {
+        font-size: 14px; /* Reduces the font size for better fit */
+        padding: 2px 3px; /* Adjust padding to reduce input size */
+        width: 124px; /* Adjust width to fit smaller screens */
+        height: 35px; /* Adjust height for better touch interaction */
+    }
+    .info-window-content p{
+        font-size: 15px;
+    }
+    .info-window-content h3{
+        font-size: 15px;
+    }
 }
+
 
 /* Adjustments for very small screens (e.g., phones) */
 @media (max-width: 524px) {
@@ -705,11 +743,11 @@
     }
     .place-details-planner {
         width: 100%;
-        padding: 5px;
+        padding: 15px;
         font-size: 15px;
         margin-top: 1px;
         z-index: 500;
-        height: 100%;
+        overflow-y: auto;
     }
     .place-details-planner .icon-name-container i,
     .place-details-planner .edit-plan-icon,
@@ -724,9 +762,10 @@
     }
 
     .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
     .place-details-planner .event-title-container,
     .place-details-planner .event-type {
-        font-size: 10px; 
+        font-size: 12px; 
     }
 
     .event-schedule-header {
@@ -734,6 +773,40 @@
         font-weight: bold;
         color: var(--primary-color);
         margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 340px) {
+    .date-time-container input {
+        font-size: 10px; /* Reduces the font size for better fit */
+        padding: 3px 4px; /* Adjust padding to reduce input size */
+        width: 100px; /* Adjust width to fit smaller screens */
+        height: 25px; /* Adjust height for better touch interaction */
+    }
+
+    .event-schedule-header,
+    .event-type,
+    .opening-hours-day,
+    .event-title-container h2 {
+        font-size: 17px; /* Adjust headings to be smaller */
+    }
+
+    .opening-hours-time,
+    .sidebar-info p,
+    .event-actions span { /* Smaller text for other info elements */
+        font-size: 0.8em; /* Slightly smaller to fit more content */
+    }
+
+    .icon-name-container h2, /* Smaller title in sidebar */
+    .place-details-planner p, /* Smaller paragraph text */
+    .event-schedule-header { /* Smaller event schedule header */
+        font-size: 12px; /* Adjusting text size down */
+    }
+    .info-window-content p{
+        font-size: 15px;
+    }
+    .info-window-content h3{
+        font-size: 15px;
     }
 }
 
