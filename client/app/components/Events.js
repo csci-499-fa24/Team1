@@ -31,7 +31,7 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [eventsPerPage] = useState(5);
+  const [eventsPerPage] = useState(6);
 
   const [borough, setBorough] = useState('');
   const [eventType, setEventType] = useState('');
@@ -388,19 +388,18 @@ const Events = () => {
             <li key={`${event.event_id}-${event.start_date_time}`} className="event-card">
               <div className='align-name-plus'>
                 <h2>{event.event_name}</h2>
-                {/* Add to Plan Trip Button */}
-                <FontAwesomeIcon
-                  icon={faSquarePlus}
-                  className='add-to-plan-icon'
-                  style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
-                  onClick={() => handlePlanButtonClick(event)}
-                />
+                          
 
-                {/**/}
+              </div>
+              <p>{`Location: ${event.event_location}`}</p>
+              <p>{`Start: ${new Date(event.start_date_time).toLocaleString()}`}</p>
+              <p>{`End: ${new Date(event.end_date_time).toLocaleString()}`}</p>
+              <p>{`Borough: ${event.event_borough}`}</p>
+              <div button-container>
                 <FontAwesomeIcon 
                   icon={faMapMarkerAlt}
                   className="btn btn-primary"
-                  style={{ cursor: 'pointer', marginLeft: '10px', color: 'var(--accent-color)', height: '20px'}} 
+                  style={{ cursor: 'pointer', marginLeft: '10px',color: '#57b9ff', height: '20px'}} 
                     onClick={() => {
                       if (event.event_location && event.event_borough) {
                         fetchLocationCoordinates(event.event_location, event.event_borough);
@@ -408,16 +407,16 @@ const Events = () => {
                         toast.error('Event location is not available.');
                       }
                     }}
-
                 />
-
+                <FontAwesomeIcon
+                  icon={faSquarePlus}
+                  className='add-to-plan-icon'
+                  style={{ cursor: 'pointer', marginLeft: '30px', color: '#57b9ff', height: '20px'}} 
+                  onClick={() => handlePlanButtonClick(event)}
+                />
               </div>
-              <p>{`Location: ${event.event_location}`}</p>
-              <p>{`Start: ${new Date(event.start_date_time).toLocaleString()}`}</p>
-              <p>{`End: ${new Date(event.end_date_time).toLocaleString()}`}</p>
-              <p>{`Borough: ${event.event_borough}`}</p>
-              <p>{`Event Type: ${event.event_type}`}</p>
             </li>
+            
           ))
         ) : (
           <p className="no-events-message">No events found.</p>
