@@ -9,7 +9,7 @@ import Link from "next/link";
 const Navbar1 = () => {
   const router = useRouter();
 
-  const [isAuthenticated, setIsAuthenticated] = useState();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     checkAuthentication();
