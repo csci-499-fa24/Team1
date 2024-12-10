@@ -907,7 +907,7 @@ console.log("Filtered Locations:", filteredLocations);
                     style={{
                       cursor: "pointer",
                       marginLeft: "10px",
-                      color: "var(--accent-color)",
+                      color: "#57b9ff",
                     }}
                     onClick={() => handlePlanButtonClick(selectedLocation)}
                   />
