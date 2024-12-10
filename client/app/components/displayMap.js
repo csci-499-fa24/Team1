@@ -488,7 +488,7 @@ console.log("Filtered Locations:", filteredLocations);
         } else {
           setSuggestions([]);
         }
-      }, 500)
+      }, 600)
     );
   };
 
