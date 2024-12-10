@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Logo from "../assets/logo.png";
+import Logo from "../assets/logonew.png";
 import Imagen from "next/image";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -51,28 +51,30 @@ const Navbar1 = () => {
 
   return (
     <nav>
-      <div className="nav-logo-container">
+      <div className="nav-logo-containerlanding">
         <Imagen src={Logo} alt="" />
-        <h1 className="nav-title">Restaurant and Bar Tracker</h1>
+        <h1 className="nav-titlelanding">Restaurant and Bar Tracker</h1>
       </div>
-      <div className="navbar-links-container">
+      <div className="navbar-links-containerlanding">
         {isAuthenticated !== undefined &&
           (isAuthenticated ? (
             <>
-              <Link className="primary-button" href={"/profile"}>
+              <Link className="primary-buttonlanding" href={"/profile"}>
                 Profile
               </Link>
-              <button className="primary-button" onClick={handleLogout}>
+              <button className="primary-buttonlanding" onClick={handleLogout}>
+
                 Logout
               </button>
             </>
           ) : (
             <>
-              <button className="primary-button" onClick={handleLogin}>
+              <button className="primary-buttonlanding" onClick={handleLogin}>
                 {" "}
                 Login {""}{" "}
               </button>
-              <button className="primary-button" onClick={handleSignUp}>
+              <button className="primary-buttonlanding" onClick={handleSignUp}>
+
                 {" "}
                 Sign up {""}{" "}
               </button>
