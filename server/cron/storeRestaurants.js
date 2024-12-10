@@ -99,8 +99,8 @@ async function upsertRestaurantData(data) {
     }
 }
 
-cron.schedule('* * * * *', async () => { // Runs every minute
-    console.log('Cron job running every minute...');
+cron.schedule('*/30 * * * *', async () => { // Runs every 30 minutes
+    console.log('Cron job running every 30 minutes...');
     const data = await fetchNYCData();
     if (data.length > 0) {
         await upsertRestaurantData(data);
