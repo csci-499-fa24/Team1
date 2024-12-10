@@ -9,6 +9,8 @@ import NYCEventDetails from '../components/NYCEventDetails';
 import EditTimeWindow from "./EditTimeWindow";
 import { createEvents } from 'ics';
 import { saveAs } from 'file-saver';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import "../styles/mycalendar.css";
@@ -25,6 +27,22 @@ const MyCalendar = () => {
     const [error, setError] = useState('');
     const router = useRouter();
     
+
+    // State for sidebar
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // Handle Sidebar Click
+    const handleSidebarClick = () => {
+        setIsSidebarExpanded((prev) => !prev); // Toggle expand/collapse
+    };
 
     useEffect (() => {
         const token = Cookies.get("token");
@@ -55,40 +73,32 @@ const MyCalendar = () => {
             const [year, month, day] = plan.date.split('-');
             const [hour, minute] = plan.time.split(':');
             const startDate = new Date(year, month - 1, day, hour, minute);
-            if(plan.eventType ==='Self Event'){
-                if( plan.endDate !== null || plan.endTime !== null){
+    
+            if (plan.eventType === 'Self Event') {
+                const endDate = new Date(startDate);
+                if (plan.endDate !== null && plan.endTime !== null) {
                     const [e_year, e_month, e_day] = plan.endDate.split('-');
                     const [e_hour, e_minute] = plan.endTime.split(':');
-                    const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
-
-                    return {
-                        title: plan.Restaurant.dba,
-                        start: startDate,
-                        end: endDate,
-                        allDay: false,
-                        camis: plan.camis,
-                        id: plan.id,
-                        eventType: plan.eventType,
-                    }
+                    endDate.setFullYear(e_year, e_month - 1, e_day);
+                    endDate.setHours(e_hour, e_minute);
+                } else {
+                    endDate.setHours(endDate.getHours() + 1); // Default duration to 1 hour if no end time specified
                 }
-                const endDate = new Date(startDate);
-                endDate.setHours(endDate.getHours() + 1);
-
+    
                 return {
-                    title: plan.Restaurant.dba,
+                    title: plan.Restaurant ? plan.Restaurant.dba : "No Restaurant Info",
                     start: startDate,
                     end: endDate,
                     allDay: false,
                     camis: plan.camis,
                     id: plan.id,
                     eventType: plan.eventType,
-                }
-            }
-            else {
+                };
+            } else {
                 const [e_year, e_month, e_day] = plan.endDate.split('-');
                 const [e_hour, e_minute] = plan.endTime.split(':');
                 const endDate = new Date(e_year, e_month - 1, e_day, e_hour, e_minute);
-
+    
                 return {
                     title: plan.eventName,
                     start: startDate,
@@ -100,6 +110,7 @@ const MyCalendar = () => {
             }
         });
     }, [plans]);
+    
 
     useEffect (() => {
         const findOverlap = (events) => {
@@ -169,36 +180,29 @@ const MyCalendar = () => {
 
     // Custom styling for events
     const eventPropGetter = (event) => {
-        // const isToday = moment(event.start).isSame(moment(), 'day');
         const isPast = moment(event.end).isBefore(moment(), 'day');
-        const isConflicting = overlappingEvents.some(([prevEvent, currEvent]) => 
+        const isConflicting = overlappingEvents.some(([prevEvent, currEvent]) =>
             prevEvent.id === event.id || currEvent.id === event.id
         );
-
+    
         let className = '';
-
-        if(isConflicting && !isPast){
+    
+        if (isConflicting && !isPast) {
             className += 'conflicting-event ';
         }
-
-        if(view !== 'agenda'){
-            if(isConflicting && !isPast){
-                className += 'conflicting-event ';
-            }
-            if(isPast) {
-                className += 'past-event ';
-            }
-            else if(event.eventType ==='NYC Event') {
-                className += 'nyc-event ';
-            }
-            else{
-                className += 'self-event ';
-            }
+        if (isPast) {
+            className += 'past-event ';
+        } else if (event.eventType === 'NYC Event') {
+            className += 'nyc-event ';
+        } else {
+            className += 'self-event ';
         }
+    
         return {
             className: className.trim(),
-        }
+        };
     };
+    
 
      // Update the `plans` state to reflect the new start and end times
     const onUpdateEventTime = (id, newStart, newEnd) => {
@@ -232,46 +236,38 @@ const MyCalendar = () => {
             const [year, month, day] = plan.date.split('-');
             const [hour, minute] = plan.time.split(':');
             const startDate = new Date(year, month - 1, day, hour, minute);
-
             const duration = plan.duration || 1;
             const endDate = new Date(startDate);
             endDate.setHours(startDate.getHours() + duration);
-            /*
-            title: plan.Restaurant.dba,
-            start: startDate,
-            end: endDate,
-            allDay: false,
-            camis: plan.camis,
-            id: plan.id,
-            */
-            const endYear = endDate.getFullYear();
-            const endMonth = endDate.getMonth() + 1; 
-            const endDay = endDate.getDate();
-            const endHour = endDate.getHours();
-            const endMinute = endDate.getMinutes();
+        
+            return {
+                title: plan.Restaurant ? plan.Restaurant.dba : "No Restaurant Info",
+                start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)],
+                end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), endDate.getHours(), endDate.getMinutes()],
+                description: plan.Restaurant ? `Planned event at ${plan.Restaurant.dba}` : "Planned event",
+                location: plan.Restaurant ? plan.Restaurant.location : "No location available",
+            };
+        });
+        
 
-        return {
-            title: plan.Restaurant.dba,
-            start: [parseInt(year), parseInt(month), parseInt(day), parseInt(hour), parseInt(minute)],
-            end: [endYear, endMonth, endDay, endHour, endMinute],
-            description: `Planned event at ${plan.Restaurant.dba}`,
-            location: plan.Restaurant.location,
-        };
-    });
-
-    createEvents(formattedEvents, (error, value) => {
-        if (!error) {
-            const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
-            saveAs(blob, 'my_calendar.ics');
-        } else {
-            console.error("ICS Generation Error:", error);
-        }
-    });
+        createEvents(formattedEvents, (error, value) => {
+            if (!error) {
+                const blob = new Blob([value], { type: 'text/calendar;charset=utf-8' });
+                saveAs(blob, 'my_calendar.ics');
+            } else {
+                console.error("ICS Generation Error:", error);
+            }
+        });
     };
 
     return (
         <div className='whole-calendar-container'>
-            <div className="key-div">
+            
+            {/* Sidebar */}
+            <div
+                className={`key-div ${isSidebarExpanded ? "expanded" : ""}`}
+                onClick={handleSidebarClick}
+            >
                 <h2>Key</h2>
                 <span className="key-element"> 
                     <div className="box"  style={{backgroundColor: '#db8000'}}> </div>
@@ -285,21 +281,30 @@ const MyCalendar = () => {
                     <div className="box"  style={{backgroundColor: '#c7c7c7'}}> </div>
                     <p className="event">Past Plans</p>
                 </span>
-                { overlappingEvents.length > 0 &&
-                    <div>
-                        <hr style={{margin: '5px 0px 5px 0px'}}></hr>
-                        <span className="key-element"> 
-                            <div className="box"  style={{borderColor: 'red'}}> </div>
-                            <p className="event">Conflicting Plans</p>
-                        </span>
-                    </div>
-                }
+                
+                <div>
+                    <hr style={{margin: '5px 0px 5px 0px'}}></hr>
+                    <span className="key-element"> 
+                        <div className="box"  style={{borderColor: 'red'}}> </div>
+                        <p className="event">Conflicting Plans</p>
+                    </span>
+                </div>
+            
             </div>
-            <div className="calendar-container">
-                <h2>My Planner</h2>
-                <button onClick={exportToICS} className="export-button">Export to .ics</button>
+
+            <div className={`calendar-container ${isSidebarExpanded ? "sidebar-expanded" : ""}`}>
+            
+                <div class="header-container">
+                    <FontAwesomeIcon
+                        icon={faBars}
+                        onClick={handleSidebarClick} // Attach the click handler
+                        className="toggle-sidebar-icon"
+                    />
+                    <button onClick={exportToICS} className="export-button">Export to .ics</button>
+                </div>
+                
                 <Calendar
-                    style={{ height: 700, width: 1000}}
+                    style={{ height: 700, width: '100%' }}
                     localizer={localizer}
                     events={events}
                     startAccessor="start"

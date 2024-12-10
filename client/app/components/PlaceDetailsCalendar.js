@@ -236,7 +236,7 @@ export default function PlaceDetailsSidebar({ camis, onClose, start, end, id, on
                     <FontAwesomeIcon
                         icon={faEdit}
                         className="edit-plan-icon"
-                        style={{ cursor: 'pointer', color: 'var(--accent-color)', height: '24px', marginLeft: '10px' }}
+                        style={{ cursor: 'pointer', color: 'var(--accent-color)', marginLeft: '10px' }}
                         //onClick={onEditClick}
                         onClick={handleEditClick}
                         title="Edit Time"
@@ -245,7 +245,7 @@ export default function PlaceDetailsSidebar({ camis, onClose, start, end, id, on
                     <FontAwesomeIcon
                         icon={faTrash}
                         className='remove-from-plan-icon'
-                        style={{ cursor: 'pointer', color: '#db0909', height: '24px', marginLeft: '10px' }}
+                        style={{ cursor: 'pointer', color: '#db0909', marginLeft: '10px' }}
                         onClick={() => handleRemovePlanClick(id)}
                         title="Delete Event"
                     />

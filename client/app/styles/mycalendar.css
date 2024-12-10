@@ -1,45 +1,68 @@
 .whole-calendar-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
     width: 100vw;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    align-items: center; 
+    align-items: flex-end;
     padding: 2vw;
-    margin-top: 8vh;
-}
-
-body, html {
-    overflow-y: hidden;
-    height: 100%;
+    margin-top: 5vh;
+    flex-direction: row;
+    gap: 20px;
+    margin: 5px;
+    overflow-y: scroll;
 }
 
 .calendar-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    align-items: center; 
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    margin: 0 auto; 
+    margin-top: 3vh;
+    padding: 10px;
+    
+}
+
+.calendar-container.sidebar-expanded {
+    margin-left: 200px; 
+    width: calc(100% - 210px);
 }
 
 
-/* Sidebar  */
+/* Place Details Sidebar  */
 .place-details-planner {
     position: fixed;
     right: 0;
-    top: 78px;
+    top: 71px;
     width: 350px;
-    height: calc(100vh - 85px);;
+    height: 90vh;
     background-color: rgba(255, 255, 255); 
     box-shadow: -2px 0 5px rgba(0,0,0,0.2);
     padding: 20px;
     overflow-y: auto;
     z-index: 1000; 
+    font-size: 16px;
+}
+
+.place-details-planner::-webkit-scrollbar {
+    width: 6px; /* scrollbar width */
+}
+
+.place-details-planner::-webkit-scrollbar-track {
+    background: #f1f1f1; /* track color */
+}
+
+.place-details-planner::-webkit-scrollbar-thumb {
+    background: #888; /* thumb color */
+}
+
+.place-details-planner::-webkit-scrollbar-thumb:hover {
+    background: #555; /* thumb hover color */
 }
 
 .close-button {
@@ -48,7 +71,7 @@ body, html {
     right: 10px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 21px;
     cursor: pointer;
     font-weight: bold;
     color: #555;
@@ -62,9 +85,11 @@ body, html {
 
 .place-photo {
     width: 100%;
-    max-height: 30%;
-    border-radius: 8px;
-    margin-bottom: 15px;  
+    /* max-height: 30%; */
+    /* border-radius: 8px; */
+    margin-top: 10px;
+    margin-bottom: 15px; 
+    border-radius: 15px; 
 }
 
  .sidebar-info {
@@ -157,11 +182,7 @@ body, html {
 
 
 
-/* calednar stuff */
-h2 {
-    margin: 0;
-}
-
+/* calendar stuff */
 .align-key-calendar {
     position: relative;
     display: flex;
@@ -169,15 +190,93 @@ h2 {
     justify-content: flex-start;
 }
 
-.key-div{
-    position: absolute;
-    top: 0;
+/* Sidebar Styling */
+.key-div {
+    position: fixed;
+    top: 70px;
     left: 0;
-    margin-left: 4vh;
-    margin-top: 20vh;
-    border: black solid 1px;
+    width: 0px; /* Hidden by default */
+    height: 100%;
+    background: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 500;
+    overflow-y: auto;
+    transition: width 0.3s ease-in-out; /* Smooth expand/collapse */
+    transform: translateX(-100%);
+    border-right: 1px solid #ddd;
+    font-size: 18px;
+}
+
+.key-div.expanded {
+    width: 240px; /* Visible when expanded */
+    transform: translateX(0);
+}
+
+.toggle-sidebar-icon {
+    cursor: pointer;
+    font-size: 24px;
+}
+
+/* Calendar styling */
+.rbc-toolbar {
+    display: flex;
+    flex-wrap: nowrap; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.rbc-toolbar-label {
+    font-size: 20px; 
+    font-weight: bold;
+    text-align: center;
+    color: #333; 
+    padding-bottom: 10px;
+}
+
+.rbc-toolbar button {
+    background-color: #4A90E2; 
+    color: white;
+    border: none;
     border-radius: 5px;
-    padding: 10px 10px 10px 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    font-family: Arial, sans-serif;
+}
+
+.rbc-toolbar button:hover {
+    background-color: #357ABD; /* Darker blue on hover */
+}
+
+.rbc-day-bg.today {
+    background-color: #FFF9C4; /* Light yellow */
+    border: 2px solid #FFEB3B; /* Yellow border */
+}
+
+.rbc-day-bg.today:hover {
+    background-color: #FFEB3B; /* Brighter yellow on hover */
+}
+
+.rbc-date-cell {
+    font-size: 16px; 
+}
+
+.rbc-header {
+    text-align: center;
+    font-weight: bold;
+    color: #000000; /* Styling color to match your theme */
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.rbc-event-label {
+    font-size: 1px; /* Default font size */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .event{
@@ -185,8 +284,8 @@ h2 {
 }
 
 .box{
-    height: 15px;
-    width: 15px;
+    height: 13px;
+    width: 13px;
     border: black solid 1px;
     border-radius: 1px;
 }
@@ -198,11 +297,12 @@ h2 {
 }
 
 .self-event {
-    background-color: var(--accent-color);
-    color: #fff;
-    font-family: var(--font-family);
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    background-color: #3d3d9d;
+    color: white;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
 }
 
 .self-event:hover {
@@ -210,12 +310,11 @@ h2 {
 }
 
 .nyc-event {
-    background-color: #db8000; /* Highlight color for NYC events */
+    background-color: #FFA500; 
     color: white;
+    padding: 5px;
     border-radius: 5px;
-    border: none;
-    padding: 2px 5px;
-    transition: background-color 0.3s;
+    font-size: 12px;
 }
 
 .nyc-event:hover {
@@ -223,16 +322,15 @@ h2 {
 }
 
 .past-event {
-    background-color: #c7c7c7;  /* Highlight color for past */
-    color: white;
+    background-color: #D3D3D3;
+    color: #555;
+    padding: 5px;
     border-radius: 5px;
-    border: none;
-    padding: 2px 5px;
-    transition: background-color 0.3s;
+    font-size: 12px;
 }
 
 .past-event:hover {
-    background-color: #adacac; /* Darker shade for hover effect */
+    background-color: #adacac; 
 }
 
 .conflicting-event {
@@ -251,10 +349,11 @@ h2 {
     border-radius: 10px; 
     box-shadow: none;
     font-size: 16px; 
-    width: 290px;
+    width: 95%;
     z-index: 100;
-    border: black solid 5px;
+    border: rgb(60, 60, 60) solid 1px;
 }
+
 .info-window-content p{
     margin-top: 5px;
 }
@@ -287,9 +386,26 @@ h2 {
 }
 
 .export-button {
-    position: relative;
-    left: 453px;
-    color: green;
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 11px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.export-button:hover {
+    background-color: #45A049; /* Darker green on hover */
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+    padding: 10px;
 }
 
 .save-change{
@@ -303,3 +419,408 @@ h2 {
     color: var(--accent-color);
     margin-right: 20px;
 }
+
+/* Adjustments for tablets and smaller desktops */
+@media (min-width: 767px) and (max-width: 1024px) {
+    .calendar-container {
+        padding: 10px;
+        margin: 0;
+        height: auto;
+        margin-top: 5vh;
+        width: calc(100% - 0);
+    }
+    
+    .rbc-calendar {
+        max-width: 100%;
+        font-size: 12px; 
+        max-height: 100%;
+    }
+
+    .key-div {
+        height: 100%;
+        transform: translateX(-100%);
+        font-size: 17px;
+    }
+
+    .key-div.expanded {
+        width: 220px;
+        transform: translateX(0);
+    }
+
+    .box{
+        height: 11px;
+        width: 11px;
+        border: black solid 1px;
+        border-radius: 1px;
+    }
+
+    .rbc-date-cell {
+        font-size: 14px; 
+    }
+
+    .rbc-toolbar {
+        flex-direction: row; 
+        justify-content: space-between;
+    }
+
+    .rbc-toolbar-label {
+        font-size: 1.6rem;
+    }
+
+    .rbc-toolbar button {
+        font-size: 12px;
+        padding: 7px 9px;
+    }
+
+    .rbc-date-cell {
+        font-size: 10px; 
+    }
+
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000; 
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .toggle-sidebar-icon {
+        font-size: 2rem; 
+    }
+
+    .export-button {
+        font-size: 1rem;
+        padding: 7px 13px;
+    }
+
+    .place-details-planner {
+        width: 390px;
+        padding: 20px;
+        font-size: 15px;
+        z-index: 500;
+        
+    }
+
+    .place-details-planner .icon-name-container i,
+    .place-details-planner .edit-plan-icon,
+    .place-details-planner .remove-from-plan-icon,
+    .place-details-planner .time-icon {
+        font-size: 19px; 
+        height: 18px;
+    }
+    
+    .place-details-planner .close-button {
+        font-size: 20px;
+    }
+
+    .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
+    .place-details-planner .event-title-container,
+    .place-details-planner .event-type {
+        font-size: 14px;
+    }
+
+    .event-schedule-header {
+        font-size: 17px;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .info-window-content h3{
+        font-size: 17px;
+    }
+}
+
+/* Adjustments for mobile screens */
+@media (min-width: 525px) and (max-width: 768px) {
+    .calendar-container {
+        padding: 5px;
+        margin: 10px;
+        width: calc(100% - 0); 
+        height: auto;
+        margin-top: 6vh;
+    }
+
+    .rbc-toolbar-label {
+        font-size: 1.5rem;
+    }
+
+    .rbc-toolbar button {
+        font-size: 10px;
+        padding: 6px 7px;
+    }
+    
+    .rbc-calendar {
+        max-width: 100%;
+        font-size: 12px;
+    }
+
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000; /* Styling color to match your theme */
+        padding: 5px 10px;
+        font-size: 9.1px;
+    }
+
+    .key-div {
+        position: fixed;
+        top: 70px;
+        left: -200px; 
+        
+        height: 100%;
+        background: white;
+        z-index: 500;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        transition: left 0.3s ease-in-out;
+        transform: translateX(-100%);
+        font-size: 14px;
+    }
+
+    .key-div.expanded {
+        width: 200px;
+        transform: translateX(0);
+        left: 0;
+    }
+
+    .box{
+        height: 10px;
+        width: 10px;
+        border: black solid 1px;
+        border-radius: 1px;
+    }
+
+    .mobile-key-button {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1001;
+        background-color: #4A90E2;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .rbc-date-cell {
+        font-size: 10px;
+    }
+
+    .rbc-toolbar {
+        flex-direction: row;
+        justify-content: space-between; 
+    }
+
+    .toggle-sidebar-icon {
+        font-size: 2rem; 
+    }
+
+    .export-button {
+        font-size: 1rem;
+        padding: 8px 14px; 
+    }
+
+    .place-details-planner {
+        width: 500px;
+        padding: 20px; 
+        font-size: 15px;
+        z-index: 500;
+    }
+
+    .place-details-planner .icon-name-container i,
+    .place-details-planner .edit-plan-icon,
+    .place-details-planner .remove-from-plan-icon, 
+    .place-details-planner .time-icon {
+        font-size: 19px;
+        height: 18px;
+    }
+
+    .place-details-planner .close-button {
+        font-size: 20px;
+    }
+
+    .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
+    .place-details-planner .event-title-container,
+    .place-details-planner .event-type {
+        font-size: 12px; 
+    }
+
+    .event-schedule-header {
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .date-time-container input {
+        font-size: 14px; 
+        padding: 2px 3px; 
+        width: 124px; 
+        height: 35px;
+    }
+
+    .info-window-content p{
+        font-size: 15px;
+    }
+
+    .info-window-content h3{
+        font-size: 15px;
+    }
+}
+
+
+/* Adjustments for very small screens (e.g., phones) */
+@media (max-width: 524px) {
+    .calendar-container {
+        padding: 2px;
+        width: calc(100% - 0);
+        height: auto;
+        margin-top: 7.5vh;
+    }
+
+    .calendar-container.sidebar-expanded {
+        margin-left: 120px;
+        width: calc(100% - 130px);
+    }
+
+    .rbc-toolbar {
+        flex-direction: column; 
+        
+    }
+
+    .rbc-toolbar-label {
+        font-size: 1.4rem;
+    }
+
+    .rbc-toolbar button {
+        font-size: 9px;
+        padding: 4px 6px;
+    }
+
+    .rbc-calendar {
+        max-width: 100%;
+        font-size: 11px;
+    }
+
+    .rbc-date-cell {
+        font-size: 10px;
+    }
+    .rbc-header {
+        text-align: center;
+        font-weight: bold;
+        color: #000000;
+        padding: 5px 10px;
+        font-size: 9px;
+    }
+
+    .key-div {
+        top: 70px;
+        left: 0;
+        transition: left 0.3s ease-in-out;
+        transform: translateX(-100%);
+        z-index: 500;
+        font-size: 10px;
+    }
+
+    .key-div.expanded {
+        width: 120px;
+        transform: translateX(0);
+    }
+    .box{
+        height: 8px;
+        width: 8px;
+        border: black solid 1px;
+        border-radius: 1px;
+    }
+
+    .mobile-key-button {
+        top: 15px;
+        left: 15px;
+        font-size: 12px;
+    }
+    .rbc-date-cell {
+        font-size: 11px;
+    }
+
+    .toggle-sidebar-icon {
+        font-size: 1.75rem;
+    }
+
+    .export-button {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+    .place-details-planner {
+        width: 100%;
+        padding: 15px;
+        font-size: 15px;
+        margin-top: 1px;
+        z-index: 500;
+        overflow-y: auto;
+    }
+    .place-details-planner .icon-name-container i,
+    .place-details-planner .edit-plan-icon,
+    .place-details-planner .remove-from-plan-icon,
+    .place-details-planner .time-icon {
+        font-size: 10px;
+        height: 18px;
+    }
+
+    .place-details-planner .close-button {
+        font-size: 20px;
+    }
+
+    .place-details-planner .opening-hours-day,
+    .place-details-planner .opening-hours-header,
+    .place-details-planner .event-title-container,
+    .place-details-planner .event-type {
+        font-size: 12px; 
+    }
+
+    .event-schedule-header {
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+}
+
+/* Adjusting size for devices with even smaller sizes */
+@media (max-width: 340px) {
+    .date-time-container input {
+        font-size: 10px;
+        padding: 3px 4px;
+        width: 100px;
+        height: 25px;
+    }
+
+    .event-schedule-header,
+    .event-type,
+    .opening-hours-day,
+    .event-title-container h2 {
+        font-size: 17px; 
+    }
+
+    .opening-hours-time,
+    .sidebar-info p,
+    .event-actions span { 
+        font-size: 0.8em;
+    }
+
+    .icon-name-container h2,
+    .place-details-planner p,
+    .event-schedule-header { 
+        font-size: 12px; 
+    }
+    .info-window-content p{
+        font-size: 15px;
+    }
+    .info-window-content h3{
+        font-size: 15px;
+    }
+}
+
