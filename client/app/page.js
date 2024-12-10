@@ -12,8 +12,16 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
 export default function Home() {
- 
 
+  useEffect(() => {
+    // Add the class to body on mount
+    document.body.classList.add('body-background');
+
+    // Remove the class from body on unmount
+    return () => {
+      document.body.classList.remove('body-background');
+    };
+  }, []);
 
   return (
     <div className="App">
