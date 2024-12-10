@@ -15,11 +15,11 @@ export default function Home() {
 
   useEffect(() => {
     // Add the class to body on mount
-    document.body.classList.add('body-landing-background');
+    document.body.classList.add('body-background');
 
-    // Clean up: Remove the class from body on unmount
+    // Remove the class from body on unmount
     return () => {
-      document.body.classList.remove('body-landing-background');
+      document.body.classList.remove('body-background');
     };
   }, []);
 
