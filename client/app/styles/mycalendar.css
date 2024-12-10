@@ -34,7 +34,7 @@
 }
 
 
-/* Sidebar  */
+/* Place Details Sidebar  */
 .place-details-planner {
     position: fixed;
     right: 0;
@@ -183,7 +183,6 @@
 
 
 /* calendar stuff */
-
 .align-key-calendar {
     position: relative;
     display: flex;
@@ -191,6 +190,7 @@
     justify-content: flex-start;
 }
 
+/* Sidebar Styling */
 .key-div {
     position: fixed;
     top: 70px;
@@ -215,27 +215,28 @@
 
 .toggle-sidebar-icon {
     cursor: pointer;
-    font-size: 24px; /* Adjust size as needed */
+    font-size: 24px;
 }
 
+/* Calendar styling */
 .rbc-toolbar {
     display: flex;
-    flex-wrap: nowrap; /* Prevents items from wrapping */
-    justify-content: space-between; /* Adjust this as needed */
+    flex-wrap: nowrap; 
+    justify-content: space-between; 
     align-items: center;
     padding: 0.5rem;
 }
 
 .rbc-toolbar-label {
-    font-size: 20px; /* Increase font size */
-    font-weight: bold; /* Make it bold */
+    font-size: 20px; 
+    font-weight: bold;
     text-align: center;
-    color: #333; /* Change color for better visibility */
+    color: #333; 
     padding-bottom: 10px;
 }
 
 .rbc-toolbar button {
-    background-color: #4A90E2; /* Soft blue for consistency */
+    background-color: #4A90E2; 
     color: white;
     border: none;
     border-radius: 5px;
@@ -352,6 +353,7 @@
     z-index: 100;
     border: rgb(60, 60, 60) solid 1px;
 }
+
 .info-window-content p{
     margin-top: 5px;
 }
@@ -397,6 +399,7 @@
 .export-button:hover {
     background-color: #45A049; /* Darker green on hover */
 }
+
 .header-container {
     display: flex;
     justify-content: space-between;
@@ -427,7 +430,6 @@
         width: calc(100% - 0);
     }
     
-    
     .rbc-calendar {
         max-width: 100%;
         font-size: 12px; 
@@ -439,24 +441,29 @@
         transform: translateX(-100%);
         font-size: 17px;
     }
+
     .key-div.expanded {
         width: 220px;
         transform: translateX(0);
     }
+
     .box{
         height: 11px;
         width: 11px;
         border: black solid 1px;
         border-radius: 1px;
     }
+
     .rbc-date-cell {
         font-size: 14px; 
     }
+
     .rbc-toolbar {
         flex-direction: row; 
         justify-content: space-between;
-      }
-      .rbc-toolbar-label {
+    }
+
+    .rbc-toolbar-label {
         font-size: 1.6rem;
     }
 
@@ -472,7 +479,7 @@
     .rbc-header {
         text-align: center;
         font-weight: bold;
-        color: #000000; /* Styling color to match your theme */
+        color: #000000; 
         padding: 5px 10px;
         font-size: 12px;
     }
@@ -485,6 +492,7 @@
         font-size: 1rem;
         padding: 7px 13px;
     }
+
     .place-details-planner {
         width: 390px;
         padding: 20px;
@@ -492,6 +500,7 @@
         z-index: 500;
         
     }
+
     .place-details-planner .icon-name-container i,
     .place-details-planner .edit-plan-icon,
     .place-details-planner .remove-from-plan-icon,
@@ -503,7 +512,6 @@
     .place-details-planner .close-button {
         font-size: 20px;
     }
-
 
     .place-details-planner .opening-hours-day,
     .place-details-planner .opening-hours-header,
@@ -518,6 +526,7 @@
         color: var(--primary-color);
         margin-bottom: 10px;
     }
+
     .info-window-content h3{
         font-size: 17px;
     }
@@ -574,6 +583,7 @@
         transform: translateX(0);
         left: 0;
     }
+
     .box{
         height: 10px;
         width: 10px;
@@ -612,12 +622,14 @@
         font-size: 1rem;
         padding: 8px 14px; 
     }
+
     .place-details-planner {
         width: 500px;
         padding: 20px; 
         font-size: 15px;
         z-index: 500;
     }
+
     .place-details-planner .icon-name-container i,
     .place-details-planner .edit-plan-icon,
     .place-details-planner .remove-from-plan-icon, 
@@ -630,14 +642,13 @@
         font-size: 20px;
     }
 
-    
-
     .place-details-planner .opening-hours-day,
     .place-details-planner .opening-hours-header,
     .place-details-planner .event-title-container,
     .place-details-planner .event-type {
         font-size: 12px; 
     }
+
     .event-schedule-header {
         font-size: 13px;
         font-weight: bold;
@@ -646,14 +657,16 @@
     }
 
     .date-time-container input {
-        font-size: 14px; /* Reduces the font size for better fit */
-        padding: 2px 3px; /* Adjust padding to reduce input size */
-        width: 124px; /* Adjust width to fit smaller screens */
-        height: 35px; /* Adjust height for better touch interaction */
+        font-size: 14px; 
+        padding: 2px 3px; 
+        width: 124px; 
+        height: 35px;
     }
+
     .info-window-content p{
         font-size: 15px;
     }
+
     .info-window-content h3{
         font-size: 15px;
     }
@@ -699,7 +712,7 @@
     .rbc-header {
         text-align: center;
         font-weight: bold;
-        color: #000000; /* Styling color to match your theme */
+        color: #000000;
         padding: 5px 10px;
         font-size: 9px;
     }
@@ -776,31 +789,32 @@
     }
 }
 
+/* Adjusting size for devices with even smaller sizes */
 @media (max-width: 340px) {
     .date-time-container input {
-        font-size: 10px; /* Reduces the font size for better fit */
-        padding: 3px 4px; /* Adjust padding to reduce input size */
-        width: 100px; /* Adjust width to fit smaller screens */
-        height: 25px; /* Adjust height for better touch interaction */
+        font-size: 10px;
+        padding: 3px 4px;
+        width: 100px;
+        height: 25px;
     }
 
     .event-schedule-header,
     .event-type,
     .opening-hours-day,
     .event-title-container h2 {
-        font-size: 17px; /* Adjust headings to be smaller */
+        font-size: 17px; 
     }
 
     .opening-hours-time,
     .sidebar-info p,
-    .event-actions span { /* Smaller text for other info elements */
-        font-size: 0.8em; /* Slightly smaller to fit more content */
+    .event-actions span { 
+        font-size: 0.8em;
     }
 
-    .icon-name-container h2, /* Smaller title in sidebar */
-    .place-details-planner p, /* Smaller paragraph text */
-    .event-schedule-header { /* Smaller event schedule header */
-        font-size: 12px; /* Adjusting text size down */
+    .icon-name-container h2,
+    .place-details-planner p,
+    .event-schedule-header { 
+        font-size: 12px; 
     }
     .info-window-content p{
         font-size: 15px;
