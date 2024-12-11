@@ -10,7 +10,8 @@ const app = express();
 
 const { getInspectionDetails } = require("./controllers/inspections")
 const reviewsRoute = require('./controllers/getReviews');
-//
+const locationController = require("./controllers/locations.js");
+
 const authRouter = require('./routes/authRoute');
 const globalErrorHandler = require("./controllers/errorController");
 const catchAsync = require("./utils/asyncError");
@@ -43,8 +44,7 @@ app.get("/api/home", (req, res) => {
     res.json({message: "Hello World!"});
 });
 
-app.use("/api", require("./controllers"));
-
+app.use("/api/locations", locationController);
 app.get("/api/inspections/:camis", getInspectionDetails);
 
 const { getRestaurantHours } = require('./controllers/getRestaurantHours'); // Import the route for fetching restaurant hours
