@@ -12,8 +12,6 @@ import Cookies from "js-cookie"; // For authorization
 import { useRouter } from "next/navigation";
 import "../styles/displaymapfilter.css";
 import "../globals.css";
-import { useDraggableCard } from "./useDraggableCard";
-import ExpandableCard from "./ExpandableCard";
 import { fetchReviewsByPlaceId } from "./fetchReviews";
 import Sidebar from "./Sidebar";
 import { toast } from "react-toastify";
@@ -98,10 +96,7 @@ const GoogleMapComponent = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null); // For showing detailed card
   const cardRef = useRef(null); // Reference for the expandable card
-  const { cardPosition, setCardPosition, handleDragStart } = useDraggableCard({
-    x: window.innerWidth / 2 - 250,
-    y: window.innerHeight / 2 - 300,
-  });
+
   const [inspectionGradeFilter, setInspectionGradeFilter] = useState(""); // e.g., "", "A", "B", "C"
   const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
