@@ -5,7 +5,6 @@ import Cookies from "js-cookie";
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import PlaceDetails from '../components/PlaceDetailsCalendar';
-import NYCEventDetails from '../components/NYCEventDetails';
 import EditTimeWindow from "./EditTimeWindow";
 import { createEvents } from 'ics';
 import { saveAs } from 'file-saver';
