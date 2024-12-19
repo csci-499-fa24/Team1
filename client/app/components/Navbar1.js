@@ -63,7 +63,6 @@ const Navbar1 = () => {
                 Profile
               </Link>
               <button className="primary-buttonlanding" onClick={handleLogout}>
-
                 Logout
               </button>
             </>
@@ -74,7 +73,6 @@ const Navbar1 = () => {
                 Login {""}{" "}
               </button>
               <button className="primary-buttonlanding" onClick={handleSignUp}>
-
                 {" "}
                 Sign up {""}{" "}
               </button>
